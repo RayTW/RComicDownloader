@@ -3,15 +3,20 @@ package JDownLoadComic;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridLayout;
-
 import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+/**
+ * 2013/12/12 增加目前已下載的漫畫總大小與空間剩餘大小
+ * 
+ * @author Ray
+ */
 public class DownLoadSetting extends Panel {
 	private JDownLoadUI_index dowanloadUI;
 	private String[] compoment = { "6", "0", "1", "2", "3", "4", "5", "7", "8",
@@ -115,6 +120,24 @@ public class DownLoadSetting extends Panel {
 		txt5.setText("" + Config.db.getDownCountLimit());
 		txt5.setVisible(true);
 
+		// 漫畫佔用空間
+		double mb = fileLength(Config.defaultSavePath) / 1024.0 / 1024.0;
+		JLabel lab7 = (JLabel) getComponent("lab7");
+		JTextField txt7 = (JTextField) getComponent("txt7");
+		lab7.setText("漫畫已佔用空間");
+		txt7.setEditable(false);
+		txt7.setText(String.format("%.2f mb", mb));
+		txt7.setVisible(true);
+
+		// 剩餘空間
+		double spacemb = getRootFreeSpace(Config.defaultSavePath) / 1024.0 / 1024.0;
+		JLabel lab8 = (JLabel) getComponent("lab8");
+		JTextField txt8 = (JTextField) getComponent("txt8");
+		lab8.setText("剩餘空間");
+		txt8.setEditable(false);
+		txt8.setText(String.format("%.2f mb", spacemb));
+		txt8.setVisible(true);
+
 		// 以下功能只有最高權限者才可使用
 		txt5.setEditable(Config.db.isAdmin);
 		txt3.setEditable(Config.db.isAdmin);
@@ -179,5 +202,32 @@ public class DownLoadSetting extends Panel {
 
 		Config.db.save();
 		dowanloadUI.resetTableList();
+	}
+
+	/**
+	 * 取得指定路徑檔案或資料夾的檔案大小
+	 * 
+	 * @param path
+	 * @return long(bytes)
+	 */
+	public static long fileLength(String path) {
+		long length = 0;
+		File f = new File(path);
+
+		if (f.isDirectory()) {
+			File[] list = f.listFiles();
+
+			for (File ff : list) {
+				length += fileLength(path + File.separator + ff.getName());
+			}
+		} else {
+			length += f.length();
+		}
+		return length;
+	}
+
+	public static long getRootFreeSpace(String path) {
+		File file = new File(path);
+		return file.getFreeSpace();
 	}
 }

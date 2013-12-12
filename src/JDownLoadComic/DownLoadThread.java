@@ -92,15 +92,11 @@ public class DownLoadThread extends Thread {
 			jpgLoad = new LoadNetFile();
 			String url = singleComic.getJPGUrl(point);
 			String nextUrl = singleComic.url;
-			// String name = singleComic.name;
-			// jpgLoad.setLoadData(data[point][1], savePath +
-			// "/",data[point][0],true);
+
 			jpgLoad.setRefererLoadData(url, nextUrl, savePath + "/",
 					"" + point, true);
 			jpgLoad.setLoadKB(Config.db.getDownLoadKB());
 			jpgLoad.startLoad();
-			// System.out.println("下載["+data[point][0]+"]==>"
-			// +jpgLoad.isRuning() );
 		}
 	}
 

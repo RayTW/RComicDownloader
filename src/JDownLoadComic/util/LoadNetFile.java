@@ -8,7 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * 20100/04/18 使用執行緒下載網路檔案,可同時產生多個同時下載
+ * 2010/04/18 使用執行緒下載網路檔案,可同時產生多個同時下載
  * 
  * @author Ray
  * 
@@ -93,8 +93,7 @@ public class LoadNetFile implements Runnable {
 			savePath = saveP + fileName;
 
 			File file = new File(savePath);
-			// System.out.println(isOverrideFile +
-			// "檔案["+fileName+"]是否已在"+file.exists());
+
 			if (isOverrideFile && file.exists()) {
 				isRun = false;
 				return "fileExist";
