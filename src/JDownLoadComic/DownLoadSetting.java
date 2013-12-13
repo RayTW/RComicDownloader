@@ -7,6 +7,7 @@ import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -119,28 +120,69 @@ public class DownLoadSetting extends Panel {
 		lab5.setText("同時下載漫畫佇列上限個數");
 		txt5.setText("" + Config.db.getDownCountLimit());
 		txt5.setVisible(true);
-
-		// 漫畫佔用空間
-		double mb = fileLength(Config.defaultSavePath) / 1024.0 / 1024.0;
-		JLabel lab7 = (JLabel) getComponent("lab7");
-		JTextField txt7 = (JTextField) getComponent("txt7");
-		lab7.setText("漫畫已佔用空間");
-		txt7.setEditable(false);
-		txt7.setText(String.format("%.2f mb", mb));
-		txt7.setVisible(true);
-
-		// 剩餘空間
-		double spacemb = getRootFreeSpace(Config.defaultSavePath) / 1024.0 / 1024.0;
-		JLabel lab8 = (JLabel) getComponent("lab8");
-		JTextField txt8 = (JTextField) getComponent("txt8");
-		lab8.setText("剩餘空間");
-		txt8.setEditable(false);
-		txt8.setText(String.format("%.2f mb", spacemb));
-		txt8.setVisible(true);
-
 		// 以下功能只有最高權限者才可使用
 		txt5.setEditable(Config.db.isAdmin);
 		txt3.setEditable(Config.db.isAdmin);
+
+
+		// 漫畫佔用空間
+		calculateFileLength(Config.defaultSavePath);
+
+		//硬碟剩餘空間
+		calculateRootFreeSpace(Config.defaultSavePath);
+	}
+
+	/**
+	 * 建立執行緒另外計算佔用空間，計算完成後再更新UI
+	 * @param path
+	 */
+	private void calculateFileLength(final String path){
+		JLabel lab7 = (JLabel) getComponent("lab7");
+		final JTextField txt7 = (JTextField) getComponent("txt7");
+		lab7.setText("漫畫已佔用空間");
+		txt7.setEditable(false);
+		txt7.setText("計算中...");
+		txt7.setVisible(true);
+		
+		new Thread(){
+			public void run(){
+				final double mb = fileLength(path) / 1024.0 / 1024.0;
+				try {
+					javax.swing.SwingUtilities.invokeAndWait(new Runnable(){
+						public void run(){
+							txt7.setText(String.format("%.2f mb", mb));
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
+	}
+
+	private void calculateRootFreeSpace(final String path){
+		JLabel lab8 = (JLabel) getComponent("lab8");
+		final JTextField txt8 = (JTextField) getComponent("txt8");
+		lab8.setText("剩餘空間");
+		txt8.setEditable(false);
+		txt8.setText("計算中...");
+		txt8.setVisible(true);
+
+		new Thread(){
+			public void run(){
+				// 剩餘空間
+				final double spacemb = getRootFreeSpace(Config.defaultSavePath) / 1024.0 / 1024.0;
+				try {
+					javax.swing.SwingUtilities.invokeAndWait(new Runnable(){
+						public void run(){
+							txt8.setText(String.format("%.2f mb", spacemb));
+						}
+					});
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}.start();
 	}
 
 	public void apply() {
