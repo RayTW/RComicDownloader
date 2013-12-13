@@ -148,6 +148,12 @@ public class EventHandle_index implements ActionListener {
 				menu.setModal(true);
 				menu.setTitle("請點選要看的漫畫");
 				menu.setVisible(true);
+			} else if (name.equals("exportPDF")) {
+				ComicExportPdfDialogMenu menu = new ComicExportPdfDialogMenu(
+						parentObj);
+				menu.setModal(true);
+				menu.setTitle("請點選要轉成PDF的漫畫");
+				menu.setVisible(true);
 			}
 		}
 	}

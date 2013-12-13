@@ -1,6 +1,5 @@
 package JDownLoadComic;
 
-import java.awt.Component;
 import java.awt.GridLayout;
 //import javax.swing.JFrame;
 import javax.swing.JPanel;

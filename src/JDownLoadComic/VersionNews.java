@@ -3,14 +3,25 @@ package JDownLoadComic;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
+import javax.swing.SwingConstants;
+import javax.swing.WindowConstants;
 
+import JDownLoadComic.util.DownloadFile;
 import JDownLoadComic.util.HtmlReader;
 import JDownLoadComic.util.URLEncodeDecodeTool;
 import JDownLoadComic.util.HttpReader;
@@ -36,6 +47,7 @@ public class VersionNews extends JPanel {
 	private String newsText;
 	private String appName;
 	private String appUrl;
+	private DownloadFile mDownloadFile;
 
 	public VersionNews() {
 		setLayout(new BorderLayout());
@@ -173,31 +185,131 @@ public class VersionNews extends JPanel {
 	 * 下載新版本，刪除舊版本，並重新啟動新版本
 	 */
 	public void upVersion() {
-		URL urlObj = getCurrentRunAppPath();
+		if (mDownloadFile != null) {
+			return;
+		}
+		mDownloadFile = new DownloadFile();
 
+		class LoadStateJFrame extends JFrame {
+			public int endValueDefault = 100;
+			JProgressBar mJProgressBar;
+
+			public LoadStateJFrame() {
+
+				setEndValue(endValueDefault);
+				add(mJProgressBar);
+			}
+
+			public void setEndValue(int endValue) {
+				mJProgressBar = new JProgressBar(SwingConstants.HORIZONTAL, 0,
+						endValue);
+			}
+
+			public void setValue(int value) {
+				mJProgressBar.setValue(value);
+			}
+		}
+		URL urlObj = getCurrentRunAppPath();
+		final LoadStateJFrame loadState = new LoadStateJFrame();
+		loadState.setTitle("下載更新進度...");
+		loadState.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		loadState.setUndecorated(true);// 去掉窗体修饰,包括最大化按钮
+		// loadState.setResizable(false); //禁止改變視窗大小
 		try {
 
-			// 刪除舊版本漫畫下載
-			File file = new File(java.net.URLDecoder.decode(urlObj.getPath(),
-					HtmlReader.UTF8));
+			// 舊版本APP改名字放旁邊, "comic.jar" to "comic.jar~)
+			final File file = new File(java.net.URLDecoder.decode(
+					urlObj.getPath(), HtmlReader.UTF8));
+			// 備份檔案的檔名
+			final String backFileName = file.getAbsolutePath() + "~";
+			copyFile(file, backFileName);
 			file.delete();
+
 			final String newFileName = appName + ".jar";
-			http.loadURLFile(appUrl, "." + java.io.File.separatorChar,
-					newFileName);
-			// 啟動新的版本應用程式
-			String cmd = "java -jar " + newFileName;
-			Runtime.getRuntime().exec(cmd);
-			// Process process = Runtime.getRuntime().exec(cmd);
-			// String errorStr = "";
-			// File jarFile = new File("./" + newFileName);
-			//
-			// BufferedReader br = new BufferedReader(new
-			// InputStreamReader(process.getErrorStream()));
-			// for (String line = br.readLine(); line != null; line =
-			// br.readLine()) {
-			// errorStr +=line;
-			// }
-			System.exit(0);
+			String savePath = "." + java.io.File.separatorChar;
+			loadState.setSize(250, 80);
+			loadState.setLocation(Config.db.indexBounds.x
+					+ Config.db.indexBounds.width / 2, Config.db.indexBounds.y
+					+ Config.db.indexBounds.height / 2);
+			loadState.setVisible(true);
+
+			loadState.addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosed(WindowEvent e) {
+					// TODO Auto-generated method stub
+					// super.windowClosed(e);
+					System.out.println("windowClosed");
+				}
+
+				@Override
+				public void windowStateChanged(WindowEvent e) {
+					// TODO Auto-generated method stub
+					// super.windowStateChanged(e);
+					System.out.println("windowStateChanged");
+				}
+
+				@Override
+				public void windowClosing(WindowEvent e) {
+					System.out.println("windowClosing");
+				}
+			});
+
+			mDownloadFile.createConnection(appUrl, savePath,
+					new DownloadFile.Callback() {
+
+						@Override
+						public void onProgress(DownloadFile download,
+								int readLength, int readedLength,
+								int contentLength) {
+							int updateProgressStatus = (int) (((readedLength * 1.0) / (contentLength * 1.0)) * loadState.endValueDefault);
+
+							loadState.setValue(updateProgressStatus);
+						}
+
+						@Override
+						public void onFinish(DownloadFile download) {
+							// 啟動新的版本應用程式
+							String cmd = "java -jar " + newFileName;
+							try {
+								Runtime.getRuntime().exec(cmd);
+								new File(backFileName).delete();// 刪除備份檔
+								System.exit(0);
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+						}
+
+						@Override
+						public void onException(DownloadFile download,
+								Exception e) {
+							// 下載失敗，把備份檔還原
+							File backFile = new File(backFileName);
+							copyFile(backFile, file.getAbsolutePath());
+							backFile.delete();
+							mDownloadFile = null;
+							Config.showMsgBar("下載更新檔失敗", "訊息");
+						}
+					});
+			mDownloadFile.startDownload();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void copyFile(File oldfile, String newPath) {
+		try {
+			int byteread = 0;
+
+			if (oldfile.exists()) {
+				InputStream inStream = new FileInputStream(oldfile);
+				FileOutputStream fs = new FileOutputStream(newPath);
+				byte[] buffer = new byte[1024];
+				while ((byteread = inStream.read(buffer)) != -1) {
+					fs.write(buffer, 0, byteread);
+				}
+				inStream.close();
+				fs.close();
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

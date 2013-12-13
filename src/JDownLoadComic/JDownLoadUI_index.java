@@ -91,7 +91,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		tableNew.getColumn(0).setMaxWidth(60);
 		tableNew.setFont(new Font("Serif", Font.BOLD, 20));
 
-		JPanel northPanel = new JPanel(new GridLayout(0, 6, 10, 0));
+		JPanel northPanel = new JPanel(new GridLayout(0, 7, 10, 0));
 		c.add(northPanel, BorderLayout.NORTH);
 		final JButton dataActListBtn = new JButton("列出漫畫集數");
 		dataActListBtn.setName("ListAllAct");
@@ -125,6 +125,11 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		readerBtn.setName("reader");
 		readerBtn.addActionListener(eventHandleIndex);
 		northPanel.add(readerBtn);
+
+		final JButton exportPDFBtn = new JButton("匯出PDF");
+		exportPDFBtn.setName("exportPDF");
+		exportPDFBtn.addActionListener(eventHandleIndex);
+		northPanel.add(exportPDFBtn);
 
 		centerPanel = new JPanel(new GridLayout(0, 2));
 		news = new VersionNews();
@@ -177,13 +182,13 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		stateLab = new JLabel("狀態列");
 		c.add(stateLab, BorderLayout.SOUTH);
 
-		// 設定視窗
-		setSize(800, 600);
-		setLocation(100, 100);
+		// 取得上次關閉APP時的視窗大小來設定視窗
+		setBounds(Config.db.indexBounds);
 
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
+				Config.db.indexBounds = JDownLoadUI_index.this.getBounds();
 				Config.db.save();
 				FolderManager.deleteFolder(Config.tempFolderPath);
 				System.exit(0);

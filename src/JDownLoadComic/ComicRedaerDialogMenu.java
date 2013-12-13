@@ -34,11 +34,14 @@ import java.util.ArrayList;
  * 
  */
 public class ComicRedaerDialogMenu extends JDialog {
-	private String root = "./" + Config.defaultSavePath;
-	private JDataTable actTable;// 漫畫集數列表
-	private String comicFloder = "";// 選擇哪本漫畫目錄
-	private JLabel selectedComicLab;
-	private WriteFile writeFileTool;
+	protected String root = "./" + Config.defaultSavePath;
+	protected JDataTable actTable;// 漫畫集數列表
+	protected String comicFloder = "";// 選擇哪本漫畫目錄
+	protected JLabel selectedComicLab;
+	protected WriteFile writeFileTool;
+	protected JPanel topPanel;
+	protected JPanel leftPanel;// on top bar
+	protected JPanel rightPanel;// on top bar
 
 	public ComicRedaerDialogMenu(Window owner) {
 		super(owner);
@@ -103,9 +106,9 @@ public class ComicRedaerDialogMenu extends JDialog {
 
 	// 建立上面按鈕列
 	private void createTopUI(Container c) {
-		JPanel topPanel = new JPanel(new GridLayout(1, 2));
-		JPanel leftPanel = new JPanel();
-		JPanel rightPanel = new JPanel();
+		topPanel = new JPanel(new GridLayout(1, 2));
+		leftPanel = new JPanel();
+		rightPanel = new JPanel();
 		topPanel.add(leftPanel);
 		topPanel.add(rightPanel);
 
@@ -127,7 +130,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 		});
 		rightPanel.add(sortDateBtn);
 
-		JButton openComicBtn = new JButton("開啟已選漫畫");
+		JButton openComicBtn = new JButton(openComicBtnTitle());
 		openComicBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
@@ -137,6 +140,10 @@ public class ComicRedaerDialogMenu extends JDialog {
 		rightPanel.add(openComicBtn);
 
 		c.add(topPanel, BorderLayout.NORTH);
+	}
+
+	public String openComicBtnTitle() {
+		return "開啟已選漫畫";
 	}
 
 	// 顯示各漫畫列表
@@ -206,28 +213,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 			String floderPath, String imgWH) {
 		StringBuilder str = new StringBuilder();
 		// String [] tempList = new String[list.length];
-		ArrayList<String> ary = new ArrayList<String>();
-
-		for (int i = 0; i < list.length; i++) {
-			if (list[i].toLowerCase().lastIndexOf(".jpg") != -1) {
-				ary.add(list[i]);
-			}
-		}
-
-		for (int i = 0; i < ary.size() - 1; i++) {
-			for (int j = 0; j < ary.size() - i - 1; j++) {
-				String nameA = ary.get(j + 1);
-				String nameB = ary.get(j);
-				int pageA = Integer.parseInt(nameA.split("[.]")[0]);
-				int pageB = Integer.parseInt(nameB.split("[.]")[0]);
-
-				if (pageA < pageB) {
-					String temp = nameA;
-					ary.set(j + 1, nameB);
-					ary.set(j, temp);
-				}
-			}
-		}
+		ArrayList<String> ary = sortJpgList(list);
 
 		for (int i = 0; i < ary.size(); i++) {
 			if (str.length() > 0) {
@@ -252,6 +238,38 @@ public class ComicRedaerDialogMenu extends JDialog {
 		}
 
 		return true;
+	}
+
+	/**
+	 * 將JPG圖從小到大排序
+	 * 
+	 * @param list
+	 * @return
+	 */
+	public ArrayList<String> sortJpgList(String[] list) {
+		ArrayList<String> ary = new ArrayList<String>();
+
+		for (int i = 0; i < list.length; i++) {
+			if (list[i].toLowerCase().lastIndexOf(".jpg") != -1) {
+				ary.add(list[i]);
+			}
+		}
+
+		for (int i = 0; i < ary.size() - 1; i++) {
+			for (int j = 0; j < ary.size() - i - 1; j++) {
+				String nameA = ary.get(j + 1);
+				String nameB = ary.get(j);
+				int pageA = Integer.parseInt(nameA.split("[.]")[0]);
+				int pageB = Integer.parseInt(nameB.split("[.]")[0]);
+
+				if (pageA < pageB) {
+					String temp = nameA;
+					ary.set(j + 1, nameB);
+					ary.set(j, temp);
+				}
+			}
+		}
+		return ary;
 	}
 
 	// 以名稱排序漫畫列表
@@ -290,7 +308,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 	 * @param comicActFloder
 	 *            漫畫第二層資料夾(例如:第1話)
 	 */
-	private void openComicFolder(String cFloder, String comicActFloder) {
+	public void openComicFolder(String cFloder, String comicActFloder) {
 		String fullPath = root + "/" + cFloder + "/" + comicActFloder;
 		final File actComit = new File(fullPath);
 		final String html = Config.readerHTML;

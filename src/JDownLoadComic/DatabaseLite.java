@@ -1,16 +1,18 @@
 package JDownLoadComic;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.sql.Date;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
+
+import java.awt.Rectangle;
 
 import JDownLoadComic.util.ReadFile;
 
@@ -19,7 +21,7 @@ public class DatabaseLite implements java.io.Serializable {
 	/** 首次公開發佈日期 */
 	public static final String firstDate = "2010/10/10";
 	/** 軟體最後更新日期 */
-	public String appUpdateDate = "2013/03/19";
+	public String appUpdateDate = "2013/12/13";
 	public String pathName;
 	/** 最後更新的日期時間間隔幾小時才會再更新 */
 	private long updateHours;
@@ -50,6 +52,10 @@ public class DatabaseLite implements java.io.Serializable {
 	public boolean sortAsc;
 	/** 點漫畫圖片就換頁 */
 	public String touchImg = "Y";
+	/** 匯出pdf的儲存路徑 */
+	public String exportPDFpath = File.separator + Config.defaultSavePath;
+	/** 首頁的視窗縮放設定 */
+	public Rectangle indexBounds = new Rectangle(100, 100, 800, 600);
 
 	public DatabaseLite() {
 		init();
@@ -303,11 +309,18 @@ public class DatabaseLite implements java.io.Serializable {
 					sortAsc = obj.sortAsc;
 				}
 
-				if (obj.foregroundColor != null)
+				if (obj.foregroundColor != null) {
 					foregroundColor = obj.foregroundColor;
-				if (obj.backgroundColor != null)
+				}
+				if (obj.backgroundColor != null) {
 					backgroundColor = obj.backgroundColor;
-
+				}
+				if (obj.exportPDFpath != null) {
+					exportPDFpath = obj.exportPDFpath;
+				}
+				if (obj.indexBounds != null) {
+					indexBounds = obj.indexBounds;
+				}
 			}
 			in.close();
 			fs.close();

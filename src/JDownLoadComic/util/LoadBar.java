@@ -41,7 +41,7 @@ public class LoadBar extends JPanel implements Runnable {
 		progressBar = new JProgressBar(SwingConstants.HORIZONTAL, 0, 100);
 		tmpJpanel.add(progressBar);
 		progressBar.setOpaque(false);
-		percent = new JLabel("0%");
+		percent = new JLabel();
 		tmpJpanel.add(percent);
 		add(tmpJpanel);
 	}
