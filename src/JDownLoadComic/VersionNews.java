@@ -119,28 +119,17 @@ public class VersionNews extends JPanel {
 	 */
 	private boolean hasNewVersion(String nowVersion, String versionText) {
 		if (versionText.length() > 0) {
-			int oldVer = versionToInt(nowVersion);
-			int newVer = versionToInt(versionText);
-
-			return (newVer > oldVer);
+			String [] oldVer = nowVersion.replaceFirst("[vV]", "").split("[.]");
+			String [] newVer = versionText.replaceFirst("[vV]", "").split("[.]");
+			
+			for(int i = 0; i < newVer.length; i++){
+				System.out.println(newVer[i] + "--" + oldVer[i]);
+				if(Integer.parseInt(newVer[i]) > Integer.parseInt(oldVer[i])){
+					return true;
+				}
+			}
 		}
 		return false;
-	}
-
-	/**
-	 * 將版本號轉為數字
-	 * 
-	 * @param version
-	 * @return
-	 */
-	private int versionToInt(String version) {
-		int sum = 0;
-		String ver = version.substring(1, version.length());
-		String[] ary = ver.split("[.]");
-		for (String v : ary) {
-			sum += Integer.parseInt(v);
-		}
-		return sum;
 	}
 
 	/**
