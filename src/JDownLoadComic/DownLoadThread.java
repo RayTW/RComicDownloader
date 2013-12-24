@@ -1,7 +1,6 @@
 package JDownLoadComic;
 
 import JDownLoadComic.parseHtml.SingleComicData;
-import JDownLoadComic.util.LoadData;
 import JDownLoadComic.util.LoadNetFile;
 
 /**
@@ -12,13 +11,17 @@ import JDownLoadComic.util.LoadNetFile;
  * 
  */
 
-public class DownLoadThread extends Thread {
+public class DownLoadThread implements Runnable {
+	public interface Callback {
+		public void onloading(int currentPage, int totalPage);
+
+		public void onComplete();
+	}
+
 	/** 父層(下載進度狀態列) */
-	public LoadBarState parentObj;
+	public Callback mCallback;
 	/** 一本漫畫資料 */
 	private SingleComicData singleComic; // 一本漫畫資料
-	/** 下載進度資料 */
-	public LoadData load;
 	/** 下載遠端檔案元件 */
 	public LoadNetFile jpgLoad;
 	/** 存檔路徑 */
@@ -45,14 +48,13 @@ public class DownLoadThread extends Thread {
 	/**
 	 * 設定單本漫畫下載需要使用到的資料
 	 * 
-	 * @param lo
+	 * @param callback
 	 *            目前單本下載中漫畫的進度物件
 	 * @param sc
 	 */
-	public void setSingleComicData(LoadData lo, SingleComicData sc) {
+	public void setSingleComicData(Callback callback, SingleComicData sc) {
 		singleComic = sc;
-		load = lo;
-		load.endValue = sc.getPageSize();
+		mCallback = callback;
 	}
 
 	@Override
@@ -64,7 +66,10 @@ public class DownLoadThread extends Thread {
 					if (!jpgLoad.isRuning()) {
 						jpgLoad = null;
 						point++;
-						load.currentProeess = point;
+						if (mCallback != null) {
+							mCallback.onloading(point,
+									singleComic.getPageSize());
+						}
 						if (hasNext()) {
 							startJpgLink();
 						} else {
@@ -80,6 +85,7 @@ public class DownLoadThread extends Thread {
 				e.printStackTrace();
 			}
 		}
+		complete();
 		close();
 	}
 
@@ -88,7 +94,9 @@ public class DownLoadThread extends Thread {
 	 */
 	public void startJpgLink() {
 		if (jpgLoad == null) {
-			load.endValue = singleComic.getPageSize();
+			if (mCallback != null) {
+				mCallback.onloading(point, singleComic.getPageSize());
+			}
 			jpgLoad = new LoadNetFile();
 			String url = singleComic.getJPGUrl(point);
 			String nextUrl = singleComic.url;
@@ -137,7 +145,9 @@ public class DownLoadThread extends Thread {
 	 * 下載完成時執行
 	 */
 	public void complete() {
-		parentObj.close();
+		if (mCallback != null) {
+			mCallback.onComplete();
+		}
 	}
 
 	/**
@@ -146,11 +156,12 @@ public class DownLoadThread extends Thread {
 	 */
 	public void close() {
 		jpgLoad = null;
-		load.currentProeess = load.endValue;
+		if (mCallback != null) {
+			mCallback.onloading(singleComic.getPageSize(),
+					singleComic.getPageSize());
+		}
 		singleComic = null;
-		load = null;
-		complete();
-		parentObj = null;
+		mCallback = null;
 	}
 
 }

@@ -2,12 +2,13 @@ package JDownLoadComic;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import JDownLoadComic.parseHtml.SingleComicData;
+import JDownLoadComic.util.DownloadThreadPool;
 import JDownLoadComic.util.LoadBar;
-import JDownLoadComic.util.LoadData;
 import JDownLoadComic.util.WriteFile;
 
 /**
@@ -17,13 +18,12 @@ import JDownLoadComic.util.WriteFile;
  * 
  */
 
-public class LoadBarState extends LoadBar {
+public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 	/** 父層(下載狀態列表) */
 	private TableList parentObj;
 	/** 下載單集漫畫執行緒 */
 	private DownLoadThread downLoad;
 	private SingleComicData singleComic;
-	private LoadData load;
 	private boolean isDownloading;
 	private String savePath;
 
@@ -110,15 +110,12 @@ public class LoadBarState extends LoadBar {
 			isDownloading = true;
 			singleComic.setPageList();
 			downLoad = new DownLoadThread();// 建立排序去load漫畫
-			downLoad.parentObj = this;
-			load = new LoadData();
-			downLoad.setSingleComicData(load, singleComic);
+			downLoad.setSingleComicData(this, singleComic);
 			WriteFile.mkDir(savePath);
 			downLoad.savePath = savePath;
 			downLoad.startJpgLink();
-			downLoad.start();
-			setLoadObj(load);
-			super.startLoad();
+			// 將下載任務放到pool
+			DownloadThreadPool.getInstance().execute(downLoad);
 		}
 	}
 
@@ -141,22 +138,29 @@ public class LoadBarState extends LoadBar {
 		return getLoadName();
 	}
 
+	@Override
+	public void onloading(int currentPage, int totalPage) {
+		setProgressBar(currentPage, totalPage, currentPage + "/" + totalPage);
+
+	}
+
+	@Override
+	public void onComplete() {
+		close();
+	}
+
 	/**
 	 * 清除下載狀態列使用到的物件
 	 * 
 	 */
 	public void close() {
 		try {
-			stopLoad();
-			// downLoad.stopJpgLink();
 			downLoad = null;
 			downLoadDone(getLoadCartoonName());
 			parentObj = null;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
-		// System.out.println("LoadBarJFrame");
 	}
 
 }

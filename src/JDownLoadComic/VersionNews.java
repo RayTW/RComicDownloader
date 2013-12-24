@@ -119,12 +119,12 @@ public class VersionNews extends JPanel {
 	 */
 	private boolean hasNewVersion(String nowVersion, String versionText) {
 		if (versionText.length() > 0) {
-			String [] oldVer = nowVersion.replaceFirst("[vV]", "").split("[.]");
-			String [] newVer = versionText.replaceFirst("[vV]", "").split("[.]");
-			
-			for(int i = 0; i < newVer.length; i++){
+			String[] oldVer = nowVersion.replaceFirst("[vV]", "").split("[.]");
+			String[] newVer = versionText.replaceFirst("[vV]", "").split("[.]");
+
+			for (int i = 0; i < newVer.length; i++) {
 				System.out.println(newVer[i] + "--" + oldVer[i]);
-				if(Integer.parseInt(newVer[i]) > Integer.parseInt(oldVer[i])){
+				if (Integer.parseInt(newVer[i]) > Integer.parseInt(oldVer[i])) {
 					return true;
 				}
 			}

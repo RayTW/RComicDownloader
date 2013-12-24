@@ -19,6 +19,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import JDownLoadComic.parseHtml.LoadComicData;
+import JDownLoadComic.util.DownloadThreadPool;
 import JDownLoadComic.util.JDataTable;
 import JDownLoadComic.util.NewComicTableCellRenderer;
 import JDownLoadComic.util.WriteFile;
@@ -324,6 +325,9 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		WriteFile.mkDir(Config.defaultSavePath + "/sys");
 		Config.db.pathName = Config.dbPath;
 		Config.db.load();
+
+		// 建立下載執行緒上限個數
+		DownloadThreadPool.newInstance(Config.db.downloadCount);
 
 		// 建立動畫程式首頁
 		JDownLoadUI_index download = new JDownLoadUI_index();

@@ -11,13 +11,9 @@ import javax.swing.SwingConstants;
  * @author Ray
  * 
  */
-public class LoadBar extends JPanel implements Runnable {
-	/** 執行狀態 */
-	private boolean isRun;
+public class LoadBar extends JPanel {
 	/** 顯示內建的進度bar */
 	private JProgressBar progressBar;
-	/** 記錄目前進度資料物件 */
-	private LoadData loadObj;
 	/** 顯示目前讀取頁數與總頁數 */
 	private JLabel percent;
 	/** 顯示目前下載的漫畫名稱 */
@@ -46,13 +42,6 @@ public class LoadBar extends JPanel implements Runnable {
 		add(tmpJpanel);
 	}
 
-	/**
-	 * @param 設定目前進度物件
-	 */
-	public void setLoadObj(LoadData lobj) {
-		loadObj = lobj;
-	}
-
 	public void setIdName(String idName) {
 		name = idName;
 	}
@@ -66,41 +55,6 @@ public class LoadBar extends JPanel implements Runnable {
 	}
 
 	/**
-	 * 啟動顯示進度狀態列
-	 * 
-	 * @param nm
-	 * @param id
-	 */
-	public void startLoad() {
-		isRun = true;
-		Thread load = new Thread(this);
-		load.start();
-	}
-
-	/**
-	 * 停止顯示進度狀態列
-	 * 
-	 */
-	public void stopLoad() {
-		isRun = false;
-	}
-
-	@Override
-	public void run() {
-		int value = loadObj.currentProeess;
-		int end = loadObj.endValue;
-		while (isRun && (value < end)) {
-			value = loadObj.currentProeess;
-			int percentValue = (value * 100) / end;
-			progressBar.setValue(percentValue);
-			percent.setText(value + "/" + end);
-			Thread.yield();
-		}
-		progressBar.setValue(100);
-		clear();
-	}
-
-	/**
 	 * 取得漫畫名稱
 	 * 
 	 * @return
@@ -110,10 +64,17 @@ public class LoadBar extends JPanel implements Runnable {
 	}
 
 	/**
-	 * 清除
+	 * 設定目前顯示的值
 	 * 
+	 * @param value
+	 *            例如:88
+	 * @param end
+	 * @param text
+	 *            顯示的進度字串
 	 */
-	public void clear() {
-		loadObj = null;
+	public void setProgressBar(int value, int end, String text) {
+		progressBar.setValue(value);
+		progressBar.setMaximum(end);
+		percent.setText(text);
 	}
 }

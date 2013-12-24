@@ -21,7 +21,7 @@ public class DatabaseLite implements java.io.Serializable {
 	/** 首次公開發佈日期 */
 	public static final String firstDate = "2010/10/10";
 	/** 軟體最後更新日期 */
-	public String appUpdateDate = "2013/12/13";
+	public String appUpdateDate = "2013/12/24";
 	public String pathName;
 	/** 最後更新的日期時間間隔幾小時才會再更新 */
 	private long updateHours;
@@ -35,8 +35,11 @@ public class DatabaseLite implements java.io.Serializable {
 	private String updateDate;
 	/** 打開漫畫時的解析度w*h, 0x0:預設圖大小 */
 	private String readerWH;
-	/** 最多同時下載幾個 */
-	public int downCountLimit; // 最多同時下載幾個
+	/** 最多同時下載幾個(UI的上限 */
+	public int downCountLimit = 5; // 最多同時下載幾個
+
+	/** 同時進行下載的執行緒最大個數(實際上進行下載的緒) */
+	public int downloadCount = 5;
 
 	/** 我的最愛裡有最新漫畫時標示的cell文字顏色 */
 	public Color foregroundColor;
@@ -77,7 +80,7 @@ public class DatabaseLite implements java.io.Serializable {
 	public void resetDefault() {
 		updateHours = 3;
 		readerWH = "864x1200";
-		downLoadKB = 100;
+		downLoadKB = 500;
 		newLine = 50;
 		downCountLimit = 100;
 		foregroundColor = Color.RED;
@@ -296,6 +299,7 @@ public class DatabaseLite implements java.io.Serializable {
 				updateDate = obj.getUpdateDate();
 				updateHours = obj.updateHours;
 				isAdmin = obj.isAdmin;
+				downloadCount = obj.downloadCount;
 
 				if (obj.getReaderWH() != null) {
 					readerWH = obj.getReaderWH();

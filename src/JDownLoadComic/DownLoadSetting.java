@@ -7,9 +7,12 @@ import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+
+import JDownLoadComic.util.DownloadThreadPool;
 
 /**
  * 2013/12/12 增加目前已下載的漫畫總大小與空間剩餘大小
@@ -119,14 +122,21 @@ public class DownLoadSetting extends Panel {
 		txt5.setText("" + Config.db.getDownCountLimit());
 		txt5.setVisible(true);
 		// 以下功能只有最高權限者才可使用
-		txt5.setEditable(Config.db.isAdmin);
-		txt3.setEditable(Config.db.isAdmin);
+		// txt5.setEditable(Config.db.isAdmin);
+		// txt3.setEditable(Config.db.isAdmin);
 
 		// 漫畫佔用空間
 		calculateFileLength(Config.defaultSavePath);
 
 		// 硬碟剩餘空間
 		calculateRootFreeSpace(Config.defaultSavePath);
+
+		// 載檔案的緒
+		JLabel lab9 = (JLabel) getComponent("lab9");
+		JTextField txt9 = (JTextField) getComponent("txt9");
+		lab9.setText("同時下載的程序個數");
+		txt9.setText("" + Config.db.downloadCount);
+		txt9.setVisible(true);
 	}
 
 	/**
@@ -137,7 +147,7 @@ public class DownLoadSetting extends Panel {
 	private void calculateFileLength(final String path) {
 		JLabel lab7 = (JLabel) getComponent("lab7");
 		final JTextField txt7 = (JTextField) getComponent("txt7");
-		lab7.setText("漫畫已佔用空間");
+		lab7.setText("已使用空間");
 		txt7.setEditable(false);
 		txt7.setText("計算中...");
 		txt7.setVisible(true);
@@ -238,13 +248,33 @@ public class DownLoadSetting extends Panel {
 			return;
 		}
 
+		JTextField txt9 = (JTextField) getComponent("txt9");
+		String downloadCountStr = txt9.getText();
+		int downloadCount = 0;
+
+		if (!downloadCountStr.matches("[0-9]+")) {
+			Config.showMsgBar("請輸入正確數值", "訊息");
+			return;
+		}
+		downloadCount = Integer.parseInt(downloadCountStr);
+		if (downloadCount > Integer.parseInt(limitCount)) {
+			Config.showMsgBar("不能超過漫畫佇列上限個數:" + limitCount, "訊息");
+			return;
+		}
+
+		if (downloadCount == 0) {
+			downloadCount = Integer.parseInt(limitCount);
+		}
+
 		Config.db.setReaderWH(wh[0], wh[1]);
 		Config.db.setUpdateHours(Long.parseLong(updateHour));
 		Config.db.setDownLoadKB(Integer.parseInt(kbSec));
 		Config.db.setNewline(Integer.parseInt(lineCount));
 		Config.db.setDownCountLimit(Integer.parseInt(limitCount));
+		Config.db.downloadCount = downloadCount;
 
 		Config.db.save();
+		DownloadThreadPool.newInstance(Config.db.downloadCount);
 		dowanloadUI.resetTableList();
 	}
 
@@ -255,19 +285,9 @@ public class DownLoadSetting extends Panel {
 	 * @return long(bytes)
 	 */
 	public static long fileLength(String path) {
-		long length = 0;
 		File f = new File(path);
-
-		if (f.isDirectory()) {
-			File[] list = f.listFiles();
-
-			for (File ff : list) {
-				length += fileLength(path + File.separator + ff.getName());
-			}
-		} else {
-			length += f.length();
-		}
-		return length;
+		System.out.println("xxx" + f.getUsableSpace());
+		return f.getTotalSpace() - f.getFreeSpace();
 	}
 
 	public static long getRootFreeSpace(String path) {
