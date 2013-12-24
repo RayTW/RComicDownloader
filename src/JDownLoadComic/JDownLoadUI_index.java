@@ -327,7 +327,15 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		Config.db.load();
 
 		// 建立下載執行緒上限個數
-		DownloadThreadPool.newInstance(Config.db.downloadCount);
+		int downloadCount = Config.db.downloadCount;
+		if(downloadCount == 0){
+			if(Config.db.getDownCountLimit() > 0){
+				downloadCount = Config.db.getDownCountLimit();
+			}else{
+				downloadCount = 5;
+			}
+		}
+		DownloadThreadPool.newInstance(downloadCount);
 
 		// 建立動畫程式首頁
 		JDownLoadUI_index download = new JDownLoadUI_index();
