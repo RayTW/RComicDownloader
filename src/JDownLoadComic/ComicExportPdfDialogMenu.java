@@ -2,14 +2,23 @@ package JDownLoadComic;
 
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
 import com.itextpdf.text.PageSize;
 
 import JDownLoadComic.util.PDF;
+
 import java.awt.BorderLayout;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.HierarchyBoundsListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -23,9 +32,31 @@ import java.util.ArrayList;
 public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 	protected JLabel pdfPathLabel = new JLabel();
 
+	protected class PdfExportHistory extends JFrame {
+		private JTextArea history = new JTextArea();
+
+		public PdfExportHistory() {
+			getContentPane().add(new JScrollPane(history));
+
+			addWindowListener(new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					setModal(false);
+					dispose();
+				}
+			});
+		}
+
+		public void appendText(String txt) {
+			history.append(txt);
+		}
+	}
+
+	protected PdfExportHistory mPdfExportHistory;
+
 	public ComicExportPdfDialogMenu(final Window owner) {
 		super(owner);
-
+		mPdfExportHistory = new PdfExportHistory();
 		leftPanel.setLayout(new BorderLayout());
 		leftPanel.add(pdfPathLabel, BorderLayout.CENTER);
 
@@ -48,6 +79,27 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 				}
 			}
 		});
+
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent e) {
+				mPdfExportHistory.dispose();
+				dispose();
+			}
+		});
+
+		getContentPane().addHierarchyBoundsListener(
+				new HierarchyBoundsListener() {
+					@Override
+					public void ancestorMoved(HierarchyEvent e) {
+						resetJframeBounds(mPdfExportHistory);
+					}
+
+					@Override
+					public void ancestorResized(HierarchyEvent e) {
+						resetJframeBounds(mPdfExportHistory);
+					}
+				});
 	}
 
 	@Override
@@ -72,13 +124,26 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 		String targetPdfPath = Config.db.exportPDFpath + File.separator
 				+ cFloder.trim() + comicActFloder.trim() + ".pdf";
 
-		boolean result = PDF.comicFolderToPDF(PageSize.B3, fullPath, ary,
-				targetPdfPath);
-
-		if (result) {
-			Config.showMsgBar("PDF匯出成功", "訊息");
-		} else {
-			Config.showMsgBar("PDF匯出失敗", "訊息");
+		String result = "fail";
+		try {
+			if (PDF.comicFolderToPDF(PageSize.B3, fullPath, ary, targetPdfPath)) {
+				result = "success";
+			}
+		} catch (Exception e) {
+			result = e.toString();
 		}
+		if (!mPdfExportHistory.isShowing()) {
+			resetJframeBounds(mPdfExportHistory);
+			mPdfExportHistory.setVisible(true);
+		}
+		mPdfExportHistory.toFront();
+		mPdfExportHistory.appendText(targetPdfPath + " : " + result + "\n");
+	}
+
+	public void resetJframeBounds(JFrame jframe) {
+		int width = getWidth() / 2;
+		int height = getHeight() / 2;
+		jframe.setLocation(getX() + getWidth(), getY());
+		jframe.setSize(width, height);
 	}
 }

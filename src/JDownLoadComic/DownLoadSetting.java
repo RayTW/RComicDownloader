@@ -286,7 +286,6 @@ public class DownLoadSetting extends Panel {
 	 */
 	public static long fileLength(String path) {
 		File f = new File(path);
-		System.out.println("xxx" + f.getUsableSpace());
 		return f.getTotalSpace() - f.getFreeSpace();
 	}
 

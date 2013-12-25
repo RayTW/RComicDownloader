@@ -328,10 +328,10 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 		// 建立下載執行緒上限個數
 		int downloadCount = Config.db.downloadCount;
-		if(downloadCount == 0){
-			if(Config.db.getDownCountLimit() > 0){
+		if (downloadCount == 0) {
+			if (Config.db.getDownCountLimit() > 0) {
 				downloadCount = Config.db.getDownCountLimit();
-			}else{
+			} else {
 				downloadCount = 5;
 			}
 		}

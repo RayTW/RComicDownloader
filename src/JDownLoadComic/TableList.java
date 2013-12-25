@@ -107,8 +107,6 @@ public class TableList extends JPanel {
 					}
 				});
 				loadbar.setVisible(false);
-				// System.out.println("移除<==>" + loadbar.getLoadName() +
-				// ",目前剩下["+dataList.size()+"]正在下載");
 				break;
 			}
 		}
@@ -124,8 +122,6 @@ public class TableList extends JPanel {
 	public boolean isDownloading(String name) {
 		Vector tmpDataList = (Vector) dataList.clone();
 		for (int i = 0; i < tmpDataList.size(); i++) {
-			// System.out.println(name +"<==>" + ((LoadBarState)
-			// tmpDataList.get(i)).getLoadName());
 			if (((LoadBarState) tmpDataList.get(i)).getLoadName().equals(name)) {
 				return true;
 			}
@@ -147,6 +143,11 @@ public class TableList extends JPanel {
 	 * 
 	 */
 	public void repaintIndexUI() {
-		parentObj.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				parentObj.repaint();
+			}
+		});
 	}
 }

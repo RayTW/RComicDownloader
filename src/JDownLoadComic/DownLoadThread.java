@@ -59,34 +59,39 @@ public class DownLoadThread implements Runnable {
 
 	@Override
 	public void run() {
-		while (isRun) {
-			// System.out.println("目前抓第幾張["+savePath+"]");
-			if (!isPause) {
-				if (jpgLoad != null) {
-					if (!jpgLoad.isRuning()) {
-						jpgLoad = null;
-						point++;
-						if (mCallback != null) {
-							mCallback.onloading(point,
-									singleComic.getPageSize());
-						}
-						if (hasNext()) {
-							startJpgLink();
-						} else {
-							isRun = false;
-							break;
+		try {
+			while (isRun) {
+				// System.out.println("目前抓第幾張["+savePath+"]");
+				if (!isPause) {
+					if (jpgLoad != null) {
+						if (!jpgLoad.isRuning()) {
+							jpgLoad = null;
+							point++;
+							if (mCallback != null) {
+								mCallback.onloading(point,
+										singleComic.getPageSize());
+							}
+							if (hasNext()) {
+								startJpgLink();
+							} else {
+								isRun = false;
+								break;
+							}
 						}
 					}
 				}
+				try {
+					Thread.sleep((int) (Config.pageSec * 1000));// 每一張下載時間間隔秒數
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
-			try {
-				Thread.sleep((int) (Config.pageSec * 1000));// 每一張下載時間間隔秒數
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			complete();
+			close();
 		}
-		complete();
-		close();
 	}
 
 	/**
