@@ -16,6 +16,8 @@ public class DownLoadThread implements Runnable {
 		public void onloading(int currentPage, int totalPage);
 
 		public void onComplete();
+
+		public void onDownloadFail(SingleComicData singleComic);
 	}
 
 	/** 父層(下載進度狀態列) */
@@ -71,10 +73,14 @@ public class DownLoadThread implements Runnable {
 								mCallback.onloading(point,
 										singleComic.getPageSize());
 							}
-							if (hasNext()) {
-								startJpgLink();
+							if (hasNext() && startJpgLink()) {
+								System.out.println("下載ok");
 							} else {
+								System.out.println("下載false");
 								isRun = false;
+								if (mCallback != null) {
+									mCallback.onDownloadFail(singleComic);
+								}
 								break;
 							}
 						}
@@ -97,7 +103,8 @@ public class DownLoadThread implements Runnable {
 	/**
 	 * 啟動執行緒下載單集漫畫
 	 */
-	public void startJpgLink() {
+	public boolean startJpgLink() {
+		String ret = "";
 		if (jpgLoad == null) {
 			if (mCallback != null) {
 				mCallback.onloading(point, singleComic.getPageSize());
@@ -106,11 +113,13 @@ public class DownLoadThread implements Runnable {
 			String url = singleComic.getJPGUrl(point);
 			String nextUrl = singleComic.url;
 
-			jpgLoad.setRefererLoadData(url, nextUrl, savePath + "/",
-					"" + point, true);
+			// ret若為error表示下載失敗(可能是網路斷線)
+			ret = jpgLoad.setRefererLoadData(url, nextUrl, savePath + "/", ""
+					+ point, true);
 			jpgLoad.setLoadKB(Config.db.getDownLoadKB());
 			jpgLoad.startLoad();
 		}
+		return ret.equals("");
 	}
 
 	/**

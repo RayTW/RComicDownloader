@@ -95,13 +95,20 @@ public class VersionNews extends JPanel {
 		new Thread() {
 			@Override
 			public void run() {
-				String html = http.getHTML(Config.newUrl, Config.newsCharset);
-				// System.out.println(html);
-				parse(html);
-				news.setText(NEW_VERSION + versionText + "\n\n" + NEW_LIST
-						+ newsText);
-				if (hasNewVersion(nowVersion, versionText)) {
-					downloadBtn.setEnabled(true);
+				StringBuffer exception = new StringBuffer();
+				String html = http.getHTML(Config.newUrl, Config.newsCharset,
+						null, exception);
+
+				if (exception.length() == 0) {
+					// System.out.println(html);
+					parse(html);
+					news.setText(NEW_VERSION + versionText + "\n\n" + NEW_LIST
+							+ newsText);
+					if (hasNewVersion(nowVersion, versionText)) {
+						downloadBtn.setEnabled(true);
+					}
+				} else {
+					Config.showMsgBar(Config.netWorkDisconnect, "訊息");
 				}
 			}
 

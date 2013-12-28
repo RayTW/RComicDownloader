@@ -52,6 +52,9 @@ public class Config {
 	/** 更新漫畫完成訊息 */
 	public static String updateOK = "更新漫畫完成";
 
+	/** 網路連線中斷訊息 */
+	public static String netWorkDisconnect = "網路連線中斷";
+
 	/** 漫畫最新版本公告txt的url */
 	public static String newUrl = "http://blog.xuite.net/ray00000test/blog/66855641";// 更新版本訊息的txt檔url
 	/** 漫畫最新版本公告的格式 */

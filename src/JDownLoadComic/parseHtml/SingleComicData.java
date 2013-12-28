@@ -43,15 +43,22 @@ public class SingleComicData {
 	}
 
 	/**
-	 * 去網站lod所有的圖片網址
+	 * 去網站下載所有的圖片網址
 	 * 
 	 * @param url
 	 * @param codes
 	 * @return
 	 */
-	public void setPageList() {
+	public boolean setPageList() {
 		if (codes.equals("")) {
-			codes = getCode(url);
+			StringBuffer exception = new StringBuffer();
+			codes = getCode(url, exception);
+
+			if (exception.length() > 0) {
+				System.out.println(getClass() + "," + exception);
+				codes = "";
+				return false;
+			}
 		}
 
 		pageUrl = new ArrayList();
@@ -122,6 +129,8 @@ public class SingleComicData {
 					+ itemid + "/" + num + "/" + img + ".jpg");
 			// System.out.println("http://img"+sid+".8comic.com/"+did+"/"+itemid+"/"+num+"/"+img+".jpg");
 		}
+
+		return true;
 	}
 
 	/**
@@ -137,11 +146,13 @@ public class SingleComicData {
 	 * @param url
 	 * @return
 	 */
-	public String getCode(String url) {
+	public String getCode(String url, StringBuffer exception) {
 		String tmpCode = "";
-		ArrayList tmpList = loadHtml.getHTMLtoArrayList(url, "big5");
-		for (int i = 0; i < tmpList.size(); i++) {
-			String tmpStr = (String) tmpList.get(i);
+		String html = loadHtml.getHTML_BIG5(url, exception);
+		String[] tmpList = html.split("(\r\n)");
+
+		for (int i = 0; i < tmpList.length; i++) {
+			String tmpStr = tmpList[i];
 			// 2013/04/06 修改取得每頁漫畫圖的變數名稱
 			String codesParam = "var allcodes=";
 			int codesBeginIndex = tmpStr.indexOf(codesParam);
@@ -152,11 +163,6 @@ public class SingleComicData {
 				tmpCode = tmpStr.substring(0, endIndex);
 				break;
 			}
-
-			// if (tmpStr.indexOf("var codes=") != -1) {
-			// tmpCode = getVarContent(tmpStr);
-			// break;
-			// }
 		}
 		return tmpCode;
 	}

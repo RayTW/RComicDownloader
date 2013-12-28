@@ -12,7 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
-import JDownLoadComic.util.DownloadThreadPool;
+import JDownLoadComic.util.ThreadPool;
 
 /**
  * 2013/12/12 增加目前已下載的漫畫總大小與空間剩餘大小
@@ -274,7 +274,7 @@ public class DownLoadSetting extends Panel {
 		Config.db.downloadCount = downloadCount;
 
 		Config.db.save();
-		DownloadThreadPool.newInstance(Config.db.downloadCount);
+		ThreadPool.newInstance(Config.db.downloadCount);
 		dowanloadUI.resetTableList();
 	}
 

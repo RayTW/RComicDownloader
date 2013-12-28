@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
 import JDownLoadComic.parseHtml.SingleComicData;
-import JDownLoadComic.util.DownloadThreadPool;
+import JDownLoadComic.util.ThreadPool;
 import JDownLoadComic.util.LoadBar;
 import JDownLoadComic.util.WriteFile;
 
@@ -57,7 +57,6 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 		delete.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// close();
 				downLoad.stopJpgLink();
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
@@ -108,14 +107,20 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 	public void startDownload() {
 		if (!isDownloading) {
 			isDownloading = true;
-			singleComic.setPageList();
-			downLoad = new DownLoadThread();// 建立排序去load漫畫
-			downLoad.setSingleComicData(this, singleComic);
-			WriteFile.mkDir(savePath);
-			downLoad.savePath = savePath;
-			downLoad.startJpgLink();
-			// 將下載任務放到pool
-			DownloadThreadPool.getInstance().execute(downLoad);
+			boolean b = singleComic.setPageList();
+			System.out.println("b->" + b);
+			if (b) {
+				downLoad = new DownLoadThread();// 建立排序去load漫畫
+				downLoad.setSingleComicData(this, singleComic);
+				WriteFile.mkDir(savePath);
+				downLoad.savePath = savePath;
+				downLoad.startJpgLink();
+				// 將下載任務放到pool
+				ThreadPool.execute(downLoad);
+			} else {
+				isDownloading = false;
+				parentObj.setStateText(Config.netWorkDisconnect);
+			}
 		}
 	}
 
@@ -149,6 +154,11 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 		close();
 	}
 
+	@Override
+	public void onDownloadFail(SingleComicData singleComic) {
+		parentObj.setStateText(Config.netWorkDisconnect);
+	}
+
 	/**
 	 * 清除下載狀態列使用到的物件
 	 * 
@@ -162,5 +172,4 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 			e.printStackTrace();
 		}
 	}
-
 }

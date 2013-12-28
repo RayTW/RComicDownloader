@@ -150,4 +150,8 @@ public class TableList extends JPanel {
 			}
 		});
 	}
+
+	public void setStateText(String text) {
+		parentObj.setStateText(text);
+	}
 }
