@@ -54,6 +54,8 @@ public class Config {
 
 	/** 網路連線中斷訊息 */
 	public static String netWorkDisconnect = "網路連線中斷";
+	/** 網路連線中斷訊息 */
+	public static String file_existed = "漫畫已下載過";
 
 	/** 漫畫最新版本公告txt的url */
 	public static String newUrl = "http://blog.xuite.net/ray00000test/blog/66855641";// 更新版本訊息的txt檔url

@@ -11,9 +11,10 @@ import java.net.URL;
  * 2010/04/18 使用執行緒下載網路檔案,可同時產生多個同時下載
  * 
  * @author Ray
- * 
+ * @deprecated 即將棄用的元件
  */
 
+@Deprecated
 public class LoadNetFile implements Runnable {
 	private boolean isRun;
 	/** 讀取檔案的網址 */
@@ -30,6 +31,9 @@ public class LoadNetFile implements Runnable {
 	private BufferedInputStream bufInStream;
 	/** 寫出檔案的串檔 */
 	private FileOutputStream fileOutStream;
+
+	public static final String ERROR = "error";
+	public static final String FILE_EXISTED = "fileExist";
 
 	public LoadNetFile() {
 		initLoadNetFile();
@@ -96,14 +100,14 @@ public class LoadNetFile implements Runnable {
 
 			if (isOverrideFile && file.exists()) {
 				isRun = false;
-				return "fileExist";
+				return FILE_EXISTED;
 			}
 			bufInStream = new BufferedInputStream(zeroFile.openStream());
 			fileOutStream = new FileOutputStream(file.getPath());
 		} catch (Exception e) {
 			e.printStackTrace();
 			close();
-			return "error";
+			return ERROR;
 		}
 		return "";
 	}
@@ -141,7 +145,7 @@ public class LoadNetFile implements Runnable {
 			// "檔案["+fileName+"]是否已在"+file.exists());
 			if (isOverrideFile && file.exists()) {
 				isRun = false;
-				return "fileExisted";
+				return FILE_EXISTED;
 			}
 			HttpURLConnection urlconn = (HttpURLConnection) zeroFile
 					.openConnection();
@@ -151,7 +155,7 @@ public class LoadNetFile implements Runnable {
 		} catch (Exception e) {
 			e.printStackTrace();
 			close();
-			return "error";
+			return ERROR;
 		}
 		return "";
 	}

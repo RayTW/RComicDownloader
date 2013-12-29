@@ -36,7 +36,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	/** 搜尋輸入框 */
 	private JTextField findField;
 	/** 下方訊息框 */
-	private JLabel stateLab;
+	private StateMessage stateTextArea;
 	/** 放分頁 */
 	public JTabbedPane jt;
 	/** 秀首頁所有漫畫列表 */
@@ -50,6 +50,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 	private JScrollPane downLoadTableScroll;
 	private JPanel centerPanel;
+	private ThreadPool mPDFThreadPool;
 
 	public JDownLoadUI_index() {
 		initJdownLoadUI_index();
@@ -63,6 +64,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		String title = String.format(Config.indexName, Config.version);
 		setTitle(title);
 		Container c = getContentPane();
+		mPDFThreadPool = new ThreadPool(5);
 
 		eventHandleIndex = new EventHandle_index();
 		eventHandleIndex.setParentObj(this);
@@ -92,7 +94,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		tableNew.getColumn(0).setMaxWidth(60);
 		tableNew.setFont(new Font("Serif", Font.BOLD, 20));
 
-		JPanel northPanel = new JPanel(new GridLayout(0, 7, 10, 0));
+		JPanel northPanel = new JPanel(new GridLayout(0, 6, 10, 0));
 		c.add(northPanel, BorderLayout.NORTH);
 		final JButton dataActListBtn = new JButton("列出漫畫集數");
 		dataActListBtn.setName("ListAllAct");
@@ -106,10 +108,10 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		findPanel.add(findField, BorderLayout.CENTER);
 		northPanel.add(findPanel);
 
-		final JButton updateBtn = new JButton("更新漫畫列表");
-		updateBtn.setName("update");
-		updateBtn.addActionListener(eventHandleIndex);
-		northPanel.add(updateBtn);
+		// final JButton updateBtn = new JButton("更新漫畫列表");
+		// updateBtn.setName("update");
+		// updateBtn.addActionListener(eventHandleIndex);
+		// northPanel.add(updateBtn);
 
 		final JButton loveBtn = new JButton("加到我的最愛");
 		loveBtn.setName("love");
@@ -149,7 +151,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 			@Override
 			public void stateChanged(ChangeEvent e) {
 				int index = jt.getSelectedIndex();
-				updateBtn.setEnabled(index == 0);
+				// updateBtn.setEnabled(index == 0);
 				loveBtn.setEnabled(index == 0);
 				deleteBtn.setEnabled(index == 1);
 				dataActListBtn.setEnabled(index != 3 && index != 4);
@@ -180,8 +182,10 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 		resetTableList();
 
-		stateLab = new JLabel("狀態列");
-		c.add(stateLab, BorderLayout.SOUTH);
+		stateTextArea = new StateMessage();
+		JPanel txtPanel = new JPanel(new BorderLayout());
+		txtPanel.add(new JScrollPane(this.stateTextArea));
+		c.add(txtPanel, "South");
 
 		// 取得上次關閉APP時的視窗大小來設定視窗
 		setBounds(Config.db.indexBounds);
@@ -247,8 +251,9 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	 * 
 	 * @param txt
 	 */
-	public void setStateText(String txt) {
-		stateLab.setText(txt);
+	public void setStateText(String text) {
+		stateTextArea.addText(text);
+		stateTextArea.refresh();
 	}
 
 	/**
@@ -313,6 +318,14 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 			render.put(comicNum, null);
 		}
 		t2.getJTable().setDefaultRenderer(Object.class, render);
+	}
+
+	public StateMessage getStateMessage() {
+		return stateTextArea;
+	}
+
+	public void addPDFTask(Runnable run) {
+		mPDFThreadPool.executeTask(run);
 	}
 
 	/**

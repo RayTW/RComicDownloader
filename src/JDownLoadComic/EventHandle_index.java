@@ -151,6 +151,8 @@ public class EventHandle_index implements ActionListener {
 			} else if (name.equals("exportPDF")) {
 				ComicExportPdfDialogMenu menu = new ComicExportPdfDialogMenu(
 						parentObj);
+				menu.setSize(menu.getWidth(), menu.getHeight()
+						- parentObj.getStateMessage().getHeight() - 10);
 				menu.setModal(true);
 				menu.setTitle("請點選要轉成PDF的漫畫");
 				menu.setVisible(true);

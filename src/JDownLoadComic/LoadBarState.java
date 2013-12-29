@@ -107,20 +107,21 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 	public void startDownload() {
 		if (!isDownloading) {
 			isDownloading = true;
-			boolean b = singleComic.setPageList();
-			System.out.println("b->" + b);
-			if (b) {
+
+			if (singleComic.setPageList()) {
 				downLoad = new DownLoadThread();// 建立排序去load漫畫
 				downLoad.setSingleComicData(this, singleComic);
 				WriteFile.mkDir(savePath);
 				downLoad.savePath = savePath;
-				downLoad.startJpgLink();
-				// 將下載任務放到pool
-				ThreadPool.execute(downLoad);
-			} else {
-				isDownloading = false;
-				parentObj.setStateText(Config.netWorkDisconnect);
+				if (downLoad.startJpgLink().length() == 0) {
+					// 將下載任務放到pool
+					ThreadPool.execute(downLoad);
+					return;
+				}
 			}
+			// 要啟動下載時有錯誤
+			isDownloading = false;
+			parentObj.setStateText(singleComic.name + " 下載結束");
 		}
 	}
 
@@ -155,8 +156,8 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 	}
 
 	@Override
-	public void onDownloadFail(SingleComicData singleComic) {
-		parentObj.setStateText(Config.netWorkDisconnect);
+	public void onDownloadFail(SingleComicData singleComic, String message) {
+		parentObj.setStateText("下載\"" + singleComic.name + "\" 失敗，" + message);
 	}
 
 	/**

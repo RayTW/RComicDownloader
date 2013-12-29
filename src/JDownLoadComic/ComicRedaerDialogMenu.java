@@ -42,9 +42,11 @@ public class ComicRedaerDialogMenu extends JDialog {
 	protected JPanel topPanel;
 	protected JPanel leftPanel;// on top bar
 	protected JPanel rightPanel;// on top bar
+	protected Window mWindow;
 
 	public ComicRedaerDialogMenu(Window owner) {
 		super(owner);
+		mWindow = owner;
 
 		writeFileTool = new WriteFile();
 		final Container c = getContentPane();
@@ -320,5 +322,9 @@ public class ComicRedaerDialogMenu extends JDialog {
 
 		openComic(html, targetPath, actComit.list(), jsPath,
 				Config.db.getReaderWH());
+	}
+
+	public void setStateMessage(String text) {
+		((JDownLoadUI_index) this.mWindow).setStateText(text);
 	}
 }

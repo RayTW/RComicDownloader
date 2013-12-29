@@ -17,7 +17,7 @@ public class DownLoadThread implements Runnable {
 
 		public void onComplete();
 
-		public void onDownloadFail(SingleComicData singleComic);
+		public void onDownloadFail(SingleComicData singleComic, String message);
 	}
 
 	/** 父層(下載進度狀態列) */
@@ -73,14 +73,23 @@ public class DownLoadThread implements Runnable {
 								mCallback.onloading(point,
 										singleComic.getPageSize());
 							}
-							if (hasNext() && startJpgLink()) {
-								System.out.println("下載ok");
+							boolean hasNext = hasNext();
+							String state = startJpgLink();
+
+							if (hasNext && state.length() == 0) {
+								// System.out.println("下載ok");
 							} else {
-								System.out.println("下載false");
-								isRun = false;
 								if (mCallback != null) {
-									mCallback.onDownloadFail(singleComic);
+									if (state.equals(LoadNetFile.ERROR)) {
+										mCallback.onDownloadFail(singleComic,
+												Config.netWorkDisconnect);
+									} else if (state
+											.equals(LoadNetFile.FILE_EXISTED)) {
+										mCallback.onDownloadFail(singleComic,
+												Config.file_existed);
+									}
 								}
+								isRun = false;
 								break;
 							}
 						}
@@ -103,7 +112,7 @@ public class DownLoadThread implements Runnable {
 	/**
 	 * 啟動執行緒下載單集漫畫
 	 */
-	public boolean startJpgLink() {
+	public String startJpgLink() {
 		String ret = "";
 		if (jpgLoad == null) {
 			if (mCallback != null) {
@@ -119,7 +128,7 @@ public class DownLoadThread implements Runnable {
 			jpgLoad.setLoadKB(Config.db.getDownLoadKB());
 			jpgLoad.startLoad();
 		}
-		return ret.equals("");
+		return ret;
 	}
 
 	/**
