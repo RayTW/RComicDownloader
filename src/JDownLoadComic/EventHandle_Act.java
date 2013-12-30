@@ -75,12 +75,14 @@ public class EventHandle_Act implements ActionListener {
 						String checkName = actObj.id + actObj.cartoonName + "-"
 								+ singleComic.name;
 						if (downLoadTable.isDownloading(checkName)) {// 沒有在下載序列中才可以再下載
-							JOptionPane.showMessageDialog(null,
-									actObj.cartoonName + "-" + singleComic.name
-											+ "已經在下載佇列中^^", "訊息",
-									JOptionPane.INFORMATION_MESSAGE);
-							break;
-						} else if (downLoadTable.isFill()) {
+							setStateText(actObj.cartoonName + "-"
+									+ singleComic.name + "已經在下載佇列中^^");
+							// JOptionPane.showMessageDialog(null,
+							// actObj.cartoonName + "-" + singleComic.name
+							// + "已經在下載佇列中^^", "訊息",
+							// JOptionPane.INFORMATION_MESSAGE);
+							// break;
+						} else if (downLoadTable.isFill()) {// 佇列已滿
 							String msg = "目前下載中的佇列有"
 									+ downLoadTable.getCurrentDownLoadSize()
 									+ "同時下載最多" + Config.db.getDownCountLimit()
@@ -88,24 +90,16 @@ public class EventHandle_Act implements ActionListener {
 							JOptionPane.showMessageDialog(null, msg, "訊息",
 									JOptionPane.INFORMATION_MESSAGE);
 							break;
-						} else {
-							String savePath = "./" + Config.defaultSavePath
-									+ "/" + actObj.cartoonName + "/"
-									+ actObj.getAct(index);
-							LoadBarState loadb = new LoadBarState();
-							loadb.setParentObj(downLoadTable);
-							loadb.setIdName(checkName);
-							loadb.setLoadName(actDataObj.cartoonName + "-"
-									+ singleComic.name);
-							loadb.setDownloadPath(singleComic, savePath);
-							downLoadTable.addObj(loadb);
+						} else {// 新增下載任務
+							EventHandle_Act.this.addTask(actObj, index);
 						}
 					}
 					// 設定完使用者選擇的漫畫之後，再一次全廓執行開始下載，已開始下載的不會再重新啟動
-					downLoadTable.startDownloadAll();
+					// downLoadTable.startDownloadAll();
+					EventHandle_Act.this.setStateText(Config.DownLoadStart);
 				}
 			}.start();
-			setStateText(Config.DownLoadStart);
+
 		}
 	}
 
@@ -170,8 +164,20 @@ public class EventHandle_Act implements ActionListener {
 		parentObj = p;
 	}
 
-	public void addLoadBar(LoadBarState loadBar) {
-		downLoadTable.addObj(loadBar);
+	void addTask(ActDataObj actObj, int index) {
+		DownloadComicTask task = new DownloadComicTask(actObj, index);
+		task.setParent(this);
+		task.createThreadTask();
+		downLoadTable.addObj(task);
+	}
+
+	/**
+	 * 移除下載中的任務
+	 * 
+	 * @param task
+	 */
+	public void removeTask(DownloadComicTask task) {
+		downLoadTable.removeObj(task);
 	}
 
 	/**
@@ -191,13 +197,4 @@ public class EventHandle_Act implements ActionListener {
 	public int[] getSelectRowIndex() {
 		return parentObj.getSelectRowIndex();
 	}
-
-	/**
-	 * 清除漫畫集數列表使用的物件
-	 */
-	public void close() {
-		parentObj = null;
-		actDataObj = null;
-	}
-
 }

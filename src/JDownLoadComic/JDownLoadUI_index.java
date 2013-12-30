@@ -183,6 +183,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		resetTableList();
 
 		stateTextArea = new StateMessage();
+		stateTextArea.setFocusable(false);
 		JPanel txtPanel = new JPanel(new BorderLayout());
 		txtPanel.add(new JScrollPane(this.stateTextArea));
 		c.add(txtPanel, "South");
@@ -193,10 +194,17 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
-				Config.db.indexBounds = JDownLoadUI_index.this.getBounds();
-				Config.db.save();
-				FolderManager.deleteFolder(Config.tempFolderPath);
-				System.exit(0);
+				new Thread() {
+					@Override
+					public void run() {
+						Config.db.indexBounds = JDownLoadUI_index.this
+								.getBounds();
+						setVisible(false);
+						Config.db.save();
+						FolderManager.deleteFolder(Config.tempFolderPath);
+						System.exit(0);
+					}
+				}.start();
 			}
 		});
 

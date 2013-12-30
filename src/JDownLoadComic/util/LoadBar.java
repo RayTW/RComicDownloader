@@ -77,4 +77,8 @@ public class LoadBar extends JPanel {
 		progressBar.setMaximum(end);
 		percent.setText(text);
 	}
+
+	public void setBarText(String text) {
+		percent.setText(text);
+	}
 }

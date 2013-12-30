@@ -62,37 +62,20 @@ public class DownLoadThread implements Runnable {
 	@Override
 	public void run() {
 		try {
-			while (isRun) {
-				// System.out.println("目前抓第幾張["+savePath+"]");
-				if (!isPause) {
-					if (jpgLoad != null) {
-						if (!jpgLoad.isRuning()) {
-							jpgLoad = null;
-							point++;
-							if (mCallback != null) {
-								mCallback.onloading(point,
-										singleComic.getPageSize());
-							}
-							boolean hasNext = hasNext();
-							String state = startJpgLink();
+			String state = "";
 
-							if (hasNext && state.length() == 0) {
-								// System.out.println("下載ok");
-							} else {
-								if (mCallback != null) {
-									if (state.equals(LoadNetFile.ERROR)) {
-										mCallback.onDownloadFail(singleComic,
-												Config.netWorkDisconnect);
-									} else if (state
-											.equals(LoadNetFile.FILE_EXISTED)) {
-										mCallback.onDownloadFail(singleComic,
-												Config.file_existed);
-									}
-								}
-								isRun = false;
-								break;
-							}
-						}
+			while (isRun) {
+				if (!isPause) {
+					if (mCallback != null) {
+						mCallback.onloading(point, singleComic.getPageSize());
+					}
+					state = startJpgLink();
+
+					if (hasNext() || state.equals(LoadNetFile.FILE_EXISTED)) {
+						point++;
+					} else {
+						isRun = false;
+						break;
 					}
 				}
 				try {
@@ -101,10 +84,21 @@ public class DownLoadThread implements Runnable {
 					e.printStackTrace();
 				}
 			}
+
+			if (mCallback != null) {
+				if (state.equals(LoadNetFile.ERROR)) {
+					mCallback.onDownloadFail(singleComic,
+							Config.netWorkDisconnect);
+				} else if (state.equals(LoadNetFile.FILE_EXISTED)) {
+					mCallback.onDownloadFail(singleComic, Config.file_existed
+							+ ":" + singleComic.name + ",夏數:" + point);
+				} else {
+					mCallback.onComplete();
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			complete();
 			close();
 		}
 	}
@@ -112,11 +106,12 @@ public class DownLoadThread implements Runnable {
 	/**
 	 * 啟動執行緒下載單集漫畫
 	 */
-	public String startJpgLink() {
+	private String startJpgLink() {
 		String ret = "";
 		if (jpgLoad == null) {
+			int totalPageSize = singleComic.getPageSize();
 			if (mCallback != null) {
-				mCallback.onloading(point, singleComic.getPageSize());
+				mCallback.onloading(point, totalPageSize);
 			}
 			jpgLoad = new LoadNetFile();
 			String url = singleComic.getJPGUrl(point);
@@ -129,6 +124,13 @@ public class DownLoadThread implements Runnable {
 			jpgLoad.startLoad();
 		}
 		return ret;
+	}
+
+	public int getTotalPageSize() {
+		if (singleComic != null) {
+			return singleComic.getPageSize();
+		}
+		return 0;
 	}
 
 	/**
@@ -165,15 +167,6 @@ public class DownLoadThread implements Runnable {
 	}
 
 	/**
-	 * 下載完成時執行
-	 */
-	public void complete() {
-		if (mCallback != null) {
-			mCallback.onComplete();
-		}
-	}
-
-	/**
 	 * 清除此執行緒所使用到的資源、物件
 	 * 
 	 */
@@ -186,5 +179,4 @@ public class DownLoadThread implements Runnable {
 		singleComic = null;
 		mCallback = null;
 	}
-
 }

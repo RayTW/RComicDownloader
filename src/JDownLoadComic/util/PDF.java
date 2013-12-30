@@ -94,7 +94,7 @@ public class PDF {
 					if (file.isFile()
 							&& (absolutePath.endsWith("jpg") || absolutePath
 									.endsWith("jpeg"))) {
-						System.out.println("absolutePath-->" + absolutePath);
+						// System.out.println("absolutePath-->" + absolutePath);
 						document.newPage();
 
 						Image img = Image.getInstance(file.getPath());

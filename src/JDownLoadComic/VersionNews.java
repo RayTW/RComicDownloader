@@ -130,7 +130,6 @@ public class VersionNews extends JPanel {
 			String[] newVer = versionText.replaceFirst("[vV]", "").split("[.]");
 
 			for (int i = 0; i < newVer.length; i++) {
-				System.out.println(newVer[i] + "--" + oldVer[i]);
 				if (Integer.parseInt(newVer[i]) > Integer.parseInt(oldVer[i])) {
 					return true;
 				}

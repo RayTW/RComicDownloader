@@ -2,14 +2,10 @@ package JDownLoadComic;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 
-import JDownLoadComic.parseHtml.SingleComicData;
-import JDownLoadComic.util.ThreadPool;
 import JDownLoadComic.util.LoadBar;
-import JDownLoadComic.util.WriteFile;
 
 /**
  * 秀下載進度的畫面
@@ -18,17 +14,11 @@ import JDownLoadComic.util.WriteFile;
  * 
  */
 
-public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
+public class LoadBarState extends LoadBar {
 	/** 父層(下載狀態列表) */
-	private TableList parentObj;
-	/** 下載單集漫畫執行緒 */
-	private DownLoadThread downLoad;
-	private SingleComicData singleComic;
-	private boolean isDownloading;
-	private String savePath;
+	private DownloadComicTask parentObj;
 
 	public LoadBarState() {
-		isDownloading = false;
 		initLoadBarJFrame();
 	}
 
@@ -44,6 +34,8 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 		pause.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				DownLoadThread downLoad = parentObj.getDownLoadThread();
+
 				if (downLoad != null) {
 					pause.setText(downLoad.isPause ? "暫停" : "繼續");
 					downLoad.isPause = !downLoad.isPause;
@@ -53,16 +45,17 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 		});
 		add(pause);
 
-		final JButton delete = new JButton("移除");
+		final JButton delete = new JButton("取消");
 		delete.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				downLoad.stopJpgLink();
+				if (parentObj != null) {
+					parentObj.removeSelf("\"" + getLoadCartoonName()
+							+ "\" 取消下載");
+				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override
 					public void run() {
-						// delete.setText("處理中");
-						// delete.setEnabled(false);
 						delete.setEnabled(false);
 						pause.setEnabled(false);
 					}
@@ -78,61 +71,8 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 	 * 
 	 * @param p
 	 */
-	public void setParentObj(TableList p) {
+	public void setParentObj(DownloadComicTask p) {
 		parentObj = p;
-	}
-
-	public void setDownloadPath(SingleComicData sComic, String path) {
-		singleComic = sComic;
-		savePath = path;
-	}
-
-	/**
-	 * 是否已開下載中，true:已啟動下載，false:未啟動下載
-	 * 
-	 * @return
-	 */
-	public boolean isDownloading() {
-		return isDownloading;
-	}
-
-	/**
-	 * 開始下載漫畫,執行此METHOD之前需先呼叫setDownloadPath()
-	 * 
-	 * @param singleComic
-	 *            單本漫畫資料
-	 * @param savePath
-	 *            漫畫存檔路徑
-	 */
-	public void startDownload() {
-		if (!isDownloading) {
-			isDownloading = true;
-
-			if (singleComic.setPageList()) {
-				downLoad = new DownLoadThread();// 建立排序去load漫畫
-				downLoad.setSingleComicData(this, singleComic);
-				WriteFile.mkDir(savePath);
-				downLoad.savePath = savePath;
-				if (downLoad.startJpgLink().length() == 0) {
-					// 將下載任務放到pool
-					ThreadPool.execute(downLoad);
-					return;
-				}
-			}
-			// 要啟動下載時有錯誤
-			isDownloading = false;
-			parentObj.setStateText(singleComic.name + " 下載結束");
-		}
-	}
-
-	/**
-	 * 下載完成時會呼叫此method，並通知上層移除狀態列中此集漫畫進度表
-	 * 
-	 * @param name
-	 *            下載完成的漫畫
-	 */
-	public void downLoadDone(String name) {
-		parentObj.removeObj(name);
 	}
 
 	/**
@@ -144,33 +84,11 @@ public class LoadBarState extends LoadBar implements DownLoadThread.Callback {
 		return getLoadName();
 	}
 
-	@Override
-	public void onloading(int currentPage, int totalPage) {
-		setProgressBar(currentPage, totalPage, currentPage + "/" + totalPage);
-
-	}
-
-	@Override
-	public void onComplete() {
-		close();
-	}
-
-	@Override
-	public void onDownloadFail(SingleComicData singleComic, String message) {
-		parentObj.setStateText("下載\"" + singleComic.name + "\" 失敗，" + message);
-	}
-
 	/**
 	 * 清除下載狀態列使用到的物件
 	 * 
 	 */
 	public void close() {
-		try {
-			downLoad = null;
-			downLoadDone(getLoadCartoonName());
-			parentObj = null;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		parentObj = null;
 	}
 }

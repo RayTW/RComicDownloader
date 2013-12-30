@@ -36,13 +36,15 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 	 * @param dataObj
 	 *            整套漫畫連結資料、總集數等等..
 	 */
-	public JDownLoadUI_Act(ActDataObj dataObj) {
+	public JDownLoadUI_Act(EventHandle_index parent, ActDataObj dataObj) {
+		parentObj = parent;
+		initJDownLoadUI_Act();
+
 		setTitle(dataObj.cartoonName);
 		actObj = dataObj;
 		table.addMultiColumnName(new String[] { "集數", "已下載" });
 		table.getColumn(1).setMaxWidth(60);
 		table.addMutilRowDataArray(dataObj.getActDataList());
-		initJDownLoadUI_Act();
 		eventHandleAct.setActDataObj(dataObj);
 
 		JPanel bookDataPanel = new JPanel(new GridLayout(2, 1, 10, 0));
@@ -109,15 +111,6 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 	}
 
 	/**
-	 * 設定父層
-	 * 
-	 * @param obj
-	 */
-	public void setParent(EventHandle_index obj) {
-		parentObj = obj;
-	}
-
-	/**
 	 * 設定狀態列文字
 	 * 
 	 * @param txt
@@ -127,15 +120,10 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 	}
 
 	/**
-	 * 因一種漫畫列表都是new出來的，當關閉時，清除所有的參考
+	 * 釋放UI memory
 	 */
 	public void close() {
 		parentObj.removeFromComicPool(actObj.cartoonName);
-		eventHandleAct.close();
-		eventHandleAct = null;
-		northPanel = null;
-		parentObj = null;
-		actObj = null;
 		dispose();
 	}
 

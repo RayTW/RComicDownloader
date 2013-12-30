@@ -169,12 +169,13 @@ public class EventHandle_index implements ActionListener {
 		// 2013/02/28防止jframe被重複打開
 		JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);
 		if (down == null) {
-			down = new JDownLoadUI_Act(actData);
+			down = new JDownLoadUI_Act(this, actData);
 			comicListPool.put(actData.cartoonName, down);
 			down.pack();
+			down.setLocation((int) Config.db.indexBounds.getX(),
+					(int) Config.db.indexBounds.getY());
 			down.setVisible(true);
 			down.setDataTableList(downLoadTable);
-			down.setParent(this);
 		} else {
 			down.toFront();
 		}
