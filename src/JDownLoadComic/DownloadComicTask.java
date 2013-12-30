@@ -76,7 +76,7 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 				mDownLoadThread = new DownLoadThread();// 建立排序去load漫畫
 				mDownLoadThread.setSingleComicData(this, mSingleComicData);
 				WriteFile.mkDir(savePath);
-				mDownLoadThread.savePath = savePath;
+				mDownLoadThread.setSavePath(savePath);
 				// 將下載任務放到pool
 				mFuture = ThreadPool.submit(mDownLoadThread);
 			} else {

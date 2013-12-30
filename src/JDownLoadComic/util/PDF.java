@@ -58,7 +58,7 @@ public class PDF {
 				document.newPage();
 
 				Image img = Image.getInstance(filePath);
-				img.scaleToFit(img.getWidth(), img.getHeight());
+				img.scaleToFit(pageSize.getWidth() - 20, pageSize.getHeight());
 				img.setBorderColor(BaseColor.WHITE);
 
 				document.add(img);
@@ -98,7 +98,8 @@ public class PDF {
 						document.newPage();
 
 						Image img = Image.getInstance(file.getPath());
-						img.scaleToFit(img.getWidth(), img.getHeight());
+						img.scaleToFit(pageSize.getWidth() - 20,
+								pageSize.getHeight());
 						img.setBorderColor(BaseColor.WHITE);
 
 						document.add(img);
