@@ -49,6 +49,7 @@ public class TableList extends JPanel {
 		if (dataList.size() < limitSize) {
 			dataList.add(task);
 			add(task.getmLoadBarState());
+			repaintIndexUI();
 		}
 	}
 

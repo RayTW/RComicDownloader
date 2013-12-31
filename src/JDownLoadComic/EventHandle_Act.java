@@ -94,8 +94,6 @@ public class EventHandle_Act implements ActionListener {
 							EventHandle_Act.this.addTask(actObj, index);
 						}
 					}
-					// 設定完使用者選擇的漫畫之後，再一次全廓執行開始下載，已開始下載的不會再重新啟動
-					// downLoadTable.startDownloadAll();
 					EventHandle_Act.this.setStateText(Config.DownLoadStart);
 				}
 			}.start();
@@ -167,8 +165,8 @@ public class EventHandle_Act implements ActionListener {
 	void addTask(ActDataObj actObj, int index) {
 		DownloadComicTask task = new DownloadComicTask(actObj, index);
 		task.setParent(this);
-		task.createThreadTask();
 		downLoadTable.addObj(task);
+		task.createThreadTask();
 	}
 
 	/**

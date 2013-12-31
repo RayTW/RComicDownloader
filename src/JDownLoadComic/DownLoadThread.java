@@ -92,11 +92,11 @@ public class DownLoadThread implements Runnable {
 		try {
 			String state = "";
 
-			while (isRun) {
+			while (isRun && hasNext()) {
 				if (!isPause) {
 					state = setDownloadSinglePageData();
 					// 要下載的圖頁已存在，換下一張
-					if (state.equals(FILE_EXISTED) && hasNext()) {
+					if (state.equals(FILE_EXISTED)) {
 						point++;
 						if (mCallback != null) {
 							mCallback.onloading(point,
@@ -105,7 +105,7 @@ public class DownLoadThread implements Runnable {
 						continue;
 					}
 
-					if (hasNext() && downloadJPG()) {
+					if (downloadJPG()) {
 						point++;
 						if (mCallback != null) {
 							mCallback.onloading(point,

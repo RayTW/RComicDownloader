@@ -18,7 +18,7 @@ import JDownLoadComic.util.URLEncodeDecodeTool;
 
 public class Config {
 	/** 版本 */
-	public static final String version = "v1.22.10";
+	public static final String version = "v1.22.11";
 	// 首頁的title
 	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
 
