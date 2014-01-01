@@ -18,6 +18,13 @@ import JDownLoadComic.Config;
  */
 
 public class ActDataObj {
+	public static final int STATE_SYNC_READY = 10;
+	public static final int STATE_SYNC_START = 20;
+	public static final int STATE_SYNC_SUCCESS = 30;
+
+	/** 漫畫所有集數資訊是否已下載完畢 */
+	public int syncState;
+
 	/** 漫畫圖片url用到的變數 */
 	public int ch; // 漫畫圖片url用到的變數
 	/** 漫畫編號 */
@@ -50,6 +57,7 @@ public class ActDataObj {
 	 * 
 	 */
 	public void initActDataObj() {
+		syncState = STATE_SYNC_READY;
 		lastUpdateDate = "";
 		comicList = new Hashtable<String, SingleComicData>();
 		comicSorted = new ArrayList<SingleComicData>();

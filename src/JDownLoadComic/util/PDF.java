@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
@@ -40,33 +41,30 @@ public class PDF {
 	 * @param targetPdfPath
 	 *            要儲存的的PDF路徑
 	 * @return
+	 * @throws Exception 
 	 */
 	public static boolean comicFolderToPDF(Rectangle pageSize,
 			String sourceFolderPath, ArrayList<String> pathList,
-			String targetPdfPath) {
+			String targetPdfPath) throws Exception {
 		boolean result = false;
 		Document document = new Document(pageSize);
 
-		try {
-			PdfWriter writer = PdfWriter.getInstance(document,
-					new FileOutputStream(targetPdfPath));
-			writer.setPageEvent(new HeaderFooter(14));
-			document.open();
+		PdfWriter writer = PdfWriter.getInstance(document,
+				new FileOutputStream(targetPdfPath));
+		writer.setPageEvent(new HeaderFooter(14));
+		document.open();
 
-			for (String filename : pathList) {
-				String filePath = sourceFolderPath + File.separator + filename;
-				document.newPage();
+		for (String filename : pathList) {
+			String filePath = sourceFolderPath + File.separator + filename;
+			document.newPage();
 
-				Image img = Image.getInstance(filePath);
-				img.scaleToFit(pageSize.getWidth() - 20, pageSize.getHeight());
-				img.setBorderColor(BaseColor.WHITE);
+			Image img = Image.getInstance(filePath);
+			img.scaleToFit(pageSize.getWidth() - 20, pageSize.getHeight());
+			img.setBorderColor(BaseColor.WHITE);
 
-				document.add(img);
-			}
-			result = true;
-		} catch (Exception e) {
-			e.printStackTrace();
+			document.add(img);
 		}
+		result = true;
 		document.close();
 
 		return result;

@@ -30,26 +30,27 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 
 	private ActDataObj actObj;
 
-	/**
-	 * 初始化
-	 * 
-	 * @param dataObj
-	 *            整套漫畫連結資料、總集數等等..
-	 */
-	public JDownLoadUI_Act(EventHandle_index parent, ActDataObj dataObj) {
+	public JDownLoadUI_Act(EventHandle_index parent) {
 		parentObj = parent;
 		initJDownLoadUI_Act();
+	}
 
-		setTitle(dataObj.cartoonName);
-		actObj = dataObj;
+	/**
+	 * 初始化整套漫畫連結資料、總集數等等..
+	 * 
+	 * @param actObj
+	 */
+	public void setActDataObj(ActDataObj actDataObj) {
+		setTitle(actDataObj.cartoonName);
+		actObj = actDataObj;
 		table.addMultiColumnName(new String[] { "集數", "已下載" });
 		table.getColumn(1).setMaxWidth(60);
-		table.addMutilRowDataArray(dataObj.getActDataList());
-		eventHandleAct.setActDataObj(dataObj);
+		table.addMutilRowDataArray(actDataObj.getActDataList());
+		eventHandleAct.setActDataObj(actDataObj);
 
 		JPanel bookDataPanel = new JPanel(new GridLayout(2, 1, 10, 0));
-		bookDataPanel.add(new JLabel("作者:" + dataObj.getAuthor()));
-		bookDataPanel.add(new JLabel("更新:" + dataObj.getLastUpdateDate()));
+		bookDataPanel.add(new JLabel("作者:" + actDataObj.getAuthor()));
+		bookDataPanel.add(new JLabel("更新:" + actDataObj.getLastUpdateDate()));
 		// bookDataPanel.add(new JLabel("發行:"+dataObj.getPublishDate()));
 		northPanel.add(bookDataPanel);
 	}
@@ -123,7 +124,7 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 	 * 釋放UI memory
 	 */
 	public void close() {
-		parentObj.removeFromComicPool(actObj.cartoonName);
+		// parentObj.removeFromComicPool(actObj.cartoonName);
 		dispose();
 	}
 
@@ -136,4 +137,7 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 		eventHandleAct.setDataTableList(table);
 	}
 
+	public boolean isDownloadedList() {
+		return (table.getDataCount() > 0);
+	}
 }

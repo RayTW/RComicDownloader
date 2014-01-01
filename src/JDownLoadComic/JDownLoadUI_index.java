@@ -6,6 +6,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -71,10 +73,12 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 		LoadComicData loadData = new LoadComicData(Config.db.getComicList());
 		table.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
+		table.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		table.addMutilRowDataArray(loadData.getIndexData());
 		table.setRowHeight(40);
 		table.getColumn(0).setMaxWidth(60);
 		table.setFont(new Font("Serif", Font.BOLD, 20));
+		addComidListDoubleClickEvent(table, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(0, loadData);
 
 		LoadComicData loadDataLove = new LoadComicData(
@@ -85,6 +89,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		tableLove.setRowHeight(40);
 		tableLove.getColumn(0).setMaxWidth(60);
 		tableLove.setFont(new Font("Serif", Font.BOLD, 20));
+		addComidListDoubleClickEvent(tableLove, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(1, loadDataLove);
 
 		tableNew = new JDataTable(false);
@@ -93,6 +98,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		tableNew.setRowHeight(40);
 		tableNew.getColumn(0).setMaxWidth(60);
 		tableNew.setFont(new Font("Serif", Font.BOLD, 20));
+		addComidListDoubleClickEvent(tableNew, eventHandleIndex);
 
 		JPanel northPanel = new JPanel(new GridLayout(0, 6, 10, 0));
 		c.add(northPanel, BorderLayout.NORTH);
@@ -334,6 +340,31 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 	public void addPDFTask(Runnable run) {
 		mPDFThreadPool.executeTask(run);
+	}
+
+	/**
+	 * 在table上增加雙擊開啟動畫集數列表功能
+	 * 
+	 * @param jtable
+	 * @param handle
+	 */
+	public void addComidListDoubleClickEvent(final JDataTable jtable,
+			final EventHandle_index handle) {
+		jtable.getJTable().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始讀取漫畫集數列表
+					int row = jtable.getJTable().rowAtPoint(e.getPoint());
+
+					String comicNumber = jtable.getJTable().getValueAt(row, 0)
+							.toString();
+					String comicName = jtable.getJTable().getValueAt(row, 1)
+							.toString();
+
+					handle.creadActListJFrame(comicNumber, comicName);
+				}
+			}
+		});
 	}
 
 	/**

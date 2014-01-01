@@ -94,7 +94,8 @@ public class DownLoadThread implements Runnable {
 
 			while (isRun && hasNext()) {
 				if (!isPause) {
-					state = setDownloadSinglePageData();
+					state = setDownloadSinglePageData(point, singleComic,
+							savePath);
 					// 要下載的圖頁已存在，換下一張
 					if (state.equals(FILE_EXISTED)) {
 						point++;
@@ -105,7 +106,7 @@ public class DownLoadThread implements Runnable {
 						continue;
 					}
 
-					if (downloadJPG()) {
+					if (startDownload()) {
 						point++;
 						if (mCallback != null) {
 							mCallback.onloading(point,
@@ -143,13 +144,14 @@ public class DownLoadThread implements Runnable {
 	/**
 	 * 設定要下載單頁的圖片URL與儲存路徑
 	 */
-	private String setDownloadSinglePageData() {
+	private String setDownloadSinglePageData(int index,
+			SingleComicData singleData, String path) {
 		String ret = "";
-		String url = singleComic.getJPGUrl(point);
-		String nextUrl = singleComic.url;
+		String url = singleData.getJPGUrl(index);
+		String nextUrl = singleData.url;
 
 		// ret若為error表示下載失敗(可能是網路斷線)
-		ret = setRefererLoadData(url, nextUrl, savePath + "/", "" + point, true);
+		ret = readyDownload(url, nextUrl, path + "/", "" + index, true);
 		setLoadKB(Config.db.getDownLoadKB());
 		return ret;
 	}
@@ -203,7 +205,7 @@ public class DownLoadThread implements Runnable {
 	 * @return
 	 */
 	public boolean hasNext() {
-		return (point + 1) < singleComic.getPageSize();
+		return point < singleComic.getPageSize();
 	}
 
 	/**
@@ -221,7 +223,7 @@ public class DownLoadThread implements Runnable {
 	 *            true 寫檔時檢查檔案是否已存在，已存在不蓋檔 | false 不檢查檔案是否存在，直接蓋檔
 	 * @return
 	 */
-	public String setRefererLoadData(String url, String nextUrl, String saveP,
+	public String readyDownload(String url, String nextUrl, String saveP,
 			String tmpFname, boolean isOverrideFile) {
 		urlPath = url.replaceAll(" ", "%20");// 將空白字轉換成%20
 		try {
@@ -256,7 +258,7 @@ public class DownLoadThread implements Runnable {
 	/**
 	 * 開始下載彈張圖
 	 */
-	public boolean downloadJPG() {
+	public boolean startDownload() {
 		try {
 			// System.out.println("開始下載["+fileName+"]");
 			byte[] b = new byte[1024];// 一次取得 1024 個 bytes
@@ -268,7 +270,7 @@ public class DownLoadThread implements Runnable {
 				if (bits >= (speedKB * 1024) && speedKB != 0) {// 1秒下載的kb足夠就sleep1秒
 					bits = 0;
 					try {
-						Thread.sleep(100);
+						Thread.sleep(50);
 					} catch (InterruptedException e) {
 					}
 				}

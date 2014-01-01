@@ -18,7 +18,7 @@ import JDownLoadComic.util.URLEncodeDecodeTool;
 
 public class Config {
 	/** 版本 */
-	public static final String version = "v1.22.11";
+	public static final String version = "v1.22.12";
 	// 首頁的title
 	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
 
@@ -45,9 +45,9 @@ public class Config {
 	/** 每幾秒換下載下一頁 */
 	public static double pageSec = 0.1; // 每幾秒換下載下一頁
 	/** 正在讀取漫畫列表時訊息 */
-	public static String readyMsg = "讀取漫畫資料，產生漫畫列表中，請等待..";
+	public static String readyMsg = "讀取漫畫:";
 	/** 讀取漫畫列表完成時 */
-	public static String loadOKMsg = "讀取漫畫資料完成...";
+	public static String loadOKMsg = "讀取漫畫完成:";
 	/** 更新漫畫列表時訊息 */
 	public static String waitUpdate = "讀取漫畫更新資料中，請等待...";
 	/** 更新漫畫完成訊息 */

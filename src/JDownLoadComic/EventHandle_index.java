@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -21,7 +22,8 @@ import JDownLoadComic.util.JDataTable;
  * 
  */
 
-public class EventHandle_index implements ActionListener {
+public class EventHandle_index implements ActionListener,
+		LoadComicData.Callback {
 	/** 父層 */
 	private JDownLoadUI_index parentObj;
 	/** 從文字檔讀取的漫畫列表、我的最愛列表資料 */
@@ -34,6 +36,7 @@ public class EventHandle_index implements ActionListener {
 	 * 記錄目前被打開的漫畫列表，防止重複打開列表
 	 */
 	private HashMap<String, JDownLoadUI_Act> comicListPool;
+	protected Hashtable<String, ActDataObj> comicKind; // 已抓過的漫畫
 
 	public EventHandle_index() {
 		initEventHandle_index();
@@ -47,6 +50,7 @@ public class EventHandle_index implements ActionListener {
 		loadData = new ArrayList<LoadComicData>();
 		cmd = new Command();
 		comicListPool = new HashMap<String, JDownLoadUI_Act>();
+		comicKind = new Hashtable();
 	}
 
 	/**
@@ -70,18 +74,13 @@ public class EventHandle_index implements ActionListener {
 				final int[] list = getSelectRowIndex();// 取得漫畫的id編號
 
 				if (list.length > 0) {
-					new Thread() {
-						@Override
-						public void run() {
-							setStateText(Config.readyMsg);
-							for (int i = 0; i < list.length; i++) {
-								// 顯示一種漫畫所有的集數列表
-								creadActListJFrame(tmpData.getActData(list[i],
-										tmpData.getCartoonName(list[i])));
-							}
-							setStateText(Config.loadOKMsg);
-						}
-					}.start();
+					for (int i = 0; i < list.length; i++) {
+						String comicNumber = tmpData.getCartoonID(list[i]);
+						String comicName = tmpData.getCartoonName(list[i]);
+
+						// 顯示一種漫畫所有的集數列表
+						creadActListJFrame(comicNumber, comicName);
+					}
 				}
 			} else if (name.equals("update")) {
 				if (!Config.db.updateEnable()) {
@@ -165,19 +164,54 @@ public class EventHandle_index implements ActionListener {
 	 * 
 	 * @param actData
 	 */
-	public void creadActListJFrame(ActDataObj actData) {
-		// 2013/02/28防止jframe被重複打開
-		JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);
-		if (down == null) {
-			down = new JDownLoadUI_Act(this, actData);
-			comicListPool.put(actData.cartoonName, down);
+	public synchronized void creadActListJFrame(String comicNumber,
+			String comicName) {
+		System.out.println("pool " + comicListPool.hashCode());
+		LoadComicData comicData = getNowSelectListIndex();
+		// ActDataObj被建立時狀態為STATE_SYNC_READY
+		ActDataObj actData = getActData_actIndex(comicNumber, comicName);
+		System.out.println("op->" + actData.cartoonName + ",state:"
+				+ actData.syncState);
+		// 正準備開始同步漫畫集數
+		if (actData.syncState == ActDataObj.STATE_SYNC_READY) {
+			JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);
+			if (down == null) {
+				down = new JDownLoadUI_Act(this);
+				comicListPool.put(actData.cartoonName, down);
+				setStateText(Config.readyMsg + actData.cartoonName);
+				comicData.startSync(actData, this);
+			}
+			return;
+		}
+		// 開始同步漫畫集數
+		if (actData.syncState == ActDataObj.STATE_SYNC_START) {
+			setStateText("漫畫\"" + actData.cartoonName + "\"正在讀取集數列表中...");
+			return;
+		}
+		// 漫畫集數已存在，且同步完成
+		if (actData.syncState == ActDataObj.STATE_SYNC_SUCCESS) {
+			JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);
+
+			if (down != null) {
+				down.setVisible(true);
+				down.toFront();
+			}
+			return;
+		}
+	}
+
+	// 打開漫畫集數列表時，同步完成的callback
+	@Override
+	public void onSynced(ActDataObj actObj) {
+		JDownLoadUI_Act down = comicListPool.get(actObj.cartoonName);
+		if (down != null) {
+			down.setActDataObj(actObj);
 			down.pack();
-			down.setLocation((int) Config.db.indexBounds.getX(),
-					(int) Config.db.indexBounds.getY());
-			down.setVisible(true);
+			down.setLocation(parentObj.getX(), parentObj.getY());
 			down.setDataTableList(downLoadTable);
-		} else {
+			down.setVisible(true);
 			down.toFront();
+			setStateText(Config.loadOKMsg + actObj.cartoonName);
 		}
 	}
 
@@ -339,16 +373,11 @@ public class EventHandle_index implements ActionListener {
 					possibleValues.toArray(), possibleValues.get(0));
 
 			if (op != null) {// 若使用者有選擇資料，再去load漫畫集數列表
-				new Thread() {
-					@Override
-					public void run() {
-						setStateText(Config.readyMsg);
-						String[] findDataAry = ((String) op).split("[|]");// [0]漫畫編號,[1]漫畫名稱
-						creadActListJFrame(tmpData.getActData_actIndex(
-								findDataAry[0], findDataAry[1]));
-						setStateText(Config.loadOKMsg);
-					}
-				}.start();
+				String[] findDataAry = ((String) op).split("[|]");// [0]漫畫編號,[1]漫畫名稱
+				String comicNumber = findDataAry[0];
+				String comicName = findDataAry[1];
+
+				creadActListJFrame(comicNumber, comicName);
 			}
 		} else {
 			JOptionPane.showMessageDialog(null, "沒有找到符合的漫畫名稱", "訊息",
@@ -402,6 +431,29 @@ public class EventHandle_index implements ActionListener {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 用漫畫編號去load資料列表
+	 * 
+	 * @param ComicNumber
+	 *            漫畫編號
+	 * @param ComicName
+	 *            漫畫名稱
+	 * @return
+	 */
+	public ActDataObj getActData_actIndex(String ComicNumber, String ComicName) {
+		ActDataObj actObj = comicKind.get(ComicNumber);
+		if (actObj != null) {
+			return actObj;
+		} else {
+			actObj = new ActDataObj();
+			actObj.id = ComicNumber;
+			comicKind.put(ComicNumber, actObj);
+			actObj.cartoonName = ComicName;
+		}
+
+		return actObj;
 	}
 
 	/**

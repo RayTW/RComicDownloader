@@ -20,12 +20,15 @@ public class LoadComicData {
 	// private String vision; //漫畫列表版本
 	protected HttpReader loadHtml; // 讀取網址
 	protected String[][] indexData; // 漫舉列表
-	protected Hashtable comicKind; // 已抓過的漫畫
+
 	protected Hashtable cviewUrlHash;
 	protected WriteFile wf;
 
+	public interface Callback {
+		void onSynced(ActDataObj actObj);
+	}
+
 	public LoadComicData() {
-		comicKind = new Hashtable();
 		loadHtml = new HttpReader();
 	}
 
@@ -174,109 +177,109 @@ public class LoadComicData {
 	}
 
 	/**
-	 * 取得一種漫畫所有的集數列表,用ROWd 位置轉換成真正的漫畫編號
+	 * 啟動解析漫畫列表執行緒
 	 * 
-	 * @param rowIndex
-	 *            選擇第幾筆漫畫
-	 * @return
+	 * @param actObj
 	 */
-	public ActDataObj getActData(int rowIndex, String ComicName) {
-		return getActData_actIndex(getCartoonID(rowIndex), ComicName);// 取出第n筆漫畫真正的ID編號
+	public void startSync(ActDataObj actObj, Callback callback) {
+		new Thread(createSyncRunobject(actObj, callback)).start();
 	}
 
-	/**
-	 * 用漫畫編號去load資料列表
-	 * 
-	 * @param actIndex
-	 *            漫畫編號
-	 * @param ComicName
-	 *            漫畫名稱
-	 * @return
-	 */
-	public ActDataObj getActData_actIndex(String actIndex, String ComicName) {
-		ActDataObj actObj = (ActDataObj) comicKind.get(actIndex);
-		if (actObj != null) {
-			return actObj;
-		} else {
-			actObj = new ActDataObj();
-			actObj.id = actIndex;
-			comicKind.put(actIndex, actObj);
-			actObj.cartoonName = ComicName;
-		}
+	private Runnable createSyncRunobject(final ActDataObj actObj,
+			final Callback callback) {
+		Runnable runObj = new Runnable() {
+			private Callback mCallback;
 
-		String comicUrl = Config.indexHtml + "/html/" + actIndex + ".html";
+			@Override
+			public void run() {
+				mCallback = callback;
+				actObj.syncState = ActDataObj.STATE_SYNC_START;
+				String comicUrl = Config.indexHtml + "/html/" + actObj.id
+						+ ".html";
 
-		String imgurl = Config.imgUrl + "/" + actIndex + ".jpg";
-		String imgSavePath = Config.defaultImgPath;
-		actObj.stargLoadImg(comicUrl, imgurl, imgSavePath);// 開始下載封面圖片
-		ArrayList dataAry = loadHtml.getHTMLtoArrayList(comicUrl,
-				Config.actLang);
-		String viewData = "";
-		String tmpch = "";
-		String findCview = "cview(";
-		String findDeaitlTag = "style=\"padding:10px;line-height:25px\">";// 用來找漫畫簡介的字串位置
-		// String replaceStr =
-		// "<td colspan=\"2\" nowrap=\"nowrap\">";//漫畫網站改版後，有多了這個字串排版，將他replaceAll
+				String imgurl = Config.imgUrl + "/" + actObj.id + ".jpg";
+				String imgSavePath = Config.defaultImgPath;
+				actObj.stargLoadImg(comicUrl, imgurl, imgSavePath);// 開始下載封面圖片
+				ArrayList dataAry = loadHtml.getHTMLtoArrayList(comicUrl,
+						Config.actLang);
+				String viewData = "";
+				String tmpch = "";
+				String findCview = "cview(";
+				String findDeaitlTag = "style=\"padding:10px;line-height:25px\">";// 用來找漫畫簡介的字串位置
+				// String replaceStr =
+				// "<td colspan=\"2\" nowrap=\"nowrap\">";//漫畫網站改版後，有多了這個字串排版，將他replaceAll
 
-		for (int i = 0; i < dataAry.size(); i++) {
-			String txt = (String) dataAry.get(i);
-			if (txt.indexOf(findCview) != -1) {
-				viewData = txt;
-				String[] data = viewData
-						.substring(
-								viewData.indexOf(findCview)
-										+ findCview.length(),
-								viewData.indexOf(");return"))
-						.replaceAll("'", "").split("[,]");
-				tmpch = data[0];
-				String comicOneBookName = dataAry.get(i + 1).toString();// 漫畫集數名稱
-				comicOneBookName = removeScriptsTag(comicOneBookName);// 2012/11/07
-																		// 去除scripts
-																		// tag
-				comicOneBookName = replaceTag(comicOneBookName);// 2012/11/07
-																// 去除td tag
-				// 2013/09/15 修正漫畫集數出現":"
-				comicOneBookName = comicOneBookName.replaceAll("[:]", "：");
+				for (int i = 0; i < dataAry.size(); i++) {
+					String txt = (String) dataAry.get(i);
+					if (txt.indexOf(findCview) != -1) {
+						viewData = txt;
+						String[] data = viewData
+								.substring(
+										viewData.indexOf(findCview)
+												+ findCview.length(),
+										viewData.indexOf(");return"))
+								.replaceAll("'", "").split("[,]");
+						tmpch = data[0];
+						String comicOneBookName = dataAry.get(i + 1).toString();// 漫畫集數名稱
+						comicOneBookName = removeScriptsTag(comicOneBookName);// 2012/11/07
+						// 去除scripts
+						// tag
+						comicOneBookName = replaceTag(comicOneBookName);// 2012/11/07
+						// 去除td tag
+						// 2013/09/15 修正漫畫集數出現":"
+						comicOneBookName = comicOneBookName.replaceAll("[:]",
+								"：");
 
-				actObj.addActComic(comicOneBookName, cview(data[0], data[1]));
-			} else {
-				if (actObj.getDetail().equals("")) {
-					if (txt.indexOf(findDeaitlTag) != -1) {// 找到簡介說明
-						int detailStart = txt.indexOf(findDeaitlTag)
-								+ findDeaitlTag.length();
-						int detailEnd = txt.indexOf("</td>");
-						actObj.setDetail(txt.substring(detailStart, detailEnd));
+						actObj.addActComic(comicOneBookName,
+								cview(data[0], data[1]));
+					} else {
+						if (actObj.getDetail().equals("")) {
+							if (txt.indexOf(findDeaitlTag) != -1) {// 找到簡介說明
+								int detailStart = txt.indexOf(findDeaitlTag)
+										+ findDeaitlTag.length();
+								int detailEnd = txt.indexOf("</td>");
+								actObj.setDetail(txt.substring(detailStart,
+										detailEnd));
+							}
+						}
+						if (actObj.getAuthor().equals("")) {
+							String authorTag = "作者：</td>";
+							if (txt.indexOf(authorTag) != -1) {// 找到作者
+								// 2012/11/07 動漫網站有修改作者tag
+								// actObj.setAuthor(replaceTag(findBookData(authorTag,(String)dataAry.get(i+1))));
+								String author = replaceTag((String) dataAry
+										.get(i + 1));
+								actObj.setAuthor(author);
+							}
+						} else if (actObj.getLastUpdateDate().equals("")) {
+							String lastUpdateDateTag = "更新：</td>";
+							if (txt.indexOf(lastUpdateDateTag) != -1) {// 找到最後更新日期
+								// 2012/11/07 修正最後更新日期tag
+								String updateDate = replaceTag((String) dataAry
+										.get(i + 1));
+								actObj.setLastUpdateDate(updateDate);
+								// actObj.setLastUpdateDate(replaceTag(findBookData(lastUpdateDateTag,(String)dataAry.get(i+1))));
+							}
+						}/*
+						 * else
+						 * if(actObj.getPublishDate().equals("")){//2010/08/14
+						 * 此網站已不留發行日期 String publishDateTag = "出品：</td>";
+						 * if(txt.indexOf(publishDateTag) != -1){//找到發行日期
+						 * actObj.setPublishDate
+						 * (findBookData(publishDateTag,(String
+						 * )dataAry.get(i+1))); } }
+						 */
 					}
 				}
-				if (actObj.getAuthor().equals("")) {
-					String authorTag = "作者：</td>";
-					if (txt.indexOf(authorTag) != -1) {// 找到作者
-						// 2012/11/07 動漫網站有修改作者tag
-						// actObj.setAuthor(replaceTag(findBookData(authorTag,(String)dataAry.get(i+1))));
-						String author = replaceTag((String) dataAry.get(i + 1));
-						actObj.setAuthor(author);
-					}
-				} else if (actObj.getLastUpdateDate().equals("")) {
-					String lastUpdateDateTag = "更新：</td>";
-					if (txt.indexOf(lastUpdateDateTag) != -1) {// 找到最後更新日期
-						// 2012/11/07 修正最後更新日期tag
-						String updateDate = replaceTag((String) dataAry
-								.get(i + 1));
-						actObj.setLastUpdateDate(updateDate);
-						// actObj.setLastUpdateDate(replaceTag(findBookData(lastUpdateDateTag,(String)dataAry.get(i+1))));
-					}
-				}/*
-				 * else if(actObj.getPublishDate().equals("")){//2010/08/14
-				 * 此網站已不留發行日期 String publishDateTag = "出品：</td>";
-				 * if(txt.indexOf(publishDateTag) != -1){//找到發行日期
-				 * actObj.setPublishDate
-				 * (findBookData(publishDateTag,(String)dataAry.get(i+1))); } }
-				 */
-			}
-		}
 
-		actObj.ch = Integer.parseInt(tmpch.split("[.]")[0].split("[-]")[1]);
-		return actObj;
+				actObj.ch = Integer
+						.parseInt(tmpch.split("[.]")[0].split("[-]")[1]);
+				actObj.syncState = ActDataObj.STATE_SYNC_SUCCESS;
+				mCallback.onSynced(actObj);
+				mCallback = null;
+			}
+		};
+		return runObj;
 	}
 
 	/**
