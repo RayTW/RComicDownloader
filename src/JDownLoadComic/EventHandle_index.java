@@ -70,16 +70,17 @@ public class EventHandle_index implements ActionListener,
 			JButton b = (JButton) obj;
 			String name = b.getName();
 			if (name.equals("ListAllAct")) {
-				final LoadComicData tmpData = getNowSelectListIndex();
+				// final LoadComicData tmpData = getNowSelectListIndex();
+				final LoadComicData tmpData = getLoadComicData(0);
 				final int[] list = getSelectRowIndex();// 取得漫畫的id編號
 
 				if (list.length > 0) {
 					for (int i = 0; i < list.length; i++) {
 						String comicNumber = tmpData.getCartoonID(list[i]);
-						String comicName = tmpData.getCartoonName(list[i]);
+						// String comicName = tmpData.getCartoonName(list[i]);
 
 						// 顯示一種漫畫所有的集數列表
-						creadActListJFrame(comicNumber, comicName);
+						creadActListJFrame(comicNumber);
 					}
 				}
 			} else if (name.equals("update")) {
@@ -164,10 +165,11 @@ public class EventHandle_index implements ActionListener,
 	 * 
 	 * @param actData
 	 */
-	public synchronized void creadActListJFrame(String comicNumber,
-			String comicName) {
+	public synchronized void creadActListJFrame(String comicNumber) {
 		System.out.println("pool " + comicListPool.hashCode());
-		LoadComicData comicData = getNowSelectListIndex();
+		// LoadComicData comicData = getNowSelectListIndex();
+		LoadComicData comicData = getLoadComicData(0);
+		String comicName = comicData.findComicName(comicNumber);
 		// ActDataObj被建立時狀態為STATE_SYNC_READY
 		ActDataObj actData = getActData_actIndex(comicNumber, comicName);
 		System.out.println("op->" + actData.cartoonName + ",state:"
@@ -360,7 +362,8 @@ public class EventHandle_index implements ActionListener,
 			return;
 		}
 
-		final LoadComicData tmpData = getNowSelectListIndex();
+		// final LoadComicData tmpData = getNowSelectListIndex();
+		LoadComicData tmpData = getLoadComicData(0);
 		// 將搜尋到的資料秀成列表
 		// String cartoonKeyWord = getFindFieldText();
 		ArrayList<String> possibleValues = tmpData
@@ -375,9 +378,9 @@ public class EventHandle_index implements ActionListener,
 			if (op != null) {// 若使用者有選擇資料，再去load漫畫集數列表
 				String[] findDataAry = ((String) op).split("[|]");// [0]漫畫編號,[1]漫畫名稱
 				String comicNumber = findDataAry[0];
-				String comicName = findDataAry[1];
+				// String comicName = findDataAry[1];
 
-				creadActListJFrame(comicNumber, comicName);
+				creadActListJFrame(comicNumber);
 			}
 		} else {
 			JOptionPane.showMessageDialog(null, "沒有找到符合的漫畫名稱", "訊息",
@@ -393,7 +396,8 @@ public class EventHandle_index implements ActionListener,
 				@Override
 				public void run() {
 					setStateText(Config.waitUpdate);
-					LoadComicData tmpData = getNowSelectListIndex();
+					// LoadComicData tmpData = getNowSelectListIndex();
+					LoadComicData tmpData = getLoadComicData(0);
 					// 最新漫畫
 					ArrayList<NewComic> newComicAry = new ArrayList<NewComic>();
 					String[][] data = tmpData.updateComic(newComicAry);

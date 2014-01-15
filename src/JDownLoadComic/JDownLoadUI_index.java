@@ -358,10 +358,10 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 					String comicNumber = jtable.getJTable().getValueAt(row, 0)
 							.toString();
-					String comicName = jtable.getJTable().getValueAt(row, 1)
-							.toString();
+					// String comicName = jtable.getJTable().getValueAt(row, 1)
+					// .toString();
 
-					handle.creadActListJFrame(comicNumber, comicName);
+					handle.creadActListJFrame(comicNumber);
 				}
 			}
 		});

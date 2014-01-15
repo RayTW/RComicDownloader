@@ -155,6 +155,24 @@ public class LoadComicData {
 	}
 
 	/**
+	 * 用漫畫編號查詢漫畫名稱
+	 * 
+	 * @param comicNumber
+	 * @return
+	 */
+	public String findComicName(String comicNumber) {
+		int size = getDataLength();
+		for (int i = size - 1; i >= 0; i--) {
+			String cNumber = indexData[i][0].trim();
+
+			if (cNumber.equals(comicNumber.trim())) {
+				return indexData[i][1];
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * 取出所有符合搜尋條件的資料
 	 * 
 	 * @param findName要搜尋的漫畫名稱
