@@ -78,6 +78,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		table.setRowHeight(40);
 		table.getColumn(0).setMaxWidth(60);
 		table.setFont(new Font("Serif", Font.BOLD, 20));
+		table.getJTable().setToolTipText(Config.please_double_click);
 		addComidListDoubleClickEvent(table, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(0, loadData);
 
@@ -89,6 +90,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		tableLove.setRowHeight(40);
 		tableLove.getColumn(0).setMaxWidth(60);
 		tableLove.setFont(new Font("Serif", Font.BOLD, 20));
+		tableLove.getJTable().setToolTipText(Config.please_double_click);
 		addComidListDoubleClickEvent(tableLove, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(1, loadDataLove);
 
@@ -98,14 +100,15 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		tableNew.setRowHeight(40);
 		tableNew.getColumn(0).setMaxWidth(60);
 		tableNew.setFont(new Font("Serif", Font.BOLD, 20));
+		tableNew.getJTable().setToolTipText(Config.please_double_click);
 		addComidListDoubleClickEvent(tableNew, eventHandleIndex);
 
-		JPanel northPanel = new JPanel(new GridLayout(0, 6, 10, 0));
+		JPanel northPanel = new JPanel(new GridLayout(0, 5, 10, 0));
 		c.add(northPanel, BorderLayout.NORTH);
-		final JButton dataActListBtn = new JButton("列出漫畫集數");
-		dataActListBtn.setName("ListAllAct");
-		dataActListBtn.addActionListener(eventHandleIndex);
-		northPanel.add(dataActListBtn);
+//		final JButton dataActListBtn = new JButton("列出漫畫集數");
+//		dataActListBtn.setName("ListAllAct");
+//		dataActListBtn.addActionListener(eventHandleIndex);
+//		northPanel.add(dataActListBtn);
 
 		JPanel findPanel = new JPanel(new BorderLayout());
 		findField = new JTextField();
@@ -160,7 +163,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 				// updateBtn.setEnabled(index == 0);
 				loveBtn.setEnabled(index == 0);
 				deleteBtn.setEnabled(index == 1);
-				dataActListBtn.setEnabled(index != 3 && index != 4);
+				//dataActListBtn.setEnabled(index != 3 && index != 4);
 				findField.setEnabled(index != 3 && index != 4);
 
 				switch (index) {

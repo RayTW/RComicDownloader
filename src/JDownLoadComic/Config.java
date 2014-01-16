@@ -18,7 +18,7 @@ import JDownLoadComic.util.URLEncodeDecodeTool;
 
 public class Config {
 	/** 版本 */
-	public static final String version = "v1.22.13";
+	public static final String version = "v1.22.14";
 	// 首頁的title
 	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
 
@@ -57,6 +57,8 @@ public class Config {
 	public static String netWorkDisconnect = "網路連線中斷";
 	/** 網路連線中斷訊息 */
 	public static String file_existed = "漫畫已下載過";
+	/** 請雙擊兩下開啟漫畫列表 */
+	public static String please_double_click = "請雙擊兩下開啟漫畫列表";
 
 	/** 漫畫最新版本公告txt的url */
 	public static String newUrl = "http://blog.xuite.net/ray00000test/blog/66855641";// 更新版本訊息的txt檔url

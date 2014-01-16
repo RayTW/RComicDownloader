@@ -69,9 +69,9 @@ public class EventHandle_index implements ActionListener,
 		if (obj instanceof JButton) {
 			JButton b = (JButton) obj;
 			String name = b.getName();
-			if (name.equals("ListAllAct")) {
-				// final LoadComicData tmpData = getNowSelectListIndex();
-				final LoadComicData tmpData = getLoadComicData(0);
+			/*if (name.equals("ListAllAct")) {
+				 final LoadComicData tmpData = getNowSelectListIndex();
+				//final LoadComicData tmpData = getLoadComicData(0);
 				final int[] list = getSelectRowIndex();// 取得漫畫的id編號
 
 				if (list.length > 0) {
@@ -83,7 +83,7 @@ public class EventHandle_index implements ActionListener,
 						creadActListJFrame(comicNumber);
 					}
 				}
-			} else if (name.equals("update")) {
+			} else */if (name.equals("update")) {
 				if (!Config.db.updateEnable()) {
 					JOptionPane.showMessageDialog(
 							null,
