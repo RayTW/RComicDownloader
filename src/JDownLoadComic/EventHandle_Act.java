@@ -164,9 +164,20 @@ public class EventHandle_Act implements ActionListener {
 
 	void addTask(ActDataObj actObj, int index) {
 		DownloadComicTask task = new DownloadComicTask(actObj, index);
-		task.setParent(this);
-		downLoadTable.addObj(task);
-		task.createThreadTask();
+		try{
+			task.setParent(this);
+			downLoadTable.addObj(task);
+			task.createThreadTask();
+		}catch(Exception e){
+			e.printStackTrace();
+			downLoadTable.removeObj(task);
+			String msg = e.getMessage();
+			if(task != null){
+				msg = task.getCheckName() + "下載失敗";
+			}
+			JOptionPane.showMessageDialog(null, msg, "錯誤訊息",
+					JOptionPane.INFORMATION_MESSAGE);
+		}
 	}
 
 	/**

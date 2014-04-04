@@ -390,6 +390,14 @@ public class EventHandle_index implements ActionListener,
 
 	// true:可更新
 	public void updateComic(final JDataTable tableNew, final boolean showAlert) {
+		if (Config.db.getNewComicList().size() > 0) {
+			LoadNewComicData loadNewData = new LoadNewComicData();
+			loadNewData.initLoadCartoonData(Config.db.getNewComicList());
+			addLoadDataObj(2, loadNewData);
+			if (tableNew != null) {
+				tableNew.addMutilRowDataArray(loadNewData.getIndexData());
+			}
+		}
 		if (Config.db.updateEnable()) {
 			Config.db.updateDate();
 			new Thread() {
@@ -401,10 +409,11 @@ public class EventHandle_index implements ActionListener,
 					// 最新漫畫
 					ArrayList<NewComic> newComicAry = new ArrayList<NewComic>();
 					String[][] data = tmpData.updateComic(newComicAry);
-
+					
 					if (data.length > 0) {
 						tmpData.initLoadCartoonData(Config.db.getComicList());// 有更新資料，重load
 						addComicArray(data);
+						
 						if (showAlert) {
 							JOptionPane.showMessageDialog(null, "此次更新"
 									+ data.length + "本最新漫畫^^", "訊息",
@@ -425,15 +434,6 @@ public class EventHandle_index implements ActionListener,
 
 				}
 			}.start();
-		} else {
-			if (Config.db.getNewComicList().size() > 0) {
-				LoadNewComicData loadNewData = new LoadNewComicData();
-				loadNewData.initLoadCartoonData(Config.db.getNewComicList());
-				addLoadDataObj(2, loadNewData);
-				if (tableNew != null) {
-					tableNew.addMutilRowDataArray(loadNewData.getIndexData());
-				}
-			}
 		}
 	}
 
