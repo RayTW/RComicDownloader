@@ -175,6 +175,12 @@ public class JDataTable {
 		tmodel.removeRow(row);
 	}
 
+	public void removeAll() {
+		for (int i = tmodel.getRowCount() - 1; i >= 0; i--) {
+			tmodel.removeRow(i);
+		}
+	}
+
 	/**
 	 * 移除所點選的資料筆，可移除多筆資料且資料筆不連續也可以刪
 	 */

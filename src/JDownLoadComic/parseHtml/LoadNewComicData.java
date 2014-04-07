@@ -20,25 +20,20 @@ public class LoadNewComicData extends LoadComicData {
 
 	public void loadNew(final JDataTable table,
 			final ArrayList<NewComic> newComicAry) {
-		new Thread() {
-			@Override
-			public void run() {
-				for (int i = 0; i < newComicAry.size(); i++) {
-					NewComic obj = newComicAry.get(i);
 
-					table.addRowAryData(new String[] { obj.id,
-							obj.name + "[" + obj.act + "]" });
-				}
-				Config.db.clearNewComicList();
-				indexData = new String[table.getDataCount()][];
-				for (int i = 0; i < table.getDataCount(); i++) {
-					indexData[i] = new String[] {
-							(String) table.getValutAt(i, 0),
-							(String) table.getValutAt(i, 1) };
-					Config.db.addNewComicList(indexData[i]);
-				}
-			}
-		}.start();
+		for (int i = 0; i < newComicAry.size(); i++) {
+			NewComic obj = newComicAry.get(i);
+
+			table.addRowAryData(new String[] { obj.id,
+					obj.name + "[" + obj.act + "]" });
+		}
+		Config.db.clearNewComicList();
+		indexData = new String[table.getDataCount()][];
+		for (int i = 0; i < table.getDataCount(); i++) {
+			indexData[i] = new String[] { (String) table.getValutAt(i, 0),
+					(String) table.getValutAt(i, 1) };
+			Config.db.addNewComicList(indexData[i]);
+		}
 	}
 
 	/**

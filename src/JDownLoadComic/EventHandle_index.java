@@ -69,21 +69,18 @@ public class EventHandle_index implements ActionListener,
 		if (obj instanceof JButton) {
 			JButton b = (JButton) obj;
 			String name = b.getName();
-			/*if (name.equals("ListAllAct")) {
-				 final LoadComicData tmpData = getNowSelectListIndex();
-				//final LoadComicData tmpData = getLoadComicData(0);
-				final int[] list = getSelectRowIndex();// 取得漫畫的id編號
-
-				if (list.length > 0) {
-					for (int i = 0; i < list.length; i++) {
-						String comicNumber = tmpData.getCartoonID(list[i]);
-						// String comicName = tmpData.getCartoonName(list[i]);
-
-						// 顯示一種漫畫所有的集數列表
-						creadActListJFrame(comicNumber);
-					}
-				}
-			} else */if (name.equals("update")) {
+			/*
+			 * if (name.equals("ListAllAct")) { final LoadComicData tmpData =
+			 * getNowSelectListIndex(); //final LoadComicData tmpData =
+			 * getLoadComicData(0); final int[] list = getSelectRowIndex();//
+			 * 取得漫畫的id編號
+			 * 
+			 * if (list.length > 0) { for (int i = 0; i < list.length; i++) {
+			 * String comicNumber = tmpData.getCartoonID(list[i]); // String
+			 * comicName = tmpData.getCartoonName(list[i]);
+			 * 
+			 * // 顯示一種漫畫所有的集數列表 creadActListJFrame(comicNumber); } } } else
+			 */if (name.equals("update")) {
 				if (!Config.db.updateEnable()) {
 					JOptionPane.showMessageDialog(
 							null,
@@ -398,6 +395,7 @@ public class EventHandle_index implements ActionListener,
 				tableNew.addMutilRowDataArray(loadNewData.getIndexData());
 			}
 		}
+
 		if (Config.db.updateEnable()) {
 			Config.db.updateDate();
 			new Thread() {
@@ -409,11 +407,11 @@ public class EventHandle_index implements ActionListener,
 					// 最新漫畫
 					ArrayList<NewComic> newComicAry = new ArrayList<NewComic>();
 					String[][] data = tmpData.updateComic(newComicAry);
-					
+
 					if (data.length > 0) {
 						tmpData.initLoadCartoonData(Config.db.getComicList());// 有更新資料，重load
 						addComicArray(data);
-						
+
 						if (showAlert) {
 							JOptionPane.showMessageDialog(null, "此次更新"
 									+ data.length + "本最新漫畫^^", "訊息",
@@ -427,11 +425,13 @@ public class EventHandle_index implements ActionListener,
 					}
 					setStateText(Config.updateOK);
 					if (tableNew != null) {
+						tableNew.removeAll();
 						LoadNewComicData loadNewData = new LoadNewComicData();
 						loadNewData.loadNew(tableNew, newComicAry);
 						addLoadDataObj(2, loadNewData);
 					}
-
+					System.out.println("ccc "
+							+ tableNew.getJTable().getRowCount());
 				}
 			}.start();
 		}

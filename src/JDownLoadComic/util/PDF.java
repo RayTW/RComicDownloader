@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
-import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
 import com.itextpdf.text.Image;
@@ -41,7 +40,7 @@ public class PDF {
 	 * @param targetPdfPath
 	 *            要儲存的的PDF路徑
 	 * @return
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public static boolean comicFolderToPDF(Rectangle pageSize,
 			String sourceFolderPath, ArrayList<String> pathList,
