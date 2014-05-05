@@ -10,6 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -20,6 +21,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import JDownLoadComic.parseHtml.LoadComicData;
+import JDownLoadComic.util.Log;
 import JDownLoadComic.util.ThreadPool;
 import JDownLoadComic.util.JDataTable;
 import JDownLoadComic.util.NewComicTableCellRenderer;
@@ -32,6 +34,7 @@ import JDownLoadComic.util.WriteFile;
  */
 
 public class JDownLoadUI_index extends JDownLoadUI_Default {
+	private static Log mLog = Log.newInstance(true);
 	/** 處理首頁事件 */
 	private EventHandle_index eventHandleIndex; // 處理首頁事件
 	/** 搜尋輸入框 */
@@ -205,11 +208,16 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 				new Thread() {
 					@Override
 					public void run() {
-						Config.db.indexBounds = JDownLoadUI_index.this
-								.getBounds();
-						setVisible(false);
-						Config.db.save();
-						FolderManager.deleteFolder(Config.tempFolderPath);
+						try{
+							Config.db.indexBounds = JDownLoadUI_index.this
+									.getBounds();
+							setVisible(false);
+							Config.db.save();
+							FolderManager.deleteFolder(Config.tempFolderPath);
+						}catch(Exception e){
+							e.printStackTrace();
+						}
+						mLog.println("2 windowClosing");
 						System.exit(0);
 					}
 				}.start();
