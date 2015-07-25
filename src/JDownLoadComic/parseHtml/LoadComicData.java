@@ -5,8 +5,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+
 import JDownLoadComic.Config;
 import JDownLoadComic.util.HttpReader;
+import JDownLoadComic.util.Log;
 import JDownLoadComic.util.WriteFile;
 
 /**
@@ -17,6 +19,7 @@ import JDownLoadComic.util.WriteFile;
  */
 
 public class LoadComicData {
+	private static Log sLog = Log.newInstance(true);
 	// private String vision; //漫畫列表版本
 	protected HttpReader loadHtml; // 讀取網址
 	protected String[][] indexData; // 漫舉列表
@@ -231,6 +234,7 @@ public class LoadComicData {
 					String txt = (String) dataAry.get(i);
 					if (txt.indexOf(findCview) != -1) {
 						viewData = txt;
+						sLog.println(viewData);
 						String[] data = viewData
 								.substring(
 										viewData.indexOf(findCview)

@@ -169,8 +169,7 @@ public class EventHandle_index implements ActionListener,
 		String comicName = comicData.findComicName(comicNumber);
 		// ActDataObj被建立時狀態為STATE_SYNC_READY
 		ActDataObj actData = getActData_actIndex(comicNumber, comicName);
-		System.out.println("op->" + actData.cartoonName + ",state:"
-				+ actData.syncState);
+
 		// 正準備開始同步漫畫集數
 		if (actData.syncState == ActDataObj.STATE_SYNC_READY) {
 			JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);

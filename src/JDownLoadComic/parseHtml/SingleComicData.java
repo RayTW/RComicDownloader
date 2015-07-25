@@ -50,12 +50,10 @@ public class SingleComicData {
 	 * @return
 	 */
 	public boolean setPageList() {
-		System.out.println("url[" + url);
 		StringBuffer exception = new StringBuffer();
 		String html = loadHtml.getHTML_BIG5(url, exception);
 
 		if (exception.toString().isEmpty()) {
-			System.out.println("class[" + getClass() + "]" + exception);
 			String ch = getCH();// 從url取得卷數或集數
 			ComicData comicData = ParseComicJpgUrl20.getComicData(html);
 			mParseComicJpgUrl20 = new ParseComicJpgUrl20(ch, comicData.chs,

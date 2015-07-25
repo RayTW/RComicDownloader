@@ -23,7 +23,7 @@ public class Config {
 	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
 
 	/** 無限動漫首頁網址 */
-	public static String indexHtml = "http://www.8comic.com/"; // 無限動漫首頁網址
+	public static String indexHtml = "http://www.comicvip.com/"; // 無限動漫首頁網址
 	/** 漫畫封面圖片前段網址 */
 	public static String imgUrl = indexHtml + "pics/0/"; // 漫畫封面圖片前段網址
 	/** 網頁編碼 */

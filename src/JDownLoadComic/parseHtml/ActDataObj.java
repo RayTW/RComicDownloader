@@ -81,7 +81,7 @@ public class ActDataObj {
 			scData = new SingleComicData();// 產生一本漫畫物件
 			scData.name = name;
 			scData.itemid = Integer.parseInt(viewdata[0]);
-			scData.url = viewdata[1];// 這本漫畫網頁網址
+			scData.url = Config.indexHtml + viewdata[1];// 這本漫畫網頁網址
 			comicList.put(id + name, scData);
 			// comicSorted.add(scData);//由上至下排序為1~n集
 			// 2013/02/28 改成排序由上至下排序為n~1集

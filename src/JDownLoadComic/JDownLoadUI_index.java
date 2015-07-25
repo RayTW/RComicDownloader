@@ -34,7 +34,11 @@ import JDownLoadComic.util.WriteFile;
  */
 
 public class JDownLoadUI_index extends JDownLoadUI_Default {
-	private static Log mLog = Log.newInstance(true);
+	static {
+		Log.setGlobalDebug(false);
+	}
+	private static Log sLog = Log.newInstance(true);
+
 	/** 處理首頁事件 */
 	private EventHandle_index eventHandleIndex; // 處理首頁事件
 	/** 搜尋輸入框 */
@@ -217,7 +221,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
-						mLog.println("2 windowClosing");
+						sLog.println("2 windowClosing");
 						System.exit(0);
 					}
 				}.start();
