@@ -1,6 +1,5 @@
 package JDownLoadComic.util;
 
-
 /**
  * 管理目前是否輸出Log<br>
  * <br>
@@ -30,7 +29,7 @@ public class Log {
 	private Log(String simpleName) {
 		mClassName = simpleName;
 	}
-	
+
 	/**
 	 * @param debug
 	 *            true:目前印出log，false:不印log
@@ -53,6 +52,7 @@ public class Log {
 
 	/**
 	 * 取得門前輸出log的class name
+	 * 
 	 * @return
 	 */
 	public String getClassName() {
@@ -78,9 +78,10 @@ public class Log {
 			System.out.print(mClassName + " : " + obj);
 		}
 	}
-	
+
 	/**
-	 * 輸出System.out.println(obj) note:當global_debug為false 或 debug為false時，將不會輸出log
+	 * 輸出System.out.println(obj) note:當global_debug為false 或
+	 * debug為false時，將不會輸出log
 	 * 
 	 * @param obj
 	 */
@@ -101,7 +102,7 @@ public class Log {
 			System.out.print(getClassName(PRINT_GLOABLE) + " : " + obj);
 		}
 	}
-	
+
 	/**
 	 * 用動態方式取得class name使用System.out.print(obj)<br>
 	 * note:當global_debug為false時，將不會輸出log
@@ -127,10 +128,10 @@ public class Log {
 		for (int i = 0; i < stack.length; i++) {
 			StackTraceElement st = stack[i];
 			String lineName = st.getClassName() + st.getMethodName();
-			
+
 			if (name.equals(lineName) && (i + 1) < stack.length) {
 				className = stack[i + 1].getClassName();
-				
+
 				int pLastIndex = className.lastIndexOf('.');
 
 				if (pLastIndex != -1) {
@@ -141,21 +142,4 @@ public class Log {
 		}
 		return "" + className;
 	}
-
-	public static void main(String [] args){
-		
-		class AAA{
-			private Log mLog = Log.newInstance(true);
-			AAA(){
-				Log.printlnGlobal("AAA()");
-			}
-			
-			public void call(){
-				mLog.println("call()");
-			}
-		}
-		AAA aaa = new AAA();
-		aaa.call();
-	}
 }
-

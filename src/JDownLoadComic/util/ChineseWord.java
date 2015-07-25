@@ -122,22 +122,4 @@ public class ChineseWord {
 		return str;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		String test = "不&amp;middot;純愛";
-
-		// String uncode = ChineseWord.chineseToUnicode(test);
-		// String chinese = ChineseWord.unicodeToChinese("&#22338");
-
-		// System.out.println("原文["+test+"]");
-		// System.out.println("chinese轉uncode["+uncode+"]");
-		// System.out.println("uncode轉chinese["++"]");
-		// System.out.println(ChineseWord.getChinese("12414"));
-		// getChinese
-
-		System.out.println(ChineseWord.unicodeToChineseAll(test));
-	}
-
 }

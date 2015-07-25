@@ -142,11 +142,4 @@ public class ParseComicJpgUrl10 {
 		return tmpCode;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-	}
-
 }

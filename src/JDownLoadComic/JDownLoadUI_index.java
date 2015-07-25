@@ -208,13 +208,13 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 				new Thread() {
 					@Override
 					public void run() {
-						try{
+						try {
 							Config.db.indexBounds = JDownLoadUI_index.this
 									.getBounds();
 							setVisible(false);
 							Config.db.save();
 							FolderManager.deleteFolder(Config.tempFolderPath);
-						}catch(Exception e){
+						} catch (Exception e) {
 							e.printStackTrace();
 						}
 						mLog.println("2 windowClosing");

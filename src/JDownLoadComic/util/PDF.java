@@ -111,12 +111,6 @@ public class PDF {
 
 		return result;
 	}
-
-	// public static void main(String[] args) {
-	// String path =
-	// "/Users/leeray/Documents/swing_project/JComicDownload2/漫畫下載區/火影忍者/ 第658話 尾獸VS斑…！/";
-	// comicFolderToPDF(PageSize.B3, path, "./火影.pdf");
-	// }
 }
 
 class HeaderFooter extends PdfPageEventHelper {

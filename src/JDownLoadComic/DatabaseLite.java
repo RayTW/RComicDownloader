@@ -419,23 +419,4 @@ public class DatabaseLite implements java.io.Serializable {
 				.parse(dateTime2)) / 1000;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		DatabaseLite db = new DatabaseLite();
-		// db.addComicList(new String[]{"1","abc"});
-		// db.addComicList(new String[]{"2","abcdd"});
-		// db.addComicList(new String[]{"3","aaeeabc"});
-		// db.save();
-		System.out.println(db.getDateTime(0));
-		System.out.println(db.diffentSec("2013-01-08 02:58:53",
-				"2013-01-08 02:58:3"));
-
-		System.out.println(db.updateEnable());
-		db.updateDate();
-		db.updateHours = 0;
-		System.out.println(db.updateEnable());
-	}
-
 }

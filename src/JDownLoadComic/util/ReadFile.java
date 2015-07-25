@@ -88,13 +88,4 @@ public class ReadFile {
 		return list;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		ReadFile rf = new ReadFile();
-		String txt = rf.readFile("./99770List.txt", "UTF-8");
-		System.out.println(txt);
-	}
-
 }

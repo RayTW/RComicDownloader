@@ -496,18 +496,6 @@ public class DownloadFile {
 		return md5;
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-
-		String url = "http://download.thinkbroadband.com/20MB.zip";
-		String savePath = "./";
-
-		// syncDownload(url, savePath);//同步
-		unsyncDownload(url, savePath);// 非同步
-	}
-
 	// 同步下載
 	public static void syncDownload(String url, String savePath) {
 		DownloadFile download = new DownloadFile();

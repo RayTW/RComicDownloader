@@ -1,7 +1,5 @@
 package JDownLoadComic.util;
 
-import JDownLoadComic.Config;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.net.URLDecoder;
@@ -35,19 +33,4 @@ public class URLEncodeDecodeTool {
 			return s;
 		}
 	}
-
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		ReadFile rf = new ReadFile();
-		String readerFile = "./" + Config.defaultSavePath + "/sys/reader.src";
-
-		String html = rf.readFile("/Users/leeray/Desktop/newmessage.txt",
-				"utf-8");
-		String s = URLEncodeDecodeTool.endoce(html, "utf-8");
-		System.out.println(s);
-		// HtmlToBase64Tool.decode(s, "utf-8");
-	}
-
 }

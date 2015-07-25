@@ -268,20 +268,4 @@ public class LoadNetFile implements Runnable {
 		}
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		LoadNetFile lf = new LoadNetFile();
-
-		// 絕對路徑
-		lf.setLoadData(
-				"http://news.sanxia.net.cn/upimg/allimg/090609/1143342.jpg",
-				"C:/", "abc");
-		// 相對路徑,自己指定副檔名
-		// System.out.println(lf.setLoadData(args[0],"./" ,args[1]));
-		lf.startLoad();
-		// se566_ctl.cvssp.com
-	}
-
 }

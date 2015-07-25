@@ -164,15 +164,4 @@ public class WriteFile {
 		dir.mkdirs();
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// WriteFile wf = new WriteFile();
-		// wf.mkDir("./DownCartoon/==/==惡魔愛神 Vol.01");
-
-		System.out.println(WriteFile.exists("./cartoonList.data"));
-
-	}
-
 }

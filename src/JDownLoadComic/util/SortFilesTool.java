@@ -187,27 +187,4 @@ public class SortFilesTool {
 		}
 	}
 
-	/**
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		// 排序名稱
-		String path = "C:\\";
-		ArrayList<File> fileAry = SortFilesTool.sortByName(path, true);
-		SortFilesTool.showArrayList(fileAry);
-
-		// 使用代表參數排序大小、日期、名稱
-		/*
-		 * ArrayList<File>fileAry = SortFilesTool.sort(SortFilesTool.FILE_NAME,
-		 * path, true); SortFilesTool.showArrayList(fileAry);
-		 * 
-		 * fileAry = SortFilesTool.sort(SortFilesTool.FILE_DATE, path, true);
-		 * SortFilesTool.showArrayList(fileAry);
-		 * 
-		 * fileAry = SortFilesTool.sort(SortFilesTool.FILE_LENGTH, path +
-		 * "\\WINDOWS", true); SortFilesTool.showArrayList(fileAry);
-		 */
-
-	}
-
 }
