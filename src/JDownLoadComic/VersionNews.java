@@ -1,8 +1,11 @@
 package JDownLoadComic;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -10,19 +13,29 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import javax.swing.JButton;
+import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JTextArea;
+import javax.swing.JScrollPane;
+import javax.swing.JTextPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.WindowConstants;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.Element;
+import javax.swing.text.html.HTML;
+import javax.swing.text.html.HTMLDocument;
 
 import JDownLoadComic.util.DownloadFile;
 import JDownLoadComic.util.HtmlReader;
+import JDownLoadComic.util.Log;
 import JDownLoadComic.util.URLEncodeDecodeTool;
 import JDownLoadComic.util.HttpReader;
 
@@ -33,6 +46,7 @@ import JDownLoadComic.util.HttpReader;
  * 
  */
 public class VersionNews extends JPanel {
+	private static Log sLog = Log.newInstance(true);
 	public final static String TAG_COMIC_NEWS = "comicnews";
 	public final static String TAG_VERSION = "version";
 	public final static String TAG_NEWS = "news";
@@ -41,7 +55,7 @@ public class VersionNews extends JPanel {
 	public final static String NEW_VERSION = "最新版本:";
 	public final static String NEW_LIST = "更新項目:";
 	private HttpReader http;
-	private JTextArea news;
+	// private JTextArea news;
 	private JButton downloadBtn;
 	private String versionText;
 	private String newsText;
@@ -59,11 +73,11 @@ public class VersionNews extends JPanel {
 		newsText = "";
 		appUrl = "";
 		http = new HttpReader();
-		news = new JTextArea();
-		news.setLineWrap(true);
-		news.setEditable(false);
-
-		add(news, BorderLayout.CENTER);
+		// news = new JTextArea();
+		// news.setLineWrap(true);
+		// news.setEditable(false);
+		//
+		// add(news, BorderLayout.CENTER);
 		downloadBtn = new JButton("下載更新");
 		downloadBtn.setEnabled(false);
 		downloadBtn.addActionListener(new ActionListener() {
@@ -102,8 +116,15 @@ public class VersionNews extends JPanel {
 				if (exception.length() == 0) {
 					// System.out.println(html);
 					parse(html);
-					news.setText(NEW_VERSION + versionText + "\n\n" + NEW_LIST
-							+ newsText);
+					String msg = NEW_VERSION + versionText + "\n\n" + NEW_LIST
+							+ newsText;
+					// news.setText(msg);
+					msg = msg.replaceAll("\\n", "<br>");
+					msg = msg + "<a href=\"" + Config.issueReportUrl
+							+ "\">問題回報</a>";
+					add(generateHtmlPanel(msg), BorderLayout.CENTER);
+					sLog.println(msg);
+
 					if (hasNewVersion(nowVersion, versionText)) {
 						downloadBtn.setEnabled(true);
 					}
@@ -307,6 +328,63 @@ public class VersionNews extends JPanel {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private JPanel generateHtmlPanel(String txt) {
+		JPanel panel = new JPanel(new BorderLayout());
+
+		JEditorPane gentextp = new JTextPane();
+		JScrollPane scrollPane = new JScrollPane(gentextp);
+		panel.add(scrollPane);
+		scrollPane
+				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		gentextp.setContentType("text/html");
+		gentextp.setEditable(false);
+		gentextp.addMouseListener(new HyperlinkMouseListener());
+		gentextp.setText(txt);
+		return panel;
+	}
+
+	private final class HyperlinkMouseListener extends MouseAdapter {
+		@Override
+		public void mouseClicked(MouseEvent e) {
+			if (e.getButton() == MouseEvent.BUTTON1
+					|| e.getButton() == MouseEvent.BUTTON3) {
+				Element h = getHyperlinkElement(e);
+				if (h != null) {
+					Object attribute = h.getAttributes().getAttribute(
+							HTML.Tag.A);
+					if (attribute instanceof AttributeSet) {
+						AttributeSet set = (AttributeSet) attribute;
+						String href = (String) set
+								.getAttribute(HTML.Attribute.HREF);
+						System.out.println(href);
+						if (href != null) {
+							try {
+								Desktop.getDesktop().browse(new URI(href));
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							} catch (URISyntaxException e1) {
+								e1.printStackTrace();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		private Element getHyperlinkElement(MouseEvent event) {
+			JEditorPane editor = (JEditorPane) event.getSource();
+			int pos = editor.getUI().viewToModel(editor, event.getPoint());
+			if (pos >= 0 && editor.getDocument() instanceof HTMLDocument) {
+				HTMLDocument hdoc = (HTMLDocument) editor.getDocument();
+				Element elem = hdoc.getCharacterElement(pos);
+				if (elem.getAttributes().getAttribute(HTML.Tag.A) != null) {
+					return elem;
+				}
+			}
+			return null;
 		}
 	}
 }
