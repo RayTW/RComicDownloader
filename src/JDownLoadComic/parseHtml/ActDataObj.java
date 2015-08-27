@@ -30,7 +30,7 @@ public class ActDataObj {
 	/** 漫畫編號 */
 	public String id; // 漫畫編號
 	/** 漫畫名稱 */
-	public String cartoonName; // 漫畫名稱
+	private String cartoonName; // 漫畫名稱
 	/** 作者 */
 	private String author; // 作者
 	/** 發行日期 */
@@ -76,19 +76,22 @@ public class ActDataObj {
 	 *            這本漫畫網頁網址
 	 */
 	public void addActComic(String name, String[] viewdata) {
+		if (name != null) {
+			name = name.trim();
+		}
 		SingleComicData scData = comicList.get(id + name);
 		if (scData == null) {
 			scData = new SingleComicData();// 產生一本漫畫物件
-			scData.name = name;
+			scData.setName(name);
 			scData.itemid = Integer.parseInt(viewdata[0]);
 			scData.url = Config.indexHtml + viewdata[1];// 這本漫畫網頁網址
-			comicList.put(id + name, scData);
+			comicList.put(id + scData.getName(), scData);
 			// comicSorted.add(scData);//由上至下排序為1~n集
 			// 2013/02/28 改成排序由上至下排序為n~1集
 			comicSorted.add(0, scData);
 		}
 		String comicActPath = "./" + Config.defaultSavePath + "/" + cartoonName
-				+ "/" + scData.name;
+				+ "/" + scData.getName();
 		File file = new File(comicActPath);
 		if (file.exists()) {// 判斷是否有抓過這集漫畫
 			if (file.list().length > 0) {// 漫畫裡的圖片有1張以上就認定為抓過此集
@@ -163,7 +166,7 @@ public class ActDataObj {
 
 		for (int i = 0; i < comicSorted.size(); i++) {
 			SingleComicData scd = comicSorted.get(i);
-			actData[i][0] = scd.name;
+			actData[i][0] = scd.getName();
 			if (scd.isDownload) {
 				actData[i][1] = Config.DOWNLOADED;
 			} else {
@@ -183,7 +186,7 @@ public class ActDataObj {
 	public String getActName(int index) {
 		SingleComicData scd = comicSorted.get(index);
 
-		return id + scd.name;
+		return id + scd.getName();
 	}
 
 	/**
@@ -193,7 +196,7 @@ public class ActDataObj {
 	 */
 	public String getAct(int index) {
 		SingleComicData scd = comicSorted.get(index);
-		return scd.name;
+		return scd.getName();
 	}
 
 	/**
@@ -288,6 +291,17 @@ public class ActDataObj {
 		}
 		// System.out.println(detailText);
 		return txt.toString();
+	}
+
+	public String getCartoonName() {
+		return cartoonName;
+	}
+
+	public void setCartoonName(String cartoonName) {
+		if (cartoonName != null) {
+			cartoonName = cartoonName.trim();
+		}
+		this.cartoonName = cartoonName;
 	}
 
 	/**

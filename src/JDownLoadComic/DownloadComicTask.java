@@ -19,14 +19,15 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 
 	public DownloadComicTask(ActDataObj actObj, int index) {
 		mSingleComicData = actObj.getActComicData(index);
-		savePath = "./" + Config.defaultSavePath + "/" + actObj.cartoonName
-				+ "/" + actObj.getAct(index);
-		checkName = actObj.id + actObj.cartoonName.trim() + "-"
-				+ mSingleComicData.name.trim();
+		savePath = "./" + Config.defaultSavePath + "/"
+				+ actObj.getCartoonName() + "/" + actObj.getAct(index);
+		checkName = actObj.id + actObj.getCartoonName() + "-"
+				+ mSingleComicData.getName();
 		LoadBarState loadb = new LoadBarState();
 		loadb.setParentObj(this);
 		loadb.setIdName(checkName);
-		loadb.setLoadName(actObj.cartoonName + "-" + mSingleComicData.name);
+		loadb.setLoadName(actObj.getCartoonName() + "-"
+				+ mSingleComicData.getName());
 		loadb.setBarText("準備下載");
 		mLoadBarState = loadb;
 	}
@@ -81,7 +82,8 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 				mFuture = ThreadPool.submit(mDownLoadThread);
 			} else {
 				if (parentObj != null) {
-					parentObj.setStateText(mSingleComicData.name + " 下載失敗");
+					parentObj
+							.setStateText(mSingleComicData.getName() + " 下載失敗");
 				}
 			}
 		}

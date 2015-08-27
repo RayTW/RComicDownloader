@@ -172,23 +172,23 @@ public class EventHandle_index implements ActionListener,
 
 		// 正準備開始同步漫畫集數
 		if (actData.syncState == ActDataObj.STATE_SYNC_READY) {
-			JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);
+			JDownLoadUI_Act down = comicListPool.get(actData.getCartoonName());
 			if (down == null) {
 				down = new JDownLoadUI_Act(this);
-				comicListPool.put(actData.cartoonName, down);
-				setStateText(Config.readyMsg + actData.cartoonName);
+				comicListPool.put(actData.getCartoonName(), down);
+				setStateText(Config.readyMsg + actData.getCartoonName());
 				comicData.startSync(actData, this);
 			}
 			return;
 		}
 		// 開始同步漫畫集數
 		if (actData.syncState == ActDataObj.STATE_SYNC_START) {
-			setStateText("漫畫\"" + actData.cartoonName + "\"正在讀取集數列表中...");
+			setStateText("漫畫\"" + actData.getCartoonName() + "\"正在讀取集數列表中...");
 			return;
 		}
 		// 漫畫集數已存在，且同步完成
 		if (actData.syncState == ActDataObj.STATE_SYNC_SUCCESS) {
-			JDownLoadUI_Act down = comicListPool.get(actData.cartoonName);
+			JDownLoadUI_Act down = comicListPool.get(actData.getCartoonName());
 
 			if (down != null) {
 				down.setVisible(true);
@@ -201,7 +201,7 @@ public class EventHandle_index implements ActionListener,
 	// 打開漫畫集數列表時，同步完成的callback
 	@Override
 	public void onSynced(ActDataObj actObj) {
-		JDownLoadUI_Act down = comicListPool.get(actObj.cartoonName);
+		JDownLoadUI_Act down = comicListPool.get(actObj.getCartoonName());
 		if (down != null) {
 			down.setActDataObj(actObj);
 			down.pack();
@@ -209,7 +209,7 @@ public class EventHandle_index implements ActionListener,
 			down.setDataTableList(downLoadTable);
 			down.setVisible(true);
 			down.toFront();
-			setStateText(Config.loadOKMsg + actObj.cartoonName);
+			setStateText(Config.loadOKMsg + actObj.getCartoonName());
 		}
 	}
 
@@ -439,21 +439,21 @@ public class EventHandle_index implements ActionListener,
 	/**
 	 * 用漫畫編號去load資料列表
 	 * 
-	 * @param ComicNumber
+	 * @param comicNumber
 	 *            漫畫編號
-	 * @param ComicName
+	 * @param comicName
 	 *            漫畫名稱
 	 * @return
 	 */
-	public ActDataObj getActData_actIndex(String ComicNumber, String ComicName) {
-		ActDataObj actObj = comicKind.get(ComicNumber);
+	public ActDataObj getActData_actIndex(String comicNumber, String comicName) {
+		ActDataObj actObj = comicKind.get(comicNumber);
 		if (actObj != null) {
 			return actObj;
 		} else {
 			actObj = new ActDataObj();
-			actObj.id = ComicNumber;
-			comicKind.put(ComicNumber, actObj);
-			actObj.cartoonName = ComicName;
+			actObj.id = comicNumber;
+			comicKind.put(comicNumber, actObj);
+			actObj.setCartoonName(comicName);
 		}
 
 		return actObj;

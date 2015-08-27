@@ -41,7 +41,7 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 	 * @param actObj
 	 */
 	public void setActDataObj(ActDataObj actDataObj) {
-		setTitle(actDataObj.cartoonName);
+		setTitle(actDataObj.getCartoonName());
 		actObj = actDataObj;
 		table.addMultiColumnName(new String[] { "集數", "已下載" });
 		table.getColumn(1).setMaxWidth(60);

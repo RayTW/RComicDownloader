@@ -19,7 +19,8 @@ public class SingleComicData {
 	/** 串漫網圖片網址的變數 */
 	public int itemid; // 串漫網圖片網址的變數
 	/** 集數名稱 */
-	public String name; // 集數名稱
+	private String name; // 集數名稱
+
 	/** 這集漫畫的網址 */
 	public String url; // 這集漫畫的網址
 
@@ -110,4 +111,14 @@ public class SingleComicData {
 		return pageUrl.size();
 	}
 
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		if (name != null) {
+			name = name.trim();
+		}
+		this.name = name;
+	}
 }

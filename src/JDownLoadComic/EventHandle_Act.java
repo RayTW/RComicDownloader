@@ -72,11 +72,11 @@ public class EventHandle_Act implements ActionListener {
 						SingleComicData singleComic = actObj
 								.getActComicData(index);
 
-						String checkName = actObj.id + actObj.cartoonName + "-"
-								+ singleComic.name;
+						String checkName = actObj.id + actObj.getCartoonName()
+								+ "-" + singleComic.getName();
 						if (downLoadTable.isDownloading(checkName)) {// 沒有在下載序列中才可以再下載
-							setStateText(actObj.cartoonName + "-"
-									+ singleComic.name + "已經在下載佇列中^^");
+							setStateText(actObj.getCartoonName() + "-"
+									+ singleComic.getName() + "已經在下載佇列中^^");
 							// JOptionPane.showMessageDialog(null,
 							// actObj.cartoonName + "-" + singleComic.name
 							// + "已經在下載佇列中^^", "訊息",
@@ -104,22 +104,23 @@ public class EventHandle_Act implements ActionListener {
 	private void detail(final ActDataObj actObj) {
 		if (actObj.isImgDownloadOK()) {
 			JOptionPane.showMessageDialog(null, actObj.getDetail(),
-					actObj.cartoonName + "漫畫簡介",
+					actObj.getCartoonName() + "漫畫簡介",
 					JOptionPane.INFORMATION_MESSAGE, actObj.getImg());
 		} else {
 			JOptionPane.showMessageDialog(null, actObj.getDetail(),
-					actObj.cartoonName + "漫畫簡介",
+					actObj.getCartoonName() + "漫畫簡介",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
 	private void addLove(final ActDataObj actObj) {
-		boolean isOK = addComicToMyLove(actObj.id, actObj.cartoonName);// 把目前在看的這一套漫畫加到我的最愛
+		boolean isOK = addComicToMyLove(actObj.id, actObj.getCartoonName());// 把目前在看的這一套漫畫加到我的最愛
 		String msg = "";
 		if (isOK) {
-			msg = "編號[" + actObj.id + "]" + actObj.cartoonName + "加到我的最愛ok^^";
+			msg = "編號[" + actObj.id + "]" + actObj.getCartoonName()
+					+ "加到我的最愛ok^^";
 		} else {
-			msg = "編號[" + actObj.id + "]" + actObj.cartoonName + "已存在我的最愛";
+			msg = "編號[" + actObj.id + "]" + actObj.getCartoonName() + "已存在我的最愛";
 		}
 		JOptionPane.showMessageDialog(null, msg, "訊息",
 				JOptionPane.INFORMATION_MESSAGE);
