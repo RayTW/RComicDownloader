@@ -10,8 +10,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -26,6 +24,7 @@ import JDownLoadComic.util.Log;
 import JDownLoadComic.util.ThreadPool;
 import JDownLoadComic.util.JDataTable;
 import JDownLoadComic.util.NewComicTableCellRenderer;
+import JDownLoadComic.util.WorkaroundUtility;
 import JDownLoadComic.util.WriteFile;
 
 /**
@@ -382,21 +381,6 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		});
 	}
 
-	// 將漫畫單集資料夾，前後若有半形空白trim掉
-	private static void replaceAllFirstSpaceCharFile() {
-		File flist = new File("./" + Config.defaultSavePath);
-
-		for (File comic : flist.listFiles()) {
-			for (File f : comic.listFiles()) {
-				if (f.isDirectory() && f.getName().startsWith(" ")) {
-					f.renameTo(new File(f.getParentFile().getPath(), f
-							.getName().trim()));
-				}
-			}
-		}
-		// ./漫畫下載區/
-	}
-
 	/**
 	 * 漫畫下載程式 啟動點,啟動時會連向遠端檢查是本地端是否有漫畫編號文字檔，若沒有會重load並存檔
 	 * 
@@ -419,7 +403,8 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		}
 		ThreadPool.newInstance(downloadCount);
 
-		replaceAllFirstSpaceCharFile();
+		WorkaroundUtility.replaceAllSpaceCharComic();
+		WorkaroundUtility.replaceAllSpaceCharAct();
 
 		// 建立動畫程式首頁
 		JDownLoadUI_index download = new JDownLoadUI_index();

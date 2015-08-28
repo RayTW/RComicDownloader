@@ -117,7 +117,7 @@ public class SingleComicData {
 
 	public void setName(String name) {
 		if (name != null) {
-			name = name.trim();
+			name = name.replaceAll(" ", "");
 		}
 		this.name = name;
 	}
