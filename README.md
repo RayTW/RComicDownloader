@@ -1,6 +1,6 @@
 JComicDownloader
 ================
 
-8comic downloader.
+comic downloader.
 
 ![](https://db.tt/CbkYcYpG)
