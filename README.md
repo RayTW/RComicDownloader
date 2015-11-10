@@ -1,6 +1,6 @@
 JComicDownloader
 ================
 
-just a  comic download tool.
+8comic downloader.
 
-GUI http://0.share.photo.xuite.net/ray00000test/1036823/4790492/254447943_o.jpg
+![](https://db.tt/CbkYcYpG)
