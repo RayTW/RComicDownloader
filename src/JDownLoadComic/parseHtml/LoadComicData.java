@@ -1,6 +1,7 @@
 package JDownLoadComic.parseHtml;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,7 +25,7 @@ public class LoadComicData {
 	protected HttpReader loadHtml; // 讀取網址
 	protected String[][] indexData; // 漫舉列表
 
-	protected Hashtable cviewUrlHash;
+	protected Map cviewUrlHash;
 	protected WriteFile wf;
 
 	public interface Callback {
@@ -348,13 +349,13 @@ public class LoadComicData {
 	 * @param fmt
 	 * @return
 	 */
-	private Hashtable loadCviewJS(String url, String fmt) {
+	private Map loadCviewJS(String url, String fmt) {
 		ArrayList dataAry = loadHtml.getHTMLtoArrayList(Config.cviewURL,
 				Config.actLang);
-		Hashtable cviewHash = new Hashtable();
+		HashMap cviewHash = new HashMap();
 
 		String startTag = "if(";
-		String endTab = "baseurl=\"";
+		String endTab = "baseurl+=\"";
 		String urlStratTag = endTab;
 		String urlEndTag = "\";";
 
@@ -381,6 +382,7 @@ public class LoadComicData {
 			}
 		}
 		dataAry.clear();
+		System.out.println(cviewHash);
 		return cviewHash;
 	}
 
