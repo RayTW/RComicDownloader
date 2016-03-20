@@ -45,9 +45,8 @@ public abstract class HtmlReader {
 	 */
 	public void defaultRequestProperty() {
 		requestProperty
-				.put("User-agent",
-						"Mozilla/5.0 (Windows; U; Windows NT 6.0; zh-TW; rv:1.9.1.2) "
-								+ "Gecko/20090729 Firefox/3.5.2 GTB5 (.NET CLR 3.5.30729)");
+				.put("User-Agent",
+						"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/49.0.2623.87 Safari/537.36");
 		requestProperty
 				.put("Accept",
 						"text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
