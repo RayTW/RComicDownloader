@@ -382,7 +382,7 @@ public class LoadComicData {
 			}
 		}
 		dataAry.clear();
-		System.out.println(cviewHash);
+//		System.out.println(cviewHash);
 		return cviewHash;
 	}
 
