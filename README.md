@@ -1,4 +1,4 @@
-JComicDownloader
+RComicDownloader
 ================
 
 comic downloader.
