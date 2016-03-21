@@ -25,11 +25,11 @@ import javax.net.ssl.HttpsURLConnection;
  * 會收到exception並且拿到response code 416
  * 
  * @author Ray
- * @version 2013/07/09
+ * @version 2016/01/08
  * 
  */
 public class DownloadFile {
-	public interface Callback {
+	public static interface Callback {
 		/**
 		 * 下載時，readLength:每次讀取到的 byte,readedLength:目前已下載的byte,
 		 * contentLength:檔案總長
@@ -38,15 +38,16 @@ public class DownloadFile {
 				int readedLength, int contentLength);
 
 		/** 下載完成或下載一半時被強制中止 */
-		public void onFinish(DownloadFile download);
+		public void onFinish(DownloadFile download, String contextType,
+				boolean isForceStop);
 
 		/** 下載一半時發生Exception */
 		public void onException(DownloadFile download, Exception e);
 	}
 
-	private boolean debug = true;;
+	private boolean debug = false;
 
-	private int sleepSec = 50;// 每次從buffer取byte時的sleep秒數
+	private int sleepSec = 10;// 每次從buffer取byte時的sleep秒數
 	private int bufferSize = 5 * 1024;
 	private int downloaded;// 已下載的檔案長度
 	private int fileTotalLength;// 檔案總長
@@ -67,29 +68,26 @@ public class DownloadFile {
 	 * 
 	 * @param url
 	 * @param savePath
+	 * @param timeoutMillis
 	 */
-	public void createConnection(String url, String savePath) {
-		createConnection(url, savePath, null);
+	public void createConnection(String url, String savePath, int timeoutMillis) {
+		createConnection(url, savePath, timeoutMillis, null);
 	}
 
 	/**
 	 * 建立下載連線
 	 * 
 	 * @param url
-	 * @param savePath
+	 * @param folderPath
+	 * @param timeoutMillis
 	 * @param callback
 	 */
-	public void createConnection(String url, String savePath, Callback callback) {
-		init();
-		mUrl = url;
-		mCallback = callback;
-		String filePath = savePath;
-		log("此次連線建立url[" + url + "]");
+	public void createConnection(String url, String folderPath,
+			int timeoutMillis, Callback callback) {
 		try {
-			URL u = new URL(url);
-			filePath += "/" + urlToFileName(u.getFile());
-			mURLConnection = u.openConnection();
-			file = new File(filePath);
+			String[] ary = url.split("[/]|\\\\");
+			createConnection(url, folderPath, ary[ary.length - 1],
+					timeoutMillis, callback);
 		} catch (Exception e) {
 			e.printStackTrace();
 			if (callback != null) {
@@ -98,7 +96,36 @@ public class DownloadFile {
 		}
 	}
 
-	public void init() {
+	/**
+	 * 建立下載連線
+	 * 
+	 * @param url
+	 * @param folderPath
+	 * @param fileName
+	 * @param timeoutMillis
+	 * @param callback
+	 */
+	public void createConnection(String url, String folderPath,
+			String fileName, int timeoutMillis, Callback callback) {
+		init();
+		mUrl = url;
+		mCallback = callback;
+		try {
+			URL u = new URL(url);
+			mURLConnection = u.openConnection();
+			setTimeOut(timeoutMillis);
+			file = new File(folderPath, fileName);
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (callback != null) {
+				callback.onException(this, e);
+			}
+		}
+		log("2此次連線建立url[" + url + "],folderPath[" + folderPath + "],fileName["
+				+ fileName + "]");
+	}
+
+	private void init() {
 		isDownloading = false;
 		isBytesEnable = false;
 		downloaded = 0;
@@ -106,15 +133,19 @@ public class DownloadFile {
 		file = null;
 	}
 
+	public void setCallback(Callback callback) {
+		mCallback = callback;
+	}
+
 	/**
 	 * 設定連線逾時、讀取逾時秒數(1000 = 1秒)
 	 * 
-	 * @param timeout
+	 * @param timeoutMillis
 	 */
-	public boolean setTimeOut(int timeout) {
+	private boolean setTimeOut(int timeoutMillis) {
 		if (mURLConnection != null) {
-			mURLConnection.setReadTimeout(timeout);
-			mURLConnection.setConnectTimeout(timeout);
+			mURLConnection.setReadTimeout(timeoutMillis);
+			mURLConnection.setConnectTimeout(timeoutMillis);
 			return true;
 		}
 		return false;
@@ -145,6 +176,9 @@ public class DownloadFile {
 			unsyncThread.start();
 		} catch (Exception e) {
 			e.printStackTrace();
+			if (mCallback != null) {
+				mCallback.onException(this, e);
+			}
 		}
 	}
 
@@ -173,6 +207,8 @@ public class DownloadFile {
 		isDownloading = true;
 		OutputStream out = null;
 		InputStream in = null;
+		String contentType = "";
+		boolean isForceStop = false;
 
 		try {
 			int tempDownloaded = 0;
@@ -195,14 +231,15 @@ public class DownloadFile {
 			if (contentLength < 0) {
 				contentLength = 0;
 			}
+			contentType = mURLConnection.getContentType();
 			fileTotalLength = downloaded + contentLength;
 			log("開始下載，已下載[" + downloaded + "],剩餘[" + contentLength + "],總長["
-					+ fileTotalLength + "]");
+					+ fileTotalLength + "],contextType[" + contentType + "]");
 			log("startSyncDownload,file.getPath()==>" + file.getPath());
+
 			out = getOutputStream(file.getPath());
 			in = mURLConnection.getInputStream();
 			int numRead = 0;
-			;
 			byte[] buffer = new byte[bufferSize];
 
 			while ((numRead = in.read(buffer)) != -1) {
@@ -215,13 +252,19 @@ public class DownloadFile {
 
 				if (!isDownloading) {// 被中斷下載
 					log("中斷下載");
+					isForceStop = true;
 					break;
 				}
-				Thread.sleep(sleepSec);
+				try {
+					Thread.sleep(sleepSec);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			isDownloading = false;
+			isForceStop = true;
 			// 下載時發生Exception
 			if (mCallback != null) {
 				mCallback.onException(this, e);
@@ -242,9 +285,12 @@ public class DownloadFile {
 		}
 
 		isDownloading = false;
+		log("1startSyncDownload(),isForceStop[" + isForceStop + "]");
 		// 下載完成
 		if (mCallback != null && (downloaded == fileTotalLength)) {
-			mCallback.onFinish(this);
+			log("2startSyncDownload(),isForceStop[" + isForceStop
+					+ "],mCallback[" + mCallback + "]");
+			mCallback.onFinish(this, contentType, isForceStop);
 		}
 
 		return true;
@@ -318,7 +364,7 @@ public class DownloadFile {
 	 * @param url
 	 * @return
 	 */
-	public static String urlToFileName(String url) {
+	public static String getUrlFileName(String url) {
 		String[] pathAry = url.split("[\\\\////]");
 		String remoteFileName = "";
 
@@ -437,6 +483,11 @@ public class DownloadFile {
 
 			byte[] digestBytes = mMessageDigest.digest();
 			hexString = new BigInteger(1, digestBytes).toString(16);
+			int remain = 32 - hexString.length();
+			while (remain != 0) {
+				hexString = "0" + hexString;
+				remain--;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -496,11 +547,23 @@ public class DownloadFile {
 		return md5;
 	}
 
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+		String url = "https://s3-ap-southeast-1.amazonaws.com/avnupdate/tw.com.elead.el817tmc1.2013.06.28.01.zip";
+		// String url = "http://download.thinkbroadband.com/20MB.zip";
+		String savePath = "./";
+
+		// syncDownload(url, savePath);//同步
+		unsyncDownload(url, savePath);// 非同步
+	}
+
 	// 同步下載
 	public static void syncDownload(String url, String savePath) {
 		DownloadFile download = new DownloadFile();
-		download.createConnection(url, savePath);
-		download.setBytesEnable(true);
+		download.createConnection(url, savePath, 5000);
+		// download.setBytesEnable(true);
 		boolean b = download.startSyncDownload();
 		System.out.println("dowanload [" + b + "], md5["
 				+ download.digestFile("MD5") + "]");
@@ -520,7 +583,8 @@ public class DownloadFile {
 
 			/** 下載完成 */
 			@Override
-			public void onFinish(DownloadFile download) {
+			public void onFinish(DownloadFile download, String contentType,
+					boolean isForceStop) {
 				System.out.println("非同步下載完成,md5[" + download.digestFile("MD5")
 						+ "], server header file md5["
 						+ download.getHeaderField("x-amz-meta-checksum") + "]");
@@ -537,9 +601,9 @@ public class DownloadFile {
 		};
 		// 9288372
 		DownloadFile download = new DownloadFile();
-		download.createConnection(url, savePath, callback);
+		download.createConnection(url, savePath, 5000, callback);
 		download.setTimeOut(30 * 1000);// 連線、讀取逾時(可選，預設為0，永無止盡的等下去...)
-		download.setBytesEnable(true);// 是否啟用續載(預設false)
+		// download.setBytesEnable(true);//是否啟用續載(預設false)
 		download.startDownload();// 開始下載...
 		return download;
 	}

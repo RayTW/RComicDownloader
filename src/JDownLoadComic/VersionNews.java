@@ -270,7 +270,7 @@ public class VersionNews extends JPanel {
 				}
 			});
 
-			mDownloadFile.createConnection(appUrl, savePath,
+			mDownloadFile.createConnection(appUrl, savePath, 15000,
 					new DownloadFile.Callback() {
 
 						@Override
@@ -283,7 +283,8 @@ public class VersionNews extends JPanel {
 						}
 
 						@Override
-						public void onFinish(DownloadFile download) {
+						public void onFinish(DownloadFile download,
+								String contextType, boolean isForceStop) {
 							// 啟動新的版本應用程式
 							String cmd = "java -jar " + newFileName;
 							try {
