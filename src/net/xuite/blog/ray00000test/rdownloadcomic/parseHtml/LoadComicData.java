@@ -383,7 +383,7 @@ public class LoadComicData {
 			}
 		}
 		dataAry.clear();
-//		System.out.println(cviewHash);
+		// System.out.println(cviewHash);
 		return cviewHash;
 	}
 
@@ -431,7 +431,8 @@ public class LoadComicData {
 				String id = comicArray[j][0];
 				String name = comicArray[j][1];
 
-				RComicDownloader.get().getDB().addComicList(new String[] { id, name });
+				RComicDownloader.get().getDB()
+						.addComicList(new String[] { id, name });
 			}
 			RComicDownloader.get().getDB().save();
 		}

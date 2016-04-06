@@ -1,6 +1,5 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
-
 public class Command {
 
 	public Command() {
@@ -13,7 +12,8 @@ public class Command {
 				try {
 					long h = Long.parseLong(cmds[1]);
 					RComicDownloader.get().getDB().setUpdateHours(h);
-					Config.showMsgBar("更新間隔時間修改為" + RComicDownloader.get().getDB().getUpdateHours()
+					Config.showMsgBar("更新間隔時間修改為"
+							+ RComicDownloader.get().getDB().getUpdateHours()
 							+ "小時", "系統指令");
 				} catch (Exception e) {
 					Config.showMsgBar("參數錯誤:" + cmds[1], "系統指令");
@@ -23,12 +23,14 @@ public class Command {
 			return;
 		}
 		if (cmds[0].equals("showhour")) {
-			Config.showMsgBar("間隔時間為" + RComicDownloader.get().getDB().getUpdateHours() + "小時",
+			Config.showMsgBar("間隔時間為"
+					+ RComicDownloader.get().getDB().getUpdateHours() + "小時",
 					"系統指令");
 			return;
 		}
 		if (cmds[0].equals("showupdate")) {
-			Config.showMsgBar("漫畫最後更新時間為" + RComicDownloader.get().getDB().getUpdateDate(), "系統指令");
+			Config.showMsgBar("漫畫最後更新時間為"
+					+ RComicDownloader.get().getDB().getUpdateDate(), "系統指令");
 			return;
 		}
 		if (cmds[0].equals("reader")) {
@@ -51,9 +53,12 @@ public class Command {
 		}
 		if (cmds[0].equals("superman")) {
 			if (cmds.length == 2) {
-				RComicDownloader.get().getDB().isAdmin = cmds[1].equalsIgnoreCase("true");
+				RComicDownloader.get().getDB().isAdmin = cmds[1]
+						.equalsIgnoreCase("true");
 				RComicDownloader.get().getDB().save();
-				Config.showMsgBar("最大權限設定[" + RComicDownloader.get().getDB().isAdmin + "]!!", "系統指令");
+				Config.showMsgBar("最大權限設定["
+						+ RComicDownloader.get().getDB().isAdmin + "]!!",
+						"系統指令");
 				return;
 			}
 		}

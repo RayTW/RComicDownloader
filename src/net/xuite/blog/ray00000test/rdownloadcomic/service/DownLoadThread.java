@@ -283,8 +283,8 @@ public class DownLoadThread implements Runnable {
 		closeIO();
 		return true;
 	}
-	
-	public boolean isPause(){
+
+	public boolean isPause() {
 		return isPause;
 	}
 

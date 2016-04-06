@@ -27,9 +27,6 @@ import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.NewComicTableCellRenderer;
-import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
-import net.xuite.blog.ray00000test.rdownloadcomic.util.WorkaroundUtility;
-import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
 
 /**
  * 漫畫下載列表首頁
@@ -79,7 +76,8 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		eventHandleIndex = new EventHandle_index();
 		eventHandleIndex.setParentObj(this);
 
-		LoadComicData loadData = new LoadComicData(RComicDownloader.get().getDB().getComicList());
+		LoadComicData loadData = new LoadComicData(RComicDownloader.get()
+				.getDB().getComicList());
 		table.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
 		table.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		table.addMutilRowDataArray(loadData.getIndexData());
@@ -90,8 +88,8 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		addComidListDoubleClickEvent(table, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(0, loadData);
 
-		LoadComicData loadDataLove = new LoadComicData(
-				RComicDownloader.get().getDB().getLoveComicList());
+		LoadComicData loadDataLove = new LoadComicData(RComicDownloader.get()
+				.getDB().getLoveComicList());
 		tableLove = new JDataTable(false);
 		tableLove.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
 		tableLove.addMutilRowDataArray(loadDataLove.getIndexData());
@@ -315,7 +313,8 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		if (downLoadTableScroll != null) {
 			centerPanel.remove(downLoadTableScroll);
 		}
-		downLoadTable = new TableList(RComicDownloader.get().getDB().getDownCountLimit());
+		downLoadTable = new TableList(RComicDownloader.get().getDB()
+				.getDownCountLimit());
 		downLoadTable.setParentObj(this);
 		eventHandleIndex.setDataTableList(downLoadTable);
 		downLoadTableScroll = downLoadTable.getJScrollPaneJTable();
@@ -386,7 +385,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	 */
 	public static void main(String[] args) {
 		RComicDownloader.get().preprogress();
-		
+
 		// 建立動畫程式首頁
 		JDownLoadUI_index download = new JDownLoadUI_index();
 		download.setVisible(true);

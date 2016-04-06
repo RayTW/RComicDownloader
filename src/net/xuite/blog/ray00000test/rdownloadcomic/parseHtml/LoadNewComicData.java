@@ -2,7 +2,6 @@ package net.xuite.blog.ray00000test.rdownloadcomic.parseHtml;
 
 import java.util.ArrayList;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;

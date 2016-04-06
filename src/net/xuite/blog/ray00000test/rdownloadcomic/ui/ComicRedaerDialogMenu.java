@@ -73,7 +73,8 @@ public class ComicRedaerDialogMenu extends JDialog {
 				comicFloder = table.getJTable().getValueAt(row, 0).toString();
 
 				// 點擊漫畫後，列出漫畫已下載的集數
-				reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/" + comicFloder,
+				reloadActFolder(RComicDownloader.get().getDB().sortType, root
+						+ "/" + comicFloder,
 						RComicDownloader.get().getDB().sortAsc);
 				selectedComicLab.setText(comicFloder);
 			}
@@ -280,18 +281,20 @@ public class ComicRedaerDialogMenu extends JDialog {
 	// 以名稱排序漫畫列表
 	private void sortComicByName() {
 		RComicDownloader.get().getDB().sortType = SortFilesTool.FILE_NAME;
-		RComicDownloader.get().getDB().sortAsc = !RComicDownloader.get().getDB().sortAsc;
-		reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/" + comicFloder,
-				RComicDownloader.get().getDB().sortAsc);
+		RComicDownloader.get().getDB().sortAsc = !RComicDownloader.get()
+				.getDB().sortAsc;
+		reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/"
+				+ comicFloder, RComicDownloader.get().getDB().sortAsc);
 
 	}
 
 	// 以日期排序漫畫列表
 	private void sortComicByDate() {
 		RComicDownloader.get().getDB().sortType = SortFilesTool.FILE_DATE;
-		RComicDownloader.get().getDB().sortAsc = !RComicDownloader.get().getDB().sortAsc;
-		reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/" + comicFloder,
-				RComicDownloader.get().getDB().sortAsc);
+		RComicDownloader.get().getDB().sortAsc = !RComicDownloader.get()
+				.getDB().sortAsc;
+		reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/"
+				+ comicFloder, RComicDownloader.get().getDB().sortAsc);
 	}
 
 	// 開啟所有選擇的漫畫
@@ -323,8 +326,8 @@ public class ComicRedaerDialogMenu extends JDialog {
 
 		FolderManager.createFolder(Config.tempFolderPath);
 
-		openComic(html, targetPath, actComit.list(), jsPath,
-				RComicDownloader.get().getDB().getReaderWH());
+		openComic(html, targetPath, actComit.list(), jsPath, RComicDownloader
+				.get().getDB().getReaderWH());
 	}
 
 	public void setStateMessage(String text) {

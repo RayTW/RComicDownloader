@@ -278,10 +278,9 @@ public class ActDataObj {
 		int lineCount = 0;
 		int index = 0;
 		while (index < str.length()) {
-			String tmp = str.substring(
-					index,
-					str.length() < (index += RComicDownloader.get().getDB().getNewline()) ? str
-							.length() : index);
+			String tmp = str.substring(index,
+					str.length() < (index += RComicDownloader.get().getDB()
+							.getNewline()) ? str.length() : index);
 
 			lineCount++;
 			if (lineCount > 20) {

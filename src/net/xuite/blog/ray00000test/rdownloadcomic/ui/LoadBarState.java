@@ -40,10 +40,10 @@ public class LoadBarState extends LoadBar {
 				DownLoadThread downLoad = parentObj.getDownLoadThread();
 
 				if (downLoad != null) {
-					if(downLoad.isPause()){
+					if (downLoad.isPause()) {
 						pause.setText("暫停");
 						downLoad.resume();
-					}else{
+					} else {
 						pause.setText("繼續");
 						downLoad.pause();
 					}

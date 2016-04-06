@@ -4,7 +4,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.PDF;
 
@@ -40,14 +39,16 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 		pdfPathBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser(RComicDownloader.get().getDB().exportPDFpath);
+				JFileChooser chooser = new JFileChooser(RComicDownloader.get()
+						.getDB().exportPDFpath);
 				chooser.setDialogTitle("請選擇PDF儲存路徑");
 				chooser.setFileSelectionMode(1);
 				int result = chooser.showOpenDialog(owner);
 
 				if (result == 0) {
 					File file = chooser.getSelectedFile();
-					RComicDownloader.get().getDB().exportPDFpath = file.getPath();
+					RComicDownloader.get().getDB().exportPDFpath = file
+							.getPath();
 					ComicExportPdfDialogMenu.this.pdfPathLabel
 							.setText(RComicDownloader.get().getDB().exportPDFpath);
 				}
@@ -72,8 +73,10 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 		Runnable runObject = new Runnable() {
 			@Override
 			public void run() {
-				String targetPdfPath = RComicDownloader.get().getDB().exportPDFpath + File.separator
-						+ cFloder.trim() + comicActFloder.trim() + ".pdf";
+				String targetPdfPath = RComicDownloader.get().getDB().exportPDFpath
+						+ File.separator
+						+ cFloder.trim()
+						+ comicActFloder.trim() + ".pdf";
 				String fullPath = ComicExportPdfDialogMenu.this.root + "/"
 						+ cFloder + "/" + comicActFloder;
 				File actComit = new File(fullPath);

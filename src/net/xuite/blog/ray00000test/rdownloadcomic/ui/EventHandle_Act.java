@@ -83,38 +83,61 @@ public class EventHandle_Act implements ActionListener {
 						} else if (downLoadTable.isFill()) {// 佇列已滿
 							String msg = "目前下載中的佇列有"
 									+ downLoadTable.getCurrentDownLoadSize()
-									+ "同時下載最多" + RComicDownloader.get().getDB().getDownCountLimit()
-									+ "個^^";
+									+ "同時下載最多"
+									+ RComicDownloader.get().getDB()
+											.getDownCountLimit() + "個^^";
 							JOptionPane.showMessageDialog(null, msg, "訊息",
 									JOptionPane.INFORMATION_MESSAGE);
 							break;
 						} else {// 新增下載任務
-							RComicDownloader.get().addDownloadTask(new DownloadComicTask.Callback(){
-								@Override
-								public void onPrepare(DownloadComicTask task, SingleComicData data) {
-									downLoadTable.addObj(task);
-									setStateText(actObj.getCartoonName() + " " + data.getName()+ " 準備下載");
-								}
-								
-								@Override
-								public void onSuccess(DownloadComicTask task, SingleComicData data) {
-									downLoadTable.removeObj(task);
-									setStateText(actObj.getCartoonName() + " " + data.getName() + " 下載完成");
-								}
+							RComicDownloader.get().addDownloadTask(
+									new DownloadComicTask.Callback() {
+										@Override
+										public void onPrepare(
+												DownloadComicTask task,
+												SingleComicData data) {
+											downLoadTable.addObj(task);
+											setStateText(actObj.getCartoonName()
+													+ " "
+													+ data.getName()
+													+ " 準備下載");
+										}
 
-								@Override
-								public void onFail(DownloadComicTask task, SingleComicData data, String reason) {
-									downLoadTable.removeObj(task);
-									setStateText(actObj.getCartoonName() + " " + data.getName() + " 下載失敗，原因:" + reason);
-								}
+										@Override
+										public void onSuccess(
+												DownloadComicTask task,
+												SingleComicData data) {
+											downLoadTable.removeObj(task);
+											setStateText(actObj.getCartoonName()
+													+ " "
+													+ data.getName()
+													+ " 下載完成");
+										}
 
-								@Override
-								public void onCancel(DownloadComicTask task, SingleComicData data) {
-									downLoadTable.removeObj(task);
-									setStateText(actObj.getCartoonName() + " " + data.getName() + " 下載取消");
-								}
-							},actObj, index);
-							
+										@Override
+										public void onFail(
+												DownloadComicTask task,
+												SingleComicData data,
+												String reason) {
+											downLoadTable.removeObj(task);
+											setStateText(actObj.getCartoonName()
+													+ " "
+													+ data.getName()
+													+ " 下載失敗，原因:" + reason);
+										}
+
+										@Override
+										public void onCancel(
+												DownloadComicTask task,
+												SingleComicData data) {
+											downLoadTable.removeObj(task);
+											setStateText(actObj.getCartoonName()
+													+ " "
+													+ data.getName()
+													+ " 下載取消");
+										}
+									}, actObj, index);
+
 						}
 					}
 					EventHandle_Act.this.setStateText(Config.DownLoadStart);

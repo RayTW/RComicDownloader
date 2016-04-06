@@ -1,8 +1,5 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
-import java.util.Hashtable;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.swing.JOptionPane;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
@@ -15,56 +12,57 @@ public class RComicDownloader {
 	private ThreadPool mPDFThreadPool;
 	private String dbPath = Config.defaultSavePath + "/sys/comic.obj";
 	private DatabaseLite mDB = new DatabaseLite();
-	
-	private RComicDownloader(){
+
+	private RComicDownloader() {
 		initialize();
 	}
-	
-	private void initialize(){
+
+	private void initialize() {
 		mPDFThreadPool = new ThreadPool(5);
 	}
-	
-	public static RComicDownloader get(){
-		if(instance == null){
-			synchronized(RComicDownloader.class){
-				if(instance == null){
+
+	public static RComicDownloader get() {
+		if (instance == null) {
+			synchronized (RComicDownloader.class) {
+				if (instance == null) {
 					instance = new RComicDownloader();
 				}
 			}
 		}
 		return instance;
 	}
-	
-	public DatabaseLite getDB(){
+
+	public DatabaseLite getDB() {
 		return mDB;
 	}
-	
-	public void preprogress(){
+
+	public void preprogress() {
 		// 檢查我的最愛文字檔
-				WriteFile.mkDir(Config.defaultSavePath + "/sys");
-				mDB.pathName = dbPath;
-				mDB.load();
+		WriteFile.mkDir(Config.defaultSavePath + "/sys");
+		mDB.pathName = dbPath;
+		mDB.load();
 
-				// 建立下載執行緒上限個數
-				int downloadCount = mDB.downloadCount;
-				if (downloadCount == 0) {
-					if (mDB.getDownCountLimit() > 0) {
-						downloadCount = mDB.getDownCountLimit();
-					} else {
-						downloadCount = 5;
-					}
-				}
-				ThreadPool.newInstance(downloadCount);
+		// 建立下載執行緒上限個數
+		int downloadCount = mDB.downloadCount;
+		if (downloadCount == 0) {
+			if (mDB.getDownCountLimit() > 0) {
+				downloadCount = mDB.getDownCountLimit();
+			} else {
+				downloadCount = 5;
+			}
+		}
+		ThreadPool.newInstance(downloadCount);
 
-				WorkaroundUtility.replaceAllSpaceCharComic();
-				WorkaroundUtility.replaceAllSpaceCharAct();
+		WorkaroundUtility.replaceAllSpaceCharComic();
+		WorkaroundUtility.replaceAllSpaceCharAct();
 	}
-	
+
 	public void addPDFTask(Runnable run) {
 		mPDFThreadPool.executeTask(run);
 	}
-	
-	public void addDownloadTask(DownloadComicTask.Callback callback, ActDataObj actObj, int index) {
+
+	public void addDownloadTask(DownloadComicTask.Callback callback,
+			ActDataObj actObj, int index) {
 		DownloadComicTask task = new DownloadComicTask(actObj, index);
 		try {
 			task.setCallback(callback);

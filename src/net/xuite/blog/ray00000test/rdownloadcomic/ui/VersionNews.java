@@ -247,8 +247,10 @@ public class VersionNews extends JPanel {
 			String savePath = "." + java.io.File.separatorChar;
 			loadState.setSize(250, 80);
 			loadState.setLocation(RComicDownloader.get().getDB().indexBounds.x
-					+ RComicDownloader.get().getDB().indexBounds.width / 2, RComicDownloader.get().getDB().indexBounds.y
-					+ RComicDownloader.get().getDB().indexBounds.height / 2);
+					+ RComicDownloader.get().getDB().indexBounds.width / 2,
+					RComicDownloader.get().getDB().indexBounds.y
+							+ RComicDownloader.get().getDB().indexBounds.height
+							/ 2);
 			loadState.setVisible(true);
 
 			loadState.addWindowListener(new WindowAdapter() {

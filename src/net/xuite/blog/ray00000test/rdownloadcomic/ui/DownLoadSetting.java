@@ -204,7 +204,9 @@ public class DownLoadSetting extends Panel {
 		JTextField txt0 = (JTextField) getComponent("txt0");
 		String[] wh = txt0.getText().split("[x]");
 
-		if (wh.length != 2 || !RComicDownloader.get().getDB().isValidReaderWH(wh[0], wh[1])) {
+		if (wh.length != 2
+				|| !RComicDownloader.get().getDB()
+						.isValidReaderWH(wh[0], wh[1])) {
 			Config.showMsgBar("漫畫圖片寬設定錯誤", "訊息");
 			return;
 		}
@@ -269,10 +271,12 @@ public class DownLoadSetting extends Panel {
 		}
 
 		RComicDownloader.get().getDB().setReaderWH(wh[0], wh[1]);
-		RComicDownloader.get().getDB().setUpdateHours(Long.parseLong(updateHour));
+		RComicDownloader.get().getDB()
+				.setUpdateHours(Long.parseLong(updateHour));
 		RComicDownloader.get().getDB().setDownLoadKB(Integer.parseInt(kbSec));
 		RComicDownloader.get().getDB().setNewline(Integer.parseInt(lineCount));
-		RComicDownloader.get().getDB().setDownCountLimit(Integer.parseInt(limitCount));
+		RComicDownloader.get().getDB()
+				.setDownCountLimit(Integer.parseInt(limitCount));
 		RComicDownloader.get().getDB().downloadCount = downloadCount;
 
 		RComicDownloader.get().getDB().save();

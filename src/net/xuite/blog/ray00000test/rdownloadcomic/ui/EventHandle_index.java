@@ -85,12 +85,11 @@ public class EventHandle_index implements ActionListener,
 			 * // 顯示一種漫畫所有的集數列表 creadActListJFrame(comicNumber); } } } else
 			 */if (name.equals("update")) {
 				if (!RComicDownloader.get().getDB().updateEnable()) {
-					JOptionPane.showMessageDialog(
-							null,
-							"最後更新日期時間:" + RComicDownloader.get().getDB().getUpdateDate()
-									+ "\n更新間隔時間(小時):"
-									+ RComicDownloader.get().getDB().getUpdateHours(), "訊息",
-							JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(null, "最後更新日期時間:"
+							+ RComicDownloader.get().getDB().getUpdateDate()
+							+ "\n更新間隔時間(小時):"
+							+ RComicDownloader.get().getDB().getUpdateHours(),
+							"訊息", JOptionPane.INFORMATION_MESSAGE);
 				} else {
 					updateComic(null, true);
 				}
@@ -121,8 +120,8 @@ public class EventHandle_index implements ActionListener,
 							tmpComic.append(tmp + "\n");
 						}
 					}
-					tmpDataLove.initLoadCartoonData(RComicDownloader.get().getDB()
-							.getLoveComicList());
+					tmpDataLove.initLoadCartoonData(RComicDownloader.get()
+							.getDB().getLoveComicList());
 					String msg = tmpComic.toString();
 					if (!msg.equals("")) {
 						if (delectList.length > 10) {
@@ -229,7 +228,8 @@ public class EventHandle_index implements ActionListener,
 		if (!tmp.equals("")) {
 			String[] data = new String[] { comicID, comicName };
 			addLoveComic(data);// 將新增到我的最愛漫畫add到table上秀
-			tmpDataLove.initLoadCartoonData(RComicDownloader.get().getDB().getLoveComicList());
+			tmpDataLove.initLoadCartoonData(RComicDownloader.get().getDB()
+					.getLoveComicList());
 			return true;
 		}
 		return false;
@@ -391,7 +391,8 @@ public class EventHandle_index implements ActionListener,
 	public void updateComic(final JDataTable tableNew, final boolean showAlert) {
 		if (RComicDownloader.get().getDB().getNewComicList().size() > 0) {
 			LoadNewComicData loadNewData = new LoadNewComicData();
-			loadNewData.initLoadCartoonData(RComicDownloader.get().getDB().getNewComicList());
+			loadNewData.initLoadCartoonData(RComicDownloader.get().getDB()
+					.getNewComicList());
 			addLoadDataObj(2, loadNewData);
 			if (tableNew != null) {
 				tableNew.addMutilRowDataArray(loadNewData.getIndexData());
@@ -411,7 +412,8 @@ public class EventHandle_index implements ActionListener,
 					String[][] data = tmpData.updateComic(newComicAry);
 
 					if (data.length > 0) {
-						tmpData.initLoadCartoonData(RComicDownloader.get().getDB().getComicList());// 有更新資料，重load
+						tmpData.initLoadCartoonData(RComicDownloader.get()
+								.getDB().getComicList());// 有更新資料，重load
 						addComicArray(data);
 
 						if (showAlert) {

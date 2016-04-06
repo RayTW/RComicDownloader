@@ -4,8 +4,6 @@ import java.util.concurrent.Future;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.SingleComicData;
-import net.xuite.blog.ray00000test.rdownloadcomic.service.DownLoadThread.Callback;
-import net.xuite.blog.ray00000test.rdownloadcomic.ui.EventHandle_Act;
 import net.xuite.blog.ray00000test.rdownloadcomic.ui.LoadBarState;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
@@ -19,11 +17,15 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 	private SingleComicData mSingleComicData;
 	private String savePath;
 	private Callback mCallback;
-	
-	public static interface Callback{
+
+	public static interface Callback {
 		public void onPrepare(DownloadComicTask task, SingleComicData data);
+
 		public void onSuccess(DownloadComicTask task, SingleComicData data);
-		public void onFail(DownloadComicTask task, SingleComicData data, String reason);
+
+		public void onFail(DownloadComicTask task, SingleComicData data,
+				String reason);
+
 		public void onCancel(DownloadComicTask task, SingleComicData data);
 	}
 
@@ -41,8 +43,8 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 		loadb.setBarText("準備下載");
 		mLoadBarState = loadb;
 	}
-	
-	public void setCallback(Callback callback){
+
+	public void setCallback(Callback callback) {
 		mCallback = callback;
 	}
 
@@ -80,13 +82,13 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 	 *            單本漫畫資料
 	 * @param savePath
 	 *            漫畫存檔路徑
-	 * @throws Exception 
+	 * @throws Exception
 	 */
 	public Future<?> createThreadTask() throws Exception {
-		if(mCallback != null){
+		if (mCallback != null) {
 			mCallback.onPrepare(this, mSingleComicData);
 		}
-		try{
+		try {
 			if (mFuture == null) {
 				if (mSingleComicData.setPageList()) {
 					mDownLoadThread = new DownLoadThread();// 建立排序去load漫畫
@@ -102,8 +104,8 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 					close();
 				}
 			}
-		}catch(Exception e){
-			if(mCallback != null){
+		} catch (Exception e) {
+			if (mCallback != null) {
 				mCallback.onFail(this, mSingleComicData, "" + e.getMessage());
 			}
 			e.printStackTrace();
@@ -139,7 +141,7 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 
 	@Override
 	public void onComplete() {
-		if(mCallback != null){
+		if (mCallback != null) {
 			mCallback.onSuccess(this, mSingleComicData);
 		}
 		close();
@@ -147,14 +149,14 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 
 	@Override
 	public void onDownloadFail(SingleComicData singleComic, String reason) {
-		if(mCallback != null){
+		if (mCallback != null) {
 			mCallback.onFail(this, mSingleComicData, reason);
 		}
 		close();
 	}
-	
-	public void cancel(){
-		if(mCallback != null){
+
+	public void cancel() {
+		if (mCallback != null) {
 			mCallback.onCancel(this, mSingleComicData);
 		}
 		close();
