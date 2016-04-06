@@ -77,9 +77,6 @@ public class Config {
 	// 看漫畫列表的日期時間格式
 	public static String dateFormat = "yyyy/MM/dd HH:mm:ss";
 
-	public static String dbPath = defaultSavePath + "/sys/comic.obj";
-	public static DatabaseLite db = new DatabaseLite();
-
 	public static String cmdList = "./help:列出所有可使用的指令\n"
 			+ "./updatehour h:修改漫畫更新時間間隔，預設為3小時,範例\"./updatehour 5\"\n"
 			+ "./showhour:顯示修改漫畫更新時間間隔\n"

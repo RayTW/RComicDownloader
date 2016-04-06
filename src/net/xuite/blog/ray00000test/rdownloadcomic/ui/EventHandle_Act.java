@@ -10,6 +10,7 @@ import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.SingleComicData;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.DownloadComicTask;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 
 /**
  * 單本漫畫所有集數列表的事件處理
@@ -71,7 +72,6 @@ public class EventHandle_Act implements ActionListener {
 					// 將每集漫畫的圖片連結取出來
 					for (int i = 0; i < selectList.length; i++) {
 						int index = selectList[i];
-						// actDataObj.getActName(index);
 						SingleComicData singleComic = actObj
 								.getActComicData(index);
 
@@ -80,21 +80,41 @@ public class EventHandle_Act implements ActionListener {
 						if (downLoadTable.isDownloading(checkName)) {// 沒有在下載序列中才可以再下載
 							setStateText(actObj.getCartoonName() + "-"
 									+ singleComic.getName() + "已經在下載佇列中^^");
-							// JOptionPane.showMessageDialog(null,
-							// actObj.cartoonName + "-" + singleComic.name
-							// + "已經在下載佇列中^^", "訊息",
-							// JOptionPane.INFORMATION_MESSAGE);
-							// break;
 						} else if (downLoadTable.isFill()) {// 佇列已滿
 							String msg = "目前下載中的佇列有"
 									+ downLoadTable.getCurrentDownLoadSize()
-									+ "同時下載最多" + Config.db.getDownCountLimit()
+									+ "同時下載最多" + RComicDownloader.get().getDB().getDownCountLimit()
 									+ "個^^";
 							JOptionPane.showMessageDialog(null, msg, "訊息",
 									JOptionPane.INFORMATION_MESSAGE);
 							break;
 						} else {// 新增下載任務
-							EventHandle_Act.this.addTask(actObj, index);
+							RComicDownloader.get().addDownloadTask(new DownloadComicTask.Callback(){
+								@Override
+								public void onPrepare(DownloadComicTask task, SingleComicData data) {
+									downLoadTable.addObj(task);
+									setStateText(actObj.getCartoonName() + " " + data.getName()+ " 準備下載");
+								}
+								
+								@Override
+								public void onSuccess(DownloadComicTask task, SingleComicData data) {
+									downLoadTable.removeObj(task);
+									setStateText(actObj.getCartoonName() + " " + data.getName() + " 下載完成");
+								}
+
+								@Override
+								public void onFail(DownloadComicTask task, SingleComicData data, String reason) {
+									downLoadTable.removeObj(task);
+									setStateText(actObj.getCartoonName() + " " + data.getName() + " 下載失敗，原因:" + reason);
+								}
+
+								@Override
+								public void onCancel(DownloadComicTask task, SingleComicData data) {
+									downLoadTable.removeObj(task);
+									setStateText(actObj.getCartoonName() + " " + data.getName() + " 下載取消");
+								}
+							},actObj, index);
+							
 						}
 					}
 					EventHandle_Act.this.setStateText(Config.DownLoadStart);
@@ -164,24 +184,6 @@ public class EventHandle_Act implements ActionListener {
 	 */
 	public void setParentObj(JDownLoadUI_Act p) {
 		parentObj = p;
-	}
-
-	void addTask(ActDataObj actObj, int index) {
-		DownloadComicTask task = new DownloadComicTask(actObj, index);
-		try {
-			task.setParent(this);
-			downLoadTable.addObj(task);
-			task.createThreadTask();
-		} catch (Exception e) {
-			e.printStackTrace();
-			downLoadTable.removeObj(task);
-			String msg = e.getMessage();
-			if (task != null) {
-				msg = task.getCheckName() + "下載失敗";
-			}
-			JOptionPane.showMessageDialog(null, msg, "錯誤訊息",
-					JOptionPane.INFORMATION_MESSAGE);
-		}
 	}
 
 	/**

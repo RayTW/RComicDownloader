@@ -5,6 +5,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.PDF;
 
 import com.itextpdf.text.PageSize;
@@ -35,20 +36,20 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 
 		JButton pdfPathBtn = new JButton("瀏覽");
 		this.leftPanel.add(pdfPathBtn, "West");
-		this.pdfPathLabel.setText(Config.db.exportPDFpath);
+		this.pdfPathLabel.setText(RComicDownloader.get().getDB().exportPDFpath);
 		pdfPathBtn.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser chooser = new JFileChooser(Config.db.exportPDFpath);
+				JFileChooser chooser = new JFileChooser(RComicDownloader.get().getDB().exportPDFpath);
 				chooser.setDialogTitle("請選擇PDF儲存路徑");
 				chooser.setFileSelectionMode(1);
 				int result = chooser.showOpenDialog(owner);
 
 				if (result == 0) {
 					File file = chooser.getSelectedFile();
-					Config.db.exportPDFpath = file.getPath();
+					RComicDownloader.get().getDB().exportPDFpath = file.getPath();
 					ComicExportPdfDialogMenu.this.pdfPathLabel
-							.setText(Config.db.exportPDFpath);
+							.setText(RComicDownloader.get().getDB().exportPDFpath);
 				}
 			}
 		});
@@ -71,7 +72,7 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 		Runnable runObject = new Runnable() {
 			@Override
 			public void run() {
-				String targetPdfPath = Config.db.exportPDFpath + File.separator
+				String targetPdfPath = RComicDownloader.get().getDB().exportPDFpath + File.separator
 						+ cFloder.trim() + comicActFloder.trim() + ".pdf";
 				String fullPath = ComicExportPdfDialogMenu.this.root + "/"
 						+ cFloder + "/" + comicActFloder;
@@ -95,7 +96,7 @@ public class ComicExportPdfDialogMenu extends ComicRedaerDialogMenu {
 						+ result);
 			}
 		};
-		((JDownLoadUI_index) mWindow).addPDFTask(runObject);
+		RComicDownloader.get().addPDFTask(runObject);
 	}
 
 }

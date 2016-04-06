@@ -34,6 +34,7 @@ import javax.swing.text.html.HTML;
 import javax.swing.text.html.HTMLDocument;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.DownloadFile;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HtmlReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
@@ -245,23 +246,19 @@ public class VersionNews extends JPanel {
 			final String newFileName = appName + ".jar";
 			String savePath = "." + java.io.File.separatorChar;
 			loadState.setSize(250, 80);
-			loadState.setLocation(Config.db.indexBounds.x
-					+ Config.db.indexBounds.width / 2, Config.db.indexBounds.y
-					+ Config.db.indexBounds.height / 2);
+			loadState.setLocation(RComicDownloader.get().getDB().indexBounds.x
+					+ RComicDownloader.get().getDB().indexBounds.width / 2, RComicDownloader.get().getDB().indexBounds.y
+					+ RComicDownloader.get().getDB().indexBounds.height / 2);
 			loadState.setVisible(true);
 
 			loadState.addWindowListener(new WindowAdapter() {
 				@Override
 				public void windowClosed(WindowEvent e) {
-					// TODO Auto-generated method stub
-					// super.windowClosed(e);
 					System.out.println("windowClosed");
 				}
 
 				@Override
 				public void windowStateChanged(WindowEvent e) {
-					// TODO Auto-generated method stub
-					// super.windowStateChanged(e);
 					System.out.println("windowStateChanged");
 				}
 

@@ -23,6 +23,7 @@ import javax.swing.event.ChangeListener;
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.LoadComicData;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.FolderManager;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.NewComicTableCellRenderer;
@@ -61,7 +62,6 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 	private JScrollPane downLoadTableScroll;
 	private JPanel centerPanel;
-	private ThreadPool mPDFThreadPool;
 
 	public JDownLoadUI_index() {
 		initJdownLoadUI_index();
@@ -75,12 +75,11 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		String title = String.format(Config.indexName, Config.version);
 		setTitle(title);
 		Container c = getContentPane();
-		mPDFThreadPool = new ThreadPool(5);
 
 		eventHandleIndex = new EventHandle_index();
 		eventHandleIndex.setParentObj(this);
 
-		LoadComicData loadData = new LoadComicData(Config.db.getComicList());
+		LoadComicData loadData = new LoadComicData(RComicDownloader.get().getDB().getComicList());
 		table.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
 		table.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		table.addMutilRowDataArray(loadData.getIndexData());
@@ -92,7 +91,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		eventHandleIndex.addLoadDataObj(0, loadData);
 
 		LoadComicData loadDataLove = new LoadComicData(
-				Config.db.getLoveComicList());
+				RComicDownloader.get().getDB().getLoveComicList());
 		tableLove = new JDataTable(false);
 		tableLove.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
 		tableLove.addMutilRowDataArray(loadDataLove.getIndexData());
@@ -207,7 +206,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		c.add(txtPanel, "South");
 
 		// 取得上次關閉APP時的視窗大小來設定視窗
-		setBounds(Config.db.indexBounds);
+		setBounds(RComicDownloader.get().getDB().indexBounds);
 
 		addWindowListener(new WindowAdapter() {
 			@Override
@@ -216,10 +215,10 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 					@Override
 					public void run() {
 						try {
-							Config.db.indexBounds = JDownLoadUI_index.this
+							RComicDownloader.get().getDB().indexBounds = JDownLoadUI_index.this
 									.getBounds();
 							setVisible(false);
-							Config.db.save();
+							RComicDownloader.get().getDB().save();
 							FolderManager.deleteFolder(Config.tempFolderPath);
 						} catch (Exception e) {
 							e.printStackTrace();
@@ -316,7 +315,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		if (downLoadTableScroll != null) {
 			centerPanel.remove(downLoadTableScroll);
 		}
-		downLoadTable = new TableList(Config.db.getDownCountLimit());
+		downLoadTable = new TableList(RComicDownloader.get().getDB().getDownCountLimit());
 		downLoadTable.setParentObj(this);
 		eventHandleIndex.setDataTableList(downLoadTable);
 		downLoadTableScroll = downLoadTable.getJScrollPaneJTable();
@@ -341,8 +340,8 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	 */
 	public void markTableCell(JDataTable t1, JDataTable t2) {
 		NewComicTableCellRenderer render = new NewComicTableCellRenderer();
-		render.setForegroundColor(Config.db.foregroundColor);
-		render.setBackgroundColor(Config.db.backgroundColor);
+		render.setForegroundColor(RComicDownloader.get().getDB().foregroundColor);
+		render.setBackgroundColor(RComicDownloader.get().getDB().backgroundColor);
 
 		for (int i = t1.getDataCount() - 1; i >= 0; i--) {
 			String comicNum = t1.getValutAt(i, 0).toString();
@@ -353,10 +352,6 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 
 	public StateMessage getStateMessage() {
 		return stateTextArea;
-	}
-
-	public void addPDFTask(Runnable run) {
-		mPDFThreadPool.executeTask(run);
 	}
 
 	/**
@@ -390,25 +385,8 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		// 檢查我的最愛文字檔
-		WriteFile.mkDir(Config.defaultSavePath + "/sys");
-		Config.db.pathName = Config.dbPath;
-		Config.db.load();
-
-		// 建立下載執行緒上限個數
-		int downloadCount = Config.db.downloadCount;
-		if (downloadCount == 0) {
-			if (Config.db.getDownCountLimit() > 0) {
-				downloadCount = Config.db.getDownCountLimit();
-			} else {
-				downloadCount = 5;
-			}
-		}
-		ThreadPool.newInstance(downloadCount);
-
-		WorkaroundUtility.replaceAllSpaceCharComic();
-		WorkaroundUtility.replaceAllSpaceCharAct();
-
+		RComicDownloader.get().preprogress();
+		
 		// 建立動畫程式首頁
 		JDownLoadUI_index download = new JDownLoadUI_index();
 		download.setVisible(true);

@@ -40,9 +40,13 @@ public class LoadBarState extends LoadBar {
 				DownLoadThread downLoad = parentObj.getDownLoadThread();
 
 				if (downLoad != null) {
-					pause.setText(downLoad.isPause ? "暫停" : "繼續");
-					downLoad.isPause = !downLoad.isPause;
-
+					if(downLoad.isPause()){
+						pause.setText("暫停");
+						downLoad.resume();
+					}else{
+						pause.setText("繼續");
+						downLoad.pause();
+					}
 				}
 			}
 		});
@@ -53,8 +57,7 @@ public class LoadBarState extends LoadBar {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				if (parentObj != null) {
-					parentObj.removeSelf("\"" + getLoadCartoonName()
-							+ "\" 取消下載");
+					parentObj.cancel();
 				}
 				SwingUtilities.invokeLater(new Runnable() {
 					@Override

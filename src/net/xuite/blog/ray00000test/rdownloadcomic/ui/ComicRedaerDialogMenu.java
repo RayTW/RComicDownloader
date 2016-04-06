@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.FolderManager;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.SortFilesTool;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
@@ -72,8 +73,8 @@ public class ComicRedaerDialogMenu extends JDialog {
 				comicFloder = table.getJTable().getValueAt(row, 0).toString();
 
 				// 點擊漫畫後，列出漫畫已下載的集數
-				reloadActFolder(Config.db.sortType, root + "/" + comicFloder,
-						Config.db.sortAsc);
+				reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/" + comicFloder,
+						RComicDownloader.get().getDB().sortAsc);
 				selectedComicLab.setText(comicFloder);
 			}
 		});
@@ -227,7 +228,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 		}
 
 		String html = String.format(text, str, floderPath, imgWH,
-				Config.db.touchImg);
+				RComicDownloader.get().getDB().touchImg);
 
 		if (!writeFileTool.writeText_UTF8(html, fileTarget)) {
 			return false;
@@ -278,19 +279,19 @@ public class ComicRedaerDialogMenu extends JDialog {
 
 	// 以名稱排序漫畫列表
 	private void sortComicByName() {
-		Config.db.sortType = SortFilesTool.FILE_NAME;
-		Config.db.sortAsc = !Config.db.sortAsc;
-		reloadActFolder(Config.db.sortType, root + "/" + comicFloder,
-				Config.db.sortAsc);
+		RComicDownloader.get().getDB().sortType = SortFilesTool.FILE_NAME;
+		RComicDownloader.get().getDB().sortAsc = !RComicDownloader.get().getDB().sortAsc;
+		reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/" + comicFloder,
+				RComicDownloader.get().getDB().sortAsc);
 
 	}
 
 	// 以日期排序漫畫列表
 	private void sortComicByDate() {
-		Config.db.sortType = SortFilesTool.FILE_DATE;
-		Config.db.sortAsc = !Config.db.sortAsc;
-		reloadActFolder(Config.db.sortType, root + "/" + comicFloder,
-				Config.db.sortAsc);
+		RComicDownloader.get().getDB().sortType = SortFilesTool.FILE_DATE;
+		RComicDownloader.get().getDB().sortAsc = !RComicDownloader.get().getDB().sortAsc;
+		reloadActFolder(RComicDownloader.get().getDB().sortType, root + "/" + comicFloder,
+				RComicDownloader.get().getDB().sortAsc);
 	}
 
 	// 開啟所有選擇的漫畫
@@ -323,7 +324,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 		FolderManager.createFolder(Config.tempFolderPath);
 
 		openComic(html, targetPath, actComit.list(), jsPath,
-				Config.db.getReaderWH());
+				RComicDownloader.get().getDB().getReaderWH());
 	}
 
 	public void setStateMessage(String text) {

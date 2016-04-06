@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
@@ -123,14 +124,14 @@ public class LoadComicData {
 			indexData[deletRowIndex[i]][1] = null;
 		}
 
-		Config.db.clearLoveComicList();
+		RComicDownloader.get().getDB().clearLoveComicList();
 		for (int i = 0; i < indexData.length; i++) {
 			if (indexData[i][0] != null) {
-				Config.db.addLoveComicList(indexData[i]);
+				RComicDownloader.get().getDB().addLoveComicList(indexData[i]);
 			}
 		}
 		// 把資料重讀回來
-		initLoadCartoonData(Config.db.getLoveComicList());
+		initLoadCartoonData(RComicDownloader.get().getDB().getLoveComicList());
 	}
 
 	/**
@@ -147,7 +148,7 @@ public class LoadComicData {
 			return -1;
 		}
 
-		// Config.db.loveComicInfo();
+		// RComicDownloader.get().getDB().loveComicInfo();
 		for (int i = startIndex; i < getDataLength(); i++) {
 			String cartoonName = indexData[i][1];
 			if (cartoonName.indexOf(findName) != -1) {
@@ -395,7 +396,7 @@ public class LoadComicData {
 		Hashtable data = new Hashtable();
 
 		// 讀取最近出的漫畫
-		for (int i = 1; i <= Config.db.refrushPage; i++) {
+		for (int i = 1; i <= RComicDownloader.get().getDB().refrushPage; i++) {
 			String url = Config.indexHtml + "comic/u-" + i + ".html";
 			updateNewComic(url, Config.actLang, data, newComicAry);
 		}
@@ -430,9 +431,9 @@ public class LoadComicData {
 				String id = comicArray[j][0];
 				String name = comicArray[j][1];
 
-				Config.db.addComicList(new String[] { id, name });
+				RComicDownloader.get().getDB().addComicList(new String[] { id, name });
 			}
-			Config.db.save();
+			RComicDownloader.get().getDB().save();
 		}
 		return comicArray;
 	}

@@ -18,7 +18,14 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 	private Future<?> mFuture;
 	private SingleComicData mSingleComicData;
 	private String savePath;
-	private EventHandle_Act parentObj;
+	private Callback mCallback;
+	
+	public static interface Callback{
+		public void onPrepare(DownloadComicTask task, SingleComicData data);
+		public void onSuccess(DownloadComicTask task, SingleComicData data);
+		public void onFail(DownloadComicTask task, SingleComicData data, String reason);
+		public void onCancel(DownloadComicTask task, SingleComicData data);
+	}
 
 	public DownloadComicTask(ActDataObj actObj, int index) {
 		mSingleComicData = actObj.getActComicData(index);
@@ -34,13 +41,13 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 		loadb.setBarText("準備下載");
 		mLoadBarState = loadb;
 	}
+	
+	public void setCallback(Callback callback){
+		mCallback = callback;
+	}
 
 	public LoadBarState getmLoadBarState() {
 		return mLoadBarState;
-	}
-
-	public void setParent(EventHandle_Act parent) {
-		parentObj = parent;
 	}
 
 	public void setLoadBarState(LoadBarState state) {
@@ -73,22 +80,34 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 	 *            單本漫畫資料
 	 * @param savePath
 	 *            漫畫存檔路徑
+	 * @throws Exception 
 	 */
-	public Future<?> createThreadTask() {
-		if (mFuture == null) {
-			if (mSingleComicData.setPageList()) {
-				mDownLoadThread = new DownLoadThread();// 建立排序去load漫畫
-				mDownLoadThread.setSingleComicData(this, mSingleComicData);
-				WriteFile.mkDir(savePath);
-				mDownLoadThread.setSavePath(savePath);
-				// 將下載任務放到pool
-				mFuture = ThreadPool.submit(mDownLoadThread);
-			} else {
-				if (parentObj != null) {
-					parentObj
-							.setStateText(mSingleComicData.getName() + " 下載失敗");
+	public Future<?> createThreadTask() throws Exception {
+		if(mCallback != null){
+			mCallback.onPrepare(this, mSingleComicData);
+		}
+		try{
+			if (mFuture == null) {
+				if (mSingleComicData.setPageList()) {
+					mDownLoadThread = new DownLoadThread();// 建立排序去load漫畫
+					mDownLoadThread.setSingleComicData(this, mSingleComicData);
+					WriteFile.mkDir(savePath);
+					mDownLoadThread.setSavePath(savePath);
+					// 將下載任務放到pool
+					mFuture = ThreadPool.submit(mDownLoadThread);
+				} else {
+					if (mCallback != null) {
+						mCallback.onFail(this, mSingleComicData, "");
+					}
+					close();
 				}
 			}
+		}catch(Exception e){
+			if(mCallback != null){
+				mCallback.onFail(this, mSingleComicData, "" + e.getMessage());
+			}
+			e.printStackTrace();
+			throw e;
 		}
 		return mFuture;
 	}
@@ -103,7 +122,8 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 		if (mDownLoadThread != null) {
 			mDownLoadThread.stopJpgLink();
 		}
-		parentObj = null;
+		mCallback = null;
+		mFuture = null;
 	}
 
 	public DownLoadThread getDownLoadThread() {
@@ -119,21 +139,23 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 
 	@Override
 	public void onComplete() {
-		removeSelf("\"" + checkName + "\" 下載完成");
+		if(mCallback != null){
+			mCallback.onSuccess(this, mSingleComicData);
+		}
+		close();
 	}
 
 	@Override
-	public void onDownloadFail(SingleComicData singleComic, String message) {
-		removeSelf("\"" + checkName + "\" 下載失敗，" + message);
+	public void onDownloadFail(SingleComicData singleComic, String reason) {
+		if(mCallback != null){
+			mCallback.onFail(this, mSingleComicData, reason);
+		}
+		close();
 	}
-
-	public void removeSelf(String massage) {
-		setFuture(null);
-		if (parentObj != null) {
-			if (massage != null && massage.length() > 0) {
-				parentObj.setStateText(massage);
-			}
-			parentObj.removeTask(this);
+	
+	public void cancel(){
+		if(mCallback != null){
+			mCallback.onCancel(this, mSingleComicData);
 		}
 		close();
 	}

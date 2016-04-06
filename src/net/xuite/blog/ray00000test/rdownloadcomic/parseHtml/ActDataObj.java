@@ -7,6 +7,7 @@ import java.util.Hashtable;
 import javax.swing.ImageIcon;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ChineseWord;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.LoadNetFile;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
@@ -279,7 +280,7 @@ public class ActDataObj {
 		while (index < str.length()) {
 			String tmp = str.substring(
 					index,
-					str.length() < (index += Config.db.getNewline()) ? str
+					str.length() < (index += RComicDownloader.get().getDB().getNewline()) ? str
 							.length() : index);
 
 			lineCount++;

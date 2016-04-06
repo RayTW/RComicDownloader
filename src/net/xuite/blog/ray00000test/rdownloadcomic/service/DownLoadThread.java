@@ -36,7 +36,7 @@ public class DownLoadThread implements Runnable {
 	/** 目前下載到第幾張 */
 	public int point;
 	/** isRun:是否下載中,isPause:是否暫停中 */
-	public boolean isRun, isPause;
+	private boolean isRun, isPause;
 
 	/** 讀取檔案的網址 */
 	private String urlPath;
@@ -152,7 +152,7 @@ public class DownLoadThread implements Runnable {
 
 		// ret若為error表示下載失敗(可能是網路斷線)
 		ret = readyDownload(url, nextUrl, path + "/", "" + index, true);
-		setLoadKB(Config.db.getDownLoadKB());
+		setLoadKB(RComicDownloader.get().getDB().getDownLoadKB());
 		return ret;
 	}
 
@@ -187,7 +187,7 @@ public class DownLoadThread implements Runnable {
 	 * 暫停 下載單集漫畫
 	 * 
 	 */
-	public void pauseJpgLink() {
+	public void pause() {
 		isPause = true;
 	}
 
@@ -195,7 +195,7 @@ public class DownLoadThread implements Runnable {
 	 * 繼續下載 下載單集漫畫
 	 * 
 	 */
-	public void restartJpgLink() {
+	public void resume() {
 		isPause = false;
 	}
 
@@ -282,6 +282,10 @@ public class DownLoadThread implements Runnable {
 		}
 		closeIO();
 		return true;
+	}
+	
+	public boolean isPause(){
+		return isPause;
 	}
 
 	/**

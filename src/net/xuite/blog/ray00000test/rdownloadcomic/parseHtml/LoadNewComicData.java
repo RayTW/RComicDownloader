@@ -3,6 +3,7 @@ package net.xuite.blog.ray00000test.rdownloadcomic.parseHtml;
 import java.util.ArrayList;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
 
@@ -27,12 +28,12 @@ public class LoadNewComicData extends LoadComicData {
 			table.addRowAryData(new String[] { obj.id,
 					obj.name + "[" + obj.act + "]" });
 		}
-		Config.db.clearNewComicList();
+		RComicDownloader.get().getDB().clearNewComicList();
 		indexData = new String[table.getDataCount()][];
 		for (int i = 0; i < table.getDataCount(); i++) {
 			indexData[i] = new String[] { (String) table.getValutAt(i, 0),
 					(String) table.getValutAt(i, 1) };
-			Config.db.addNewComicList(indexData[i]);
+			RComicDownloader.get().getDB().addNewComicList(indexData[i]);
 		}
 	}
 

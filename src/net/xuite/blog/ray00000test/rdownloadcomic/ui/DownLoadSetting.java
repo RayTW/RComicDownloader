@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
 
 /**
@@ -46,7 +47,7 @@ public class DownLoadSetting extends Panel {
 		btn1.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Config.db.resetDefault();
+				RComicDownloader.get().getDB().resetDefault();
 				reload();
 			}
 		});
@@ -84,21 +85,21 @@ public class DownLoadSetting extends Panel {
 		JLabel lab0 = (JLabel) getComponent("lab0");
 		JTextField txt0 = (JTextField) getComponent("txt0");
 		lab0.setText("漫畫解析度(0x0:原圖大小)");
-		txt0.setText(Config.db.getReaderWH());
+		txt0.setText(RComicDownloader.get().getDB().getReaderWH());
 		txt0.setVisible(true);
 
 		// 更新間隔時間
 		JLabel lab1 = (JLabel) getComponent("lab1");
 		JTextField txt1 = (JTextField) getComponent("txt1");
 		lab1.setText("更新間隔時間(小時)");
-		txt1.setText("" + Config.db.getUpdateHours());
+		txt1.setText("" + RComicDownloader.get().getDB().getUpdateHours());
 		txt1.setVisible(true);
 
 		// 漫畫最後更新日期時間
 		JLabel lab2 = (JLabel) getComponent("lab2");
 		JTextField txt2 = (JTextField) getComponent("txt2");
 		lab2.setText("漫畫最後更新日期時間");
-		txt2.setText(Config.db.getUpdateDate());
+		txt2.setText(RComicDownloader.get().getDB().getUpdateDate());
 		txt2.setEditable(false);
 		txt2.setVisible(true);
 
@@ -106,25 +107,25 @@ public class DownLoadSetting extends Panel {
 		JLabel lab3 = (JLabel) getComponent("lab3");
 		JTextField txt3 = (JTextField) getComponent("txt3");
 		lab3.setText("下載速率限制(每秒/kb),0:無限");
-		txt3.setText("" + Config.db.getDownLoadKB());
+		txt3.setText("" + RComicDownloader.get().getDB().getDownLoadKB());
 		txt3.setVisible(true);
 
 		// 漫畫簡介每行字數
 		JLabel lab4 = (JLabel) getComponent("lab4");
 		JTextField txt4 = (JTextField) getComponent("txt4");
 		lab4.setText("漫畫簡介每行字數");
-		txt4.setText("" + Config.db.getNewline());
+		txt4.setText("" + RComicDownloader.get().getDB().getNewline());
 		txt4.setVisible(true);
 
 		// 同時下載漫畫佇列上限個數
 		JLabel lab5 = (JLabel) getComponent("lab5");
 		JTextField txt5 = (JTextField) getComponent("txt5");
 		lab5.setText("同時下載漫畫佇列上限個數");
-		txt5.setText("" + Config.db.getDownCountLimit());
+		txt5.setText("" + RComicDownloader.get().getDB().getDownCountLimit());
 		txt5.setVisible(true);
 		// 以下功能只有最高權限者才可使用
-		// txt5.setEditable(Config.db.isAdmin);
-		// txt3.setEditable(Config.db.isAdmin);
+		// txt5.setEditable(RComicDownloader.get().getDB().isAdmin);
+		// txt3.setEditable(RComicDownloader.get().getDB().isAdmin);
 
 		// 漫畫佔用空間
 		calculateFileLength(Config.defaultSavePath);
@@ -136,7 +137,7 @@ public class DownLoadSetting extends Panel {
 		JLabel lab9 = (JLabel) getComponent("lab9");
 		JTextField txt9 = (JTextField) getComponent("txt9");
 		lab9.setText("同時下載的程序個數");
-		txt9.setText("" + Config.db.downloadCount);
+		txt9.setText("" + RComicDownloader.get().getDB().downloadCount);
 		txt9.setVisible(true);
 	}
 
@@ -203,7 +204,7 @@ public class DownLoadSetting extends Panel {
 		JTextField txt0 = (JTextField) getComponent("txt0");
 		String[] wh = txt0.getText().split("[x]");
 
-		if (wh.length != 2 || !Config.db.isValidReaderWH(wh[0], wh[1])) {
+		if (wh.length != 2 || !RComicDownloader.get().getDB().isValidReaderWH(wh[0], wh[1])) {
 			Config.showMsgBar("漫畫圖片寬設定錯誤", "訊息");
 			return;
 		}
@@ -212,7 +213,7 @@ public class DownLoadSetting extends Panel {
 		JTextField txt1 = (JTextField) getComponent("txt1");
 		String updateHour = txt1.getText();
 
-		if (!Config.db.isValidUpdateHour(updateHour)) {
+		if (!RComicDownloader.get().getDB().isValidUpdateHour(updateHour)) {
 			Config.showMsgBar("更新間隔時間設定錯誤", "訊息");
 			return;
 		}
@@ -267,15 +268,15 @@ public class DownLoadSetting extends Panel {
 			downloadCount = Integer.parseInt(limitCount);
 		}
 
-		Config.db.setReaderWH(wh[0], wh[1]);
-		Config.db.setUpdateHours(Long.parseLong(updateHour));
-		Config.db.setDownLoadKB(Integer.parseInt(kbSec));
-		Config.db.setNewline(Integer.parseInt(lineCount));
-		Config.db.setDownCountLimit(Integer.parseInt(limitCount));
-		Config.db.downloadCount = downloadCount;
+		RComicDownloader.get().getDB().setReaderWH(wh[0], wh[1]);
+		RComicDownloader.get().getDB().setUpdateHours(Long.parseLong(updateHour));
+		RComicDownloader.get().getDB().setDownLoadKB(Integer.parseInt(kbSec));
+		RComicDownloader.get().getDB().setNewline(Integer.parseInt(lineCount));
+		RComicDownloader.get().getDB().setDownCountLimit(Integer.parseInt(limitCount));
+		RComicDownloader.get().getDB().downloadCount = downloadCount;
 
-		Config.db.save();
-		ThreadPool.newInstance(Config.db.downloadCount);
+		RComicDownloader.get().getDB().save();
+		ThreadPool.newInstance(RComicDownloader.get().getDB().downloadCount);
 		dowanloadUI.resetTableList();
 	}
 
