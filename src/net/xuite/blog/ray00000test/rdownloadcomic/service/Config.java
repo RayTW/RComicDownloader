@@ -23,7 +23,7 @@ public class Config {
 	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
 
 	/** 無限動漫首頁網址 */
-	public static String indexHtml = "http://www.comicvip.com/"; // 無限動漫首頁網址
+	public static String indexHtml = "http://www.comicbus.com/"; // 無限動漫首頁網址
 	public static String issueReportUrl = "http://blog.xuite.net/ray00000test/blog/328182126";
 	/** 漫畫封面圖片前段網址 */
 	public static String imgUrl = indexHtml + "pics/0/"; // 漫畫封面圖片前段網址
