@@ -2,6 +2,7 @@ package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
 import javax.swing.JOptionPane;
 
+import JDownLoadComic.DatabaseLite;
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WorkaroundUtility;

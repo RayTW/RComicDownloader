@@ -1,4 +1,4 @@
-package net.xuite.blog.ray00000test.rdownloadcomic.service;
+package JDownLoadComic;
 
 import java.awt.Color;
 import java.io.File;
@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.TimeZone;
 import java.awt.Rectangle;
 
+import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ReadFile;
 
 public class DatabaseLite implements java.io.Serializable {
