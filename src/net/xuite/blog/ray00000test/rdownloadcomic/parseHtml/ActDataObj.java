@@ -1,6 +1,5 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.parseHtml;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -83,7 +82,7 @@ public class ActDataObj {
 		}
 		SingleComicData scData = comicList.get(id + name);
 		if (scData == null) {
-			scData = new SingleComicData();// 產生一本漫畫物件
+			scData = new SingleComicData(this);// 產生一本漫畫物件
 			scData.setName(name);
 			scData.itemid = Integer.parseInt(viewdata[0]);
 			scData.url = Config.indexHtml + viewdata[1];// 這本漫畫網頁網址
@@ -92,16 +91,6 @@ public class ActDataObj {
 			// 2013/02/28 改成排序由上至下排序為n~1集
 			comicSorted.add(0, scData);
 		}
-		String comicActPath = "./" + Config.defaultSavePath + "/" + cartoonName
-				+ "/" + scData.getName();
-		File file = new File(comicActPath);
-		if (file.exists()) {// 判斷是否有抓過這集漫畫
-			if (file.list().length > 0) {// 漫畫裡的圖片有1張以上就認定為抓過此集
-				scData.isDownload = true;
-				return;
-			}
-		}
-		scData.isDownload = false;
 	}
 
 	/**
@@ -169,7 +158,7 @@ public class ActDataObj {
 		for (int i = 0; i < comicSorted.size(); i++) {
 			SingleComicData scd = comicSorted.get(i);
 			actData[i][0] = scd.getName();
-			if (scd.isDownload) {
+			if (scd.isDownload()) {
 				actData[i][1] = Config.DOWNLOADED;
 			} else {
 				actData[i][1] = Config.NO_DOWNLOAD;

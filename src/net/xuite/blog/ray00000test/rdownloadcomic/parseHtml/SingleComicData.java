@@ -1,8 +1,10 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.parseHtml;
 
+import java.io.File;
 import java.util.ArrayList;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ParseComicJpgUrl20.ComicData;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
 
 /**
@@ -24,17 +26,18 @@ public class SingleComicData {
 	/** 這集漫畫的網址 */
 	public String url; // 這集漫畫的網址
 
-	/** 標記目前這集漫畫是否下載過 true : 已下載, false:未下載 */
-	public boolean isDownload; // true : 已下載, false:未下載
 	/** 記錄每一頁網址 */
 	private ArrayList pageUrl; // 記錄每一頁網址
 
 	private ParseComicJpgUrl20 mParseComicJpgUrl20;
+	
+	private ActDataObj mActDataObj;
 
-	public SingleComicData() {
+	public SingleComicData(ActDataObj parent) {
+		mActDataObj = parent;
 		initSingleComicData();
 	}
-
+	
 	/**
 	 * 初始化
 	 * 
@@ -120,5 +123,22 @@ public class SingleComicData {
 			name = name.replaceAll(" ", "");
 		}
 		this.name = name;
+	}
+	
+	public boolean isDownload(){
+		return checkIsDownload();
+	}
+	
+	/** 標記目前這集漫畫是否下載過 true : 已下載, false:未下載 */
+	private boolean checkIsDownload(){
+		String cartoonName = mActDataObj.getCartoonName().replaceAll(" ", "");
+		String comicActPath = "./" + Config.defaultSavePath + "/" + cartoonName
+				+ "/" + getName();
+		File file = new File(comicActPath);
+		
+		if (file.exists()) {// 判斷是否有抓過這集漫畫
+			return file.length() > 0;
+		}
+		return false;
 	}
 }
