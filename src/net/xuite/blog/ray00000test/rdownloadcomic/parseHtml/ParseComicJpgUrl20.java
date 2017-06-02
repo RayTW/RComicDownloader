@@ -157,7 +157,6 @@ public class ParseComicJpgUrl20 {
 		for (int i = 0; i < totalPage; i++) {
 			parseTool.startParse(ch + "-" + (i + 1), ti, cs);
 			String url = parseTool.getPageUrl();
-			// System.out.println(url);
 			list.add(url);
 		}
 

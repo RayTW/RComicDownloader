@@ -165,8 +165,6 @@ public class EventHandle_index implements ActionListener,
 	 * @param actData
 	 */
 	public synchronized void creadActListJFrame(String comicNumber) {
-		System.out.println("pool " + comicListPool.hashCode());
-		// LoadComicData comicData = getNowSelectListIndex();
 		LoadComicData comicData = getLoadComicData(0);
 		String comicName = comicData.findComicName(comicNumber);
 		// ActDataObj被建立時狀態為STATE_SYNC_READY

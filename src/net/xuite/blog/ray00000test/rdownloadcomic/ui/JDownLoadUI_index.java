@@ -36,7 +36,7 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.NewComicTableCellRenderer
 
 public class JDownLoadUI_index extends JDownLoadUI_Default {
 	static {
-		Log.setGlobalDebug(false);
+		Log.setGlobalDebug(Config.DEBUG);
 	}
 	private static Log sLog = Log.newInstance(true);
 

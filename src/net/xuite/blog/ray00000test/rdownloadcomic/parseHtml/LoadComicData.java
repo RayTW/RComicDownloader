@@ -22,7 +22,6 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
 
 public class LoadComicData {
 	private static Log sLog = Log.newInstance(true);
-	// private String vision; //漫畫列表版本
 	protected HttpReader loadHtml; // 讀取網址
 	protected String[][] indexData; // 漫舉列表
 
@@ -54,8 +53,6 @@ public class LoadComicData {
 	 *            漫畫列表文字檔路徑
 	 */
 	public void initLoadCartoonData(ArrayList aryList) {
-		// wf = new WriteFile();
-
 		Object[] ary = aryList.toArray();
 		indexData = new String[ary.length][];
 
@@ -119,7 +116,6 @@ public class LoadComicData {
 
 		// 把要刪除的位置漫畫clear掉
 		for (int i = 0; i < deletRowIndex.length; i++) {
-			// System.out.println(indexData[deletRowIndex[i]][0]);
 			indexData[deletRowIndex[i]][0] = null;
 			indexData[deletRowIndex[i]][1] = null;
 		}
@@ -148,7 +144,6 @@ public class LoadComicData {
 			return -1;
 		}
 
-		// RComicDownloader.get().getDB().loveComicInfo();
 		for (int i = startIndex; i < getDataLength(); i++) {
 			String cartoonName = indexData[i][1];
 			if (cartoonName.indexOf(findName) != -1) {
@@ -255,7 +250,7 @@ public class LoadComicData {
 								"：");
 
 						actObj.addActComic(comicOneBookName,
-								cview(data[0], data[1]));
+								cview(data[0], data[1], 1));
 					} else {
 						if (actObj.getDetail().equals("")) {
 							if (txt.indexOf(findDeaitlTag) != -1) {// 找到簡介說明
@@ -282,17 +277,8 @@ public class LoadComicData {
 								String updateDate = replaceTag((String) dataAry
 										.get(i + 1));
 								actObj.setLastUpdateDate(updateDate);
-								// actObj.setLastUpdateDate(replaceTag(findBookData(lastUpdateDateTag,(String)dataAry.get(i+1))));
 							}
-						}/*
-						 * else
-						 * if(actObj.getPublishDate().equals("")){//2010/08/14
-						 * 此網站已不留發行日期 String publishDateTag = "出品：</td>";
-						 * if(txt.indexOf(publishDateTag) != -1){//找到發行日期
-						 * actObj.setPublishDate
-						 * (findBookData(publishDateTag,(String
-						 * )dataAry.get(i+1))); } }
-						 */
+						}
 					}
 				}
 
@@ -327,13 +313,13 @@ public class LoadComicData {
 	 * @param catid
 	 * @return
 	 */
-	public String[] cview(String url, String catid) {
+	public String[] cview(String url, String catid, int copyright) {
 		String[] data = new String[2];
 		String baseurl = "";
 		if (cviewUrlHash == null) {
 			cviewUrlHash = loadCviewJS(Config.cviewURL, Config.actLang);
 		}
-
+		Log.printlnGlobal("catid["+catid+"],cviewUrlHash=>"+cviewUrlHash);
 		baseurl = cviewUrlHash.get(catid).toString();
 
 		url = url.replaceAll(".html", "").replaceAll("-", ".html?ch=");
@@ -351,17 +337,20 @@ public class LoadComicData {
 	 * @return
 	 */
 	private Map loadCviewJS(String url, String fmt) {
-		ArrayList dataAry = loadHtml.getHTMLtoArrayList(Config.cviewURL,
+		Log.printGlobal("url==>"+url);
+		String html = loadHtml.getHTML(Config.cviewURL,
 				Config.actLang);
+		String [] dataAry = html.split("(\r\n)");
 		HashMap cviewHash = new HashMap();
 
-		String startTag = "if(";
-		String endTab = "baseurl+=\"";
+		String startTag = "if(catid";
+		String endTab = "baseurl=\"";
 		String urlStratTag = endTab;
 		String urlEndTag = "\";";
 
-		for (int i = 0; i < dataAry.size(); i++) {
-			String txt = (String) dataAry.get(i);
+		for (int i = 0; i < dataAry.length; i++) {
+			String txt = dataAry[i];
+			
 			if (txt.length() > 0) {
 
 				if (txt.indexOf(startTag) != -1) {
@@ -378,12 +367,7 @@ public class LoadComicData {
 					}
 				}
 			}
-			if (txt.indexOf("url=url") != -1) {
-				break;
-			}
 		}
-		dataAry.clear();
-		// System.out.println(cviewHash);
 		return cviewHash;
 	}
 
@@ -470,11 +454,9 @@ public class LoadComicData {
 	public String writeMyLove(String comicID, String comicName) {
 		String str = "";
 		int find = findCartoonIndex(comicName, 0);// 檢查要寫入我的最愛漫畫是否已經有存在
-		// System.out.println("找["+comicName+"]漫畫==>" + find);
+
 		if (find == -1) {// 要新增到我的最愛的漫畫沒在裡面才可以新增
 			str = comicID + "|" + comicName;
-			// wf.writeText_UTF8_Apend(str + "\r\n", Config.defaultSavePath +
-			// "/" + Config.myLoveFileName);
 		}
 		return str;
 	}
@@ -549,14 +531,11 @@ public class LoadComicData {
 		int bIndex = st.indexOf(beginStr);
 		int eIndex = st.indexOf(endStr);
 
-		// System.out.println(bIndex+"==" + eIndex);
 		if (bIndex != -1 && eIndex != -1) {
 			ret = st.substring(0, bIndex);
 			ret += st.substring(eIndex + endStr.length(), st.length());
-			// st = st.substring(bIndex + beginStr.length(), eIndex);
 		}
 		return ret;
 
 	}
-
 }
