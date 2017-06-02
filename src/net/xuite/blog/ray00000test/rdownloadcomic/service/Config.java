@@ -18,7 +18,7 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.URLEncodeDecodeTool;
 
 public class Config {
 	/** 版本 */
-	public static final String version = "v2.0.3";
+	public static final String version = "v2.0.4";
 	public static final boolean DEBUG = false;
 	// 首頁的title
 	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
