@@ -20,17 +20,17 @@ import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
  * 
  */
 
-public class JDownLoadUI_Act extends JDownLoadUI_Default {
+public class JDownLoadUIAct extends JDownLoadUIDefault {
 	/** 父層參考(首頁漫畫列表) */
-	private EventHandle_index parentObj;
+	private EventHandleIndex parentObj;
 	/** 處理集數網頁事件 */
-	private EventHandle_Act eventHandleAct; // 處理集數網頁事件
+	private EventHandleAct eventHandleAct; // 處理集數網頁事件
 	/** 上面工具列 */
 	private JPanel northPanel;
 
 	private ActDataObj actObj;
 
-	public JDownLoadUI_Act(EventHandle_index parent) {
+	public JDownLoadUIAct(EventHandleIndex parent) {
 		parentObj = parent;
 		initJDownLoadUI_Act();
 	}
@@ -62,7 +62,7 @@ public class JDownLoadUI_Act extends JDownLoadUI_Default {
 	public void initJDownLoadUI_Act() {
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		eventHandleAct = new EventHandle_Act();
+		eventHandleAct = new EventHandleAct();
 		eventHandleAct.setParentObj(this);
 
 		northPanel = new JPanel();

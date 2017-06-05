@@ -25,10 +25,10 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
  * 
  */
 
-public class EventHandle_index implements ActionListener,
+public class EventHandleIndex implements ActionListener,
 		LoadComicData.Callback {
 	/** 父層 */
-	private JDownLoadUI_index parentObj;
+	private JDownLoadUIIndex parentObj;
 	/** 從文字檔讀取的漫畫列表、我的最愛列表資料 */
 	private ArrayList<LoadComicData> loadData; // 用來每讀取網頁資料
 	/** 右邊下載狀態列 */
@@ -38,10 +38,10 @@ public class EventHandle_index implements ActionListener,
 	/**
 	 * 記錄目前被打開的漫畫列表，防止重複打開列表
 	 */
-	private HashMap<String, JDownLoadUI_Act> comicListPool;
+	private HashMap<String, JDownLoadUIAct> comicListPool;
 	protected Hashtable<String, ActDataObj> comicKind; // 已抓過的漫畫
 
-	public EventHandle_index() {
+	public EventHandleIndex() {
 		initEventHandle_index();
 	}
 
@@ -52,7 +52,7 @@ public class EventHandle_index implements ActionListener,
 	public void initEventHandle_index() {
 		loadData = new ArrayList<LoadComicData>();
 		cmd = new Command();
-		comicListPool = new HashMap<String, JDownLoadUI_Act>();
+		comicListPool = new HashMap<String, JDownLoadUIAct>();
 		comicKind = new Hashtable();
 	}
 
@@ -172,9 +172,9 @@ public class EventHandle_index implements ActionListener,
 
 		// 正準備開始同步漫畫集數
 		if (actData.syncState == ActDataObj.STATE_SYNC_READY) {
-			JDownLoadUI_Act down = comicListPool.get(actData.getCartoonName());
+			JDownLoadUIAct down = comicListPool.get(actData.getCartoonName());
 			if (down == null) {
-				down = new JDownLoadUI_Act(this);
+				down = new JDownLoadUIAct(this);
 				comicListPool.put(actData.getCartoonName(), down);
 				setStateText(Config.readyMsg + actData.getCartoonName());
 				comicData.startSync(actData, this);
@@ -188,7 +188,7 @@ public class EventHandle_index implements ActionListener,
 		}
 		// 漫畫集數已存在，且同步完成
 		if (actData.syncState == ActDataObj.STATE_SYNC_SUCCESS) {
-			JDownLoadUI_Act down = comicListPool.get(actData.getCartoonName());
+			JDownLoadUIAct down = comicListPool.get(actData.getCartoonName());
 
 			if (down != null) {
 				down.setVisible(true);
@@ -201,7 +201,7 @@ public class EventHandle_index implements ActionListener,
 	// 打開漫畫集數列表時，同步完成的callback
 	@Override
 	public void onSynced(ActDataObj actObj) {
-		JDownLoadUI_Act down = comicListPool.get(actObj.getCartoonName());
+		JDownLoadUIAct down = comicListPool.get(actObj.getCartoonName());
 		if (down != null) {
 			down.setActDataObj(actObj);
 			down.pack();
@@ -266,7 +266,7 @@ public class EventHandle_index implements ActionListener,
 	 * 
 	 * @param p
 	 */
-	public void setParentObj(JDownLoadUI_index p) {
+	public void setParentObj(JDownLoadUIIndex p) {
 		parentObj = p;
 	}
 

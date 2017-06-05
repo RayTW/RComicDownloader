@@ -22,11 +22,11 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
  * @author Ray
  */
 public class DownLoadSetting extends Panel {
-	private JDownLoadUI_index dowanloadUI;
+	private JDownLoadUIIndex dowanloadUI;
 	private String[] compoment = { "6", "0", "1", "2", "3", "4", "5", "7", "8",
 			"9", "10", "11", "12", "13", "14", "15" };
 
-	public DownLoadSetting(JDownLoadUI_index ui) {
+	public DownLoadSetting(JDownLoadUIIndex ui) {
 		dowanloadUI = ui;
 		setLayout(new GridLayout(0, 2));
 		setBackground(Color.white);

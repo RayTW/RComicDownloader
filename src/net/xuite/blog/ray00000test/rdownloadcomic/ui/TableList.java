@@ -19,7 +19,7 @@ import java.util.Vector;
  */
 public class TableList extends JPanel {
 	/** 父層(首頁漫畫列表) */
-	private JDownLoadUI_index parentObj;
+	private JDownLoadUIIndex parentObj;
 	/** 目前在進度列長執行下載的執行緒 */
 	private Vector<DownloadComicTask> dataList;
 	/** 限制最大下載數 */
@@ -79,7 +79,7 @@ public class TableList extends JPanel {
 	 * 
 	 * @param p
 	 */
-	public void setParentObj(JDownLoadUI_index p) {
+	public void setParentObj(JDownLoadUIIndex p) {
 		parentObj = p;
 	}
 

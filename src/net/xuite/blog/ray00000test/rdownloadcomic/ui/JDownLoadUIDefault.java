@@ -10,10 +10,10 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
  * @author Ray
  * 
  */
-public class JDownLoadUI_Default extends JFrame {
+public class JDownLoadUIDefault extends JFrame {
 	protected JDataTable table; // 秀首頁所有漫畫列表
 
-	public JDownLoadUI_Default() {
+	public JDownLoadUIDefault() {
 		initJDownLoadUI_Default();
 	}
 

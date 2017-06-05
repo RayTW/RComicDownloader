@@ -331,6 +331,6 @@ public class ComicRedaerDialogMenu extends JDialog {
 	}
 
 	public void setStateMessage(String text) {
-		((JDownLoadUI_index) this.mWindow).setStateText(text);
+		((JDownLoadUIIndex) this.mWindow).setStateText(text);
 	}
 }

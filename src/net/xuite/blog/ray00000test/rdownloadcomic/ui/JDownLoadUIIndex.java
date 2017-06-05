@@ -34,14 +34,14 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.NewComicTableCellRenderer
  * @author Ray 名稱:漫畫下載 日期:
  */
 
-public class JDownLoadUI_index extends JDownLoadUI_Default {
+public class JDownLoadUIIndex extends JDownLoadUIDefault {
 	static {
 		Log.setGlobalDebug(Config.DEBUG);
 	}
 	private static Log sLog = Log.newInstance(true);
 
 	/** 處理首頁事件 */
-	private EventHandle_index eventHandleIndex; // 處理首頁事件
+	private EventHandleIndex eventHandleIndex; // 處理首頁事件
 	/** 搜尋輸入框 */
 	private JTextField findField;
 	/** 下方訊息框 */
@@ -60,7 +60,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	private JScrollPane downLoadTableScroll;
 	private JPanel centerPanel;
 
-	public JDownLoadUI_index() {
+	public JDownLoadUIIndex() {
 		initJdownLoadUI_index();
 	}
 
@@ -73,7 +73,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		setTitle(title);
 		Container c = getContentPane();
 
-		eventHandleIndex = new EventHandle_index();
+		eventHandleIndex = new EventHandleIndex();
 		eventHandleIndex.setParentObj(this);
 
 		LoadComicData loadData = new LoadComicData(RComicDownloader.get()
@@ -213,7 +213,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 					@Override
 					public void run() {
 						try {
-							RComicDownloader.get().getDB().indexBounds = JDownLoadUI_index.this
+							RComicDownloader.get().getDB().indexBounds = JDownLoadUIIndex.this
 									.getBounds();
 							setVisible(false);
 							RComicDownloader.get().getDB().save();
@@ -360,7 +360,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 	 * @param handle
 	 */
 	public void addComidListDoubleClickEvent(final JDataTable jtable,
-			final EventHandle_index handle) {
+			final EventHandleIndex handle) {
 		jtable.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -387,7 +387,7 @@ public class JDownLoadUI_index extends JDownLoadUI_Default {
 		RComicDownloader.get().preprogress();
 
 		// 建立動畫程式首頁
-		JDownLoadUI_index download = new JDownLoadUI_index();
+		JDownLoadUIIndex download = new JDownLoadUIIndex();
 		download.setVisible(true);
 		download.updateComic();
 	}

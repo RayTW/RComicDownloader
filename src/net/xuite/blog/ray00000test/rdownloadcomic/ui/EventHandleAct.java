@@ -19,15 +19,15 @@ import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
  * 
  */
 
-public class EventHandle_Act implements ActionListener {
+public class EventHandleAct implements ActionListener {
 	/** 父層參考 */
-	private JDownLoadUI_Act parentObj;
+	private JDownLoadUIAct parentObj;
 	/** 整套漫畫連結資料、總集數等等.. */
 	private ActDataObj actDataObj;
 	/** 漫畫集數列表 */
 	private TableList downLoadTable;
 
-	public EventHandle_Act() {
+	public EventHandleAct() {
 		initEventHandle_Act();
 	}
 
@@ -140,7 +140,7 @@ public class EventHandle_Act implements ActionListener {
 
 						}
 					}
-					EventHandle_Act.this.setStateText(Config.DownLoadStart);
+					EventHandleAct.this.setStateText(Config.DownLoadStart);
 				}
 			}.start();
 
@@ -205,7 +205,7 @@ public class EventHandle_Act implements ActionListener {
 	 * 
 	 * @param p
 	 */
-	public void setParentObj(JDownLoadUI_Act p) {
+	public void setParentObj(JDownLoadUIAct p) {
 		parentObj = p;
 	}
 
