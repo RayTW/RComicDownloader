@@ -21,7 +21,7 @@ public class Config {
 	public static final String version = "v2.0.4";
 	public static final boolean DEBUG = false;
 	// 首頁的title
-	public static String indexName = "漫畫下載%s \t 程式設計: Ray";
+	public static String indexName = "漫畫下載%s";
 
 	/** 無限動漫首頁網址 */
 	public static String indexHtml = "http://www.comicbus.com/"; // 無限動漫首頁網址
