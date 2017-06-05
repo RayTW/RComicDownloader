@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -12,6 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
+import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
+import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 
 /**
  * 單本漫畫所有集數列表的畫面
@@ -51,8 +55,9 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 		JPanel bookDataPanel = new JPanel(new GridLayout(2, 1, 10, 0));
 		bookDataPanel.add(new JLabel("作者:" + actDataObj.getAuthor()));
 		bookDataPanel.add(new JLabel("更新:" + actDataObj.getLastUpdateDate()));
-		// bookDataPanel.add(new JLabel("發行:"+dataObj.getPublishDate()));
 		northPanel.add(bookDataPanel);
+		
+		addComidListDoubleClickEvent(table, eventHandleAct);
 	}
 
 	/**
@@ -124,7 +129,6 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	 * 釋放UI memory
 	 */
 	public void close() {
-		// parentObj.removeFromComicPool(actObj.cartoonName);
 		dispose();
 	}
 
@@ -139,5 +143,24 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 
 	public boolean isDownloadedList() {
 		return (table.getDataCount() > 0);
+	}
+	
+	/**
+	 * 在table上增加雙擊開啟動畫集數列表功能
+	 * 
+	 * @param jtable
+	 * @param handle
+	 */
+	private void addComidListDoubleClickEvent(final JDataTable jtable,
+			final EventHandleAct handle) {
+		jtable.getJTable().addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始下戴漫畫
+					int row = jtable.getJTable().rowAtPoint(e.getPoint());
+					handle.listAllJPG(actObj, new int[]{row});
+				}
+			}
+		});
 	}
 }

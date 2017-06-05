@@ -52,7 +52,9 @@ public class EventHandleAct implements ActionListener {
 		if (obj instanceof JButton) {
 			JButton b = (JButton) obj;
 			if (b.getName().equals("ListAllJPG")) {
-				listAllJPG(actDataObj);
+				int[] selectList = getSelectRowIndex();// 取出選了哪幾集漫畫
+				
+				listAllJPG(actDataObj, selectList);
 			} else if (b.getName().equals("detial")) {
 				detail(actDataObj);
 			} else if (b.getName().equals("addLove")) {
@@ -61,11 +63,8 @@ public class EventHandleAct implements ActionListener {
 		}
 	}
 
-	private void listAllJPG(final ActDataObj actObj) {
-		final int[] selectList = getSelectRowIndex();// 取出選了哪幾集漫畫
-
+	public void listAllJPG(final ActDataObj actObj, final int[] selectList) {
 		if (selectList.length > 0) {
-			// setStateText(Config.readyDownLoad);
 			new Thread() {
 				@Override
 				public void run() {
