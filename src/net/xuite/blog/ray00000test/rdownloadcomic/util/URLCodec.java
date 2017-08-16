@@ -4,9 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.net.URLDecoder;
 
-public class URLEncodeDecodeTool {
+public class URLCodec {
 
-	public URLEncodeDecodeTool() {
+	public URLCodec() {
 
 	}
 

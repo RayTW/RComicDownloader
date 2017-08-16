@@ -20,8 +20,6 @@ public class DatabaseLite implements java.io.Serializable {
 	private static final long serialVersionUID = -3997944256004566946L;
 	/** 首次公開發佈日期 */
 	public static final String firstDate = "2010/10/10";
-	/** 軟體最後更新日期 */
-	public String appUpdateDate = "2013/12/24";
 	public String pathName;
 	/** 最後更新的日期時間間隔幾小時才會再更新 */
 	private long updateHours;

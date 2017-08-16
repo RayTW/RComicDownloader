@@ -39,7 +39,7 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.DownloadFile;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HtmlReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
-import net.xuite.blog.ray00000test.rdownloadcomic.util.URLEncodeDecodeTool;
+import net.xuite.blog.ray00000test.rdownloadcomic.util.URLCodec;
 
 /**
  * 讀取漫畫下載最新版本資訊，並提供線上更新漫畫版本
@@ -170,7 +170,7 @@ public class VersionNews extends JPanel {
 
 	public void parse(String html) {
 		String text = parseTag(html, TAG_COMIC_NEWS);
-		text = URLEncodeDecodeTool.decode(text, Config.newsCharset);
+		text = URLCodec.decode(text, Config.newsCharset);
 
 		versionText = parseTag(text, TAG_VERSION);
 		newsText = parseTag(text, TAG_NEWS);

@@ -1,18 +1,32 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.swing.JOptionPane;
 
 import JDownLoadComic.DatabaseLite;
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
+import net.xuite.blog.ray00000test.library.comicsdk.Comic;
+import net.xuite.blog.ray00000test.library.comicsdk.R8Comic;
+import net.xuite.blog.ray00000test.library.comicsdk.R8Comic.OnLoadListener;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WorkaroundUtility;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
 
+/**
+ * 下載漫畫的核心
+ * @author Ray Lee 
+ * Created on 2017/08/16
+ */
 public class RComicDownloader {
 	private static RComicDownloader instance;
 	private ThreadPool mPDFThreadPool;
+	private ThreadPool mTaskPool;
 	private String dbPath = Config.defaultSavePath + "/sys/comic.obj";
 	private DatabaseLite mDB = new DatabaseLite();
+	private R8Comic mR8Comic = R8Comic.get();
+	private List<Comic> mComics;
+	private Map<String, String> mHostList;
 
 	private RComicDownloader() {
 		initialize();
@@ -20,6 +34,7 @@ public class RComicDownloader {
 
 	private void initialize() {
 		mPDFThreadPool = new ThreadPool(5);
+		mTaskPool = new ThreadPool(3);
 	}
 
 	public static RComicDownloader get() {
@@ -35,6 +50,18 @@ public class RComicDownloader {
 
 	public DatabaseLite getDB() {
 		return mDB;
+	}
+	
+	public R8Comic getR8Comic(){
+		return mR8Comic;
+	}
+	
+	public List<Comic> getComics(){
+		return mComics;
+	}
+	
+	public Map<String, String> getHostList(){
+		return mHostList;
 	}
 
 	public void preprogress() {
@@ -56,15 +83,39 @@ public class RComicDownloader {
 
 		WorkaroundUtility.replaceAllSpaceCharComic();
 		WorkaroundUtility.replaceAllSpaceCharAct();
+		
+		//戴入全部漫畫
+		mR8Comic.getAll(new OnLoadListener<List<Comic>>(){
+
+			@Override
+			public void onLoaded(List<Comic> comics) {
+				mComics = comics;
+			}
+			
+		});
+		
+		//戴入漫漫host列表
+		mR8Comic.loadSiteUrlList(new OnLoadListener<Map<String, String>>() {
+
+			@Override
+			public void onLoaded(final Map<String, String> hostList) {
+				mHostList = hostList;
+			}
+		});
 	}
 
 	public void addPDFTask(Runnable run) {
 		mPDFThreadPool.executeTask(run);
 	}
+	
+	public void addTask(Runnable run) {
+		mTaskPool.executeTask(run);
+	}
+	
 
 	public void addDownloadTask(DownloadComicTask.Callback callback,
-			ActDataObj actObj, int index) {
-		DownloadComicTask task = new DownloadComicTask(actObj, index);
+			Comic comic, int index) {
+		DownloadComicTask task = new DownloadComicTask(comic, index);
 		try {
 			task.setCallback(callback);
 			task.createThreadTask();
@@ -77,5 +128,25 @@ public class RComicDownloader {
 			JOptionPane.showMessageDialog(null, msg, "錯誤訊息",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
+	}
+	
+	/**
+	 * 取得網站上全部漫畫列表
+	 * @return
+	 */
+	public ComicList getAllComics(){
+		return new ComicList(mComics);
+	}
+	
+	/**
+	 * 取得目前我的最愛漫畫列表
+	 * @return
+	 */
+	public ComicList getMyLoveComics(){
+		return new ComicList(mComics, getDB().getLoveComicList());
+	}
+	
+	public String getComicDetailUrl(String comicId){
+		return mR8Comic.getConfig().getComicDetailUrl(comicId);
 	}
 }

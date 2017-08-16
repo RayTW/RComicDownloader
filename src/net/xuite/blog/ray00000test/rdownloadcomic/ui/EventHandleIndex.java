@@ -1,5 +1,6 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.ui;
 
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,10 +10,10 @@ import java.util.Hashtable;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.LoadComicData;
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.LoadNewComicData;
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.NewComic;
+import net.xuite.blog.ray00000test.library.comicsdk.Comic;
+import net.xuite.blog.ray00000test.library.comicsdk.R8Comic.OnLoadListener;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicExtension;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicList;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Command;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
@@ -25,12 +26,11 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
  * 
  */
 
-public class EventHandleIndex implements ActionListener,
-		LoadComicData.Callback {
+public class EventHandleIndex implements ActionListener{
 	/** 父層 */
 	private JDownLoadUIIndex parentObj;
 	/** 從文字檔讀取的漫畫列表、我的最愛列表資料 */
-	private ArrayList<LoadComicData> loadData; // 用來每讀取網頁資料
+	private ArrayList<ComicList> loadData; // 用來每讀取網頁資料
 	/** 右邊下載狀態列 */
 	private TableList downLoadTable;
 	/** 接收使用者輸入的指令 */
@@ -38,8 +38,8 @@ public class EventHandleIndex implements ActionListener,
 	/**
 	 * 記錄目前被打開的漫畫列表，防止重複打開列表
 	 */
-	private HashMap<String, JDownLoadUIAct> comicListPool;
-	protected Hashtable<String, ActDataObj> comicKind; // 已抓過的漫畫
+	private HashMap<String, JDownLoadUIAct> mComicListPool;
+	protected Hashtable<String, ComicExtension> mComicKind; // 已抓過的漫畫
 
 	public EventHandleIndex() {
 		initEventHandle_index();
@@ -50,10 +50,10 @@ public class EventHandleIndex implements ActionListener,
 	 * 
 	 */
 	public void initEventHandle_index() {
-		loadData = new ArrayList<LoadComicData>();
+		loadData = new ArrayList<ComicList>();
 		cmd = new Command();
-		comicListPool = new HashMap<String, JDownLoadUIAct>();
-		comicKind = new Hashtable();
+		mComicListPool = new HashMap<String, JDownLoadUIAct>();
+		mComicKind = new Hashtable();
 	}
 
 	/**
@@ -98,30 +98,26 @@ public class EventHandleIndex implements ActionListener,
 				int[] delectList = getSelectRowIndex();// 取得漫畫的id編號
 				if (delectList.length > 0) {
 
-					LoadComicData tmpData = getLoadComicData(0);
-					LoadComicData tmpDataLove = getLoadComicData(1);
+					ComicList tmpData = getLoadComicData(0);
+					ComicList tmpDataLove = getLoadComicData(1);
 					StringBuffer loveComic = new StringBuffer();
 					StringBuffer tmpComic = new StringBuffer();
 					for (int i = 0; i < delectList.length; i++) {
-						String comicID = tmpData.getCartoonID(delectList[i]);
-						String comicName = tmpData
-								.getCartoonName(delectList[i]);
-
-						String tmp = tmpDataLove
-								.writeMyLove(comicID, comicName);
-						if (!tmp.equals("")) {
-							addLoveComic(new String[] { comicID, comicName });// 將新增到我的最愛漫畫add到table上秀
+						Comic comic = tmpData.getComic(delectList[i]);
+						
+						if (!tmpDataLove.hasComic(comic.getId())) {
+							addLoveComic(new String[] { comic.getId(), comic.getName() });// 將新增到我的最愛漫畫add到table上秀
 						} else {
-							loveComic.append("編號[" + comicID + "]" + comicName
+							loveComic.append("編號[" + comic.getId() + "]" + comic.getName()
 									+ "\n");
 							continue;
 						}
-						if (i < 10) {
-							tmpComic.append(tmp + "\n");
-						}
+//						if (i < 10) {
+//							tmpComic.append(tmp + "\n");
+//						}
 					}
-					tmpDataLove.initLoadCartoonData(RComicDownloader.get()
-							.getDB().getLoveComicList());
+//					tmpDataLove.initLoadCartoonData(RComicDownloader.get()
+//							.getDB().getLoveComicList());
 					String msg = tmpComic.toString();
 					if (!msg.equals("")) {
 						if (delectList.length > 10) {
@@ -138,9 +134,9 @@ public class EventHandleIndex implements ActionListener,
 				}
 			} else if (name.equals("delete")) {
 				// 把從我的最愛中選取要刪除漫畫刪除
-				LoadComicData tmpDataLove = getNowSelectListIndex();
-				tmpDataLove.clearLoveComicData(getSelectRowIndex());
-				parentObj.tableLove.removeSelectedRows();
+//				ComicList tmpDataLove = getNowSelectListIndex();
+//				tmpDataLove.clearLoveComicData(getSelectRowIndex());
+//				parentObj.tableLove.removeSelectedRows();
 			} else if (name.equals("reader")) {
 				ComicRedaerDialogMenu menu = new ComicRedaerDialogMenu(
 						parentObj);
@@ -162,56 +158,88 @@ public class EventHandleIndex implements ActionListener,
 	/**
 	 * 建立 漫畫集數列表
 	 * 
-	 * @param actData
+	 * @param comicId
 	 */
-	public synchronized void creadActListJFrame(String comicNumber) {
-		LoadComicData comicData = getLoadComicData(0);
-		String comicName = comicData.findComicName(comicNumber);
-		// ActDataObj被建立時狀態為STATE_SYNC_READY
-		ActDataObj actData = getActData_actIndex(comicNumber, comicName);
+	public synchronized void creadActListJFrame(String comicId) {
+		ComicList comicData = getLoadComicData(0);
+		final Comic comic = comicData.getComicById(comicId);
+		
+		setStateText("漫畫\"" + comic.getName() + "\"正在讀取集數列表中...");
+		
+		JDownLoadUIAct down = mComicListPool.get(comicId);
+		if (down == null) {
+			down = new JDownLoadUIAct(this);
+			mComicListPool.put(comicId, down);
+			setStateText(Config.readyMsg + comic.getName());
+		}
+		
+		RComicDownloader.get().addTask(new Runnable(){
 
-		// 正準備開始同步漫畫集數
-		if (actData.syncState == ActDataObj.STATE_SYNC_READY) {
-			JDownLoadUIAct down = comicListPool.get(actData.getCartoonName());
-			if (down == null) {
-				down = new JDownLoadUIAct(this);
-				comicListPool.put(actData.getCartoonName(), down);
-				setStateText(Config.readyMsg + actData.getCartoonName());
-				comicData.startSync(actData, this);
-			}
-			return;
-		}
-		// 開始同步漫畫集數
-		if (actData.syncState == ActDataObj.STATE_SYNC_START) {
-			setStateText("漫畫\"" + actData.getCartoonName() + "\"正在讀取集數列表中...");
-			return;
-		}
-		// 漫畫集數已存在，且同步完成
-		if (actData.syncState == ActDataObj.STATE_SYNC_SUCCESS) {
-			JDownLoadUIAct down = comicListPool.get(actData.getCartoonName());
+			@Override
+			public void run() {
+				RComicDownloader.get().getR8Comic().loadComicDetail(comic, new OnLoadListener<Comic>() {
 
-			if (down != null) {
-				down.setVisible(true);
-				down.toFront();
+					@Override
+					public void onLoaded(Comic result) {
+						JDownLoadUIAct down = mComicListPool.get(comic.getId());
+						down.setComic(result);
+						
+						if (down != null) {
+							down.setVisible(true);
+							down.toFront();
+						}
+					}
+
+				});				
 			}
-			return;
-		}
+			
+		});
+		
+//		// ActDataObj被建立時狀態為STATE_SYNC_READY
+//		ActDataObj actData = getActData_actIndex(comicNumber, comicName);
+//
+//		// 正準備開始同步漫畫集數
+//		if (actData.syncState == ActDataObj.STATE_SYNC_READY) {
+//			JDownLoadUIAct down = comicListPool.get(actData.getCartoonName());
+//			if (down == null) {
+//				down = new JDownLoadUIAct(this);
+//				comicListPool.put(actData.getCartoonName(), down);
+//				setStateText(Config.readyMsg + actData.getCartoonName());
+//				comicData.startSync(actData, this);
+//			}
+//			return;
+//		}
+//		// 開始同步漫畫集數
+//		if (actData.syncState == ActDataObj.STATE_SYNC_START) {
+//			setStateText("漫畫\"" + actData.getCartoonName() + "\"正在讀取集數列表中...");
+//			return;
+//		}
+//		// 漫畫集數已存在，且同步完成
+//		if (actData.syncState == ActDataObj.STATE_SYNC_SUCCESS) {
+//			JDownLoadUIAct down = comicListPool.get(actData.getCartoonName());
+//
+//			if (down != null) {
+//				down.setVisible(true);
+//				down.toFront();
+//			}
+//			return;
+//		}
 	}
 
 	// 打開漫畫集數列表時，同步完成的callback
-	@Override
-	public void onSynced(ActDataObj actObj) {
-		JDownLoadUIAct down = comicListPool.get(actObj.getCartoonName());
-		if (down != null) {
-			down.setActDataObj(actObj);
-			down.pack();
-			down.setLocation(parentObj.getX(), parentObj.getY());
-			down.setDataTableList(downLoadTable);
-			down.setVisible(true);
-			down.toFront();
-			setStateText(Config.loadOKMsg + actObj.getCartoonName());
-		}
-	}
+//	@Override
+//	public void onSynced(Comic actObj) {
+//		JDownLoadUIAct down = comicListPool.get(actObj.getName());
+//		if (down != null) {
+//			down.setComic(actObj);
+//			down.pack();
+//			down.setLocation(parentObj.getX(), parentObj.getY());
+//			down.setDataTableList(downLoadTable);
+//			down.setVisible(true);
+//			down.toFront();
+//			setStateText(Config.loadOKMsg + actObj.getName());
+//		}
+//	}
 
 	/**
 	 * 新增一筆漫畫資料到我的最愛
@@ -221,15 +249,15 @@ public class EventHandleIndex implements ActionListener,
 	 * @return true 加入ok | false 加入失敗
 	 */
 	public boolean addComicToLove(String comicID, String comicName) {
-		LoadComicData tmpDataLove = getLoadComicData(1);
-		String tmp = tmpDataLove.writeMyLove(comicID, comicName);
-		if (!tmp.equals("")) {
-			String[] data = new String[] { comicID, comicName };
-			addLoveComic(data);// 將新增到我的最愛漫畫add到table上秀
-			tmpDataLove.initLoadCartoonData(RComicDownloader.get().getDB()
-					.getLoveComicList());
-			return true;
-		}
+//		ComicList tmpDataLove = getLoadComicData(1);
+//		String tmp = tmpDataLove.writeMyLove(comicID, comicName);
+//		if (!tmp.equals("")) {
+//			String[] data = new String[] { comicID, comicName };
+//			addLoveComic(data);// 將新增到我的最愛漫畫add到table上秀
+//			tmpDataLove.initLoadCartoonData(RComicDownloader.get().getDB()
+//					.getLoveComicList());
+//			return true;
+//		}
 		return false;
 	}
 
@@ -278,7 +306,7 @@ public class EventHandleIndex implements ActionListener,
 	 * @param d2
 	 *            我的最愛漫畫列表
 	 */
-	public void addLoadDataObj(int index, LoadComicData d) {
+	public void addLoadDataObj(int index, ComicList d) {
 		if (index >= loadData.size()) {
 			loadData.add(index, d);
 		} else {
@@ -326,7 +354,7 @@ public class EventHandleIndex implements ActionListener,
 	 * 
 	 * @return
 	 */
-	public LoadComicData getNowSelectListIndex() {
+	public ComicList getNowSelectListIndex() {
 		return getLoadComicData(parentObj.getSelectList());
 	}
 
@@ -348,7 +376,7 @@ public class EventHandleIndex implements ActionListener,
 		downLoadTable = table;
 	}
 
-	public LoadComicData getLoadComicData(int index) {
+	public ComicList getLoadComicData(int index) {
 		return loadData.get(index);
 	}
 
@@ -360,7 +388,7 @@ public class EventHandleIndex implements ActionListener,
 		}
 
 		// final LoadComicData tmpData = getNowSelectListIndex();
-		LoadComicData tmpData = getLoadComicData(0);
+		ComicList tmpData = getLoadComicData(0);
 		// 將搜尋到的資料秀成列表
 		// String cartoonKeyWord = getFindFieldText();
 		ArrayList<String> possibleValues = tmpData
@@ -375,7 +403,6 @@ public class EventHandleIndex implements ActionListener,
 			if (op != null) {// 若使用者有選擇資料，再去load漫畫集數列表
 				String[] findDataAry = ((String) op).split("[|]");// [0]漫畫編號,[1]漫畫名稱
 				String comicNumber = findDataAry[0];
-				// String comicName = findDataAry[1];
 
 				creadActListJFrame(comicNumber);
 			}
@@ -387,80 +414,58 @@ public class EventHandleIndex implements ActionListener,
 
 	// true:可更新
 	public void updateComic(final JDataTable tableNew, final boolean showAlert) {
-		if (RComicDownloader.get().getDB().getNewComicList().size() > 0) {
-			LoadNewComicData loadNewData = new LoadNewComicData();
-			loadNewData.initLoadCartoonData(RComicDownloader.get().getDB()
-					.getNewComicList());
-			addLoadDataObj(2, loadNewData);
-			if (tableNew != null) {
-				tableNew.addMutilRowDataArray(loadNewData.getIndexData());
-			}
-		}
+//		if (RComicDownloader.get().getDB().getNewComicList().size() > 0) {
+//			ComicList loadNewData = new ComicList();
+//			loadNewData.initLoadCartoonData(RComicDownloader.get().getDB()
+//					.getNewComicList());
+//			addLoadDataObj(2, loadNewData);
+//			if (tableNew != null) {
+//				tableNew.addMutilRowDataArray(loadNewData.getIndexData());
+//			}
+//		}
 
-		if (RComicDownloader.get().getDB().updateEnable()) {
-			RComicDownloader.get().getDB().updateDate();
-			new Thread() {
-				@Override
-				public void run() {
-					setStateText(Config.waitUpdate);
-					// LoadComicData tmpData = getNowSelectListIndex();
-					LoadComicData tmpData = getLoadComicData(0);
-					// 最新漫畫
-					ArrayList<NewComic> newComicAry = new ArrayList<NewComic>();
-					String[][] data = tmpData.updateComic(newComicAry);
-
-					if (data.length > 0) {
-						tmpData.initLoadCartoonData(RComicDownloader.get()
-								.getDB().getComicList());// 有更新資料，重load
-						addComicArray(data);
-
-						if (showAlert) {
-							JOptionPane.showMessageDialog(null, "此次更新"
-									+ data.length + "本最新漫畫^^", "訊息",
-									JOptionPane.INFORMATION_MESSAGE);
-						}
-					} else {
-						if (showAlert) {
-							JOptionPane.showMessageDialog(null, "沒有最新漫畫資料^^",
-									"訊息", JOptionPane.INFORMATION_MESSAGE);
-						}
-					}
-					setStateText(Config.updateOK);
-					if (tableNew != null) {
-						tableNew.removeAll();
-						LoadNewComicData loadNewData = new LoadNewComicData();
-						loadNewData.loadNew(tableNew, newComicAry);
-						addLoadDataObj(2, loadNewData);
-					}
-					System.out.println("ccc "
-							+ tableNew.getJTable().getRowCount());
-				}
-			}.start();
-		}
+//		if (RComicDownloader.get().getDB().updateEnable()) {
+//			RComicDownloader.get().getDB().updateDate();
+//			new Thread() {
+//				@Override
+//				public void run() {
+//					setStateText(Config.waitUpdate);
+//					// LoadComicData tmpData = getNowSelectListIndex();
+//					ComicList tmpData = getLoadComicData(0);
+//					// 最新漫畫
+//					ArrayList<NewComic> newComicAry = new ArrayList<NewComic>();
+//					String[][] data = tmpData.updateComic(newComicAry);
+//
+//					if (data.length > 0) {
+//						tmpData.initLoadCartoonData(RComicDownloader.get()
+//								.getDB().getComicList());// 有更新資料，重load
+//						addComicArray(data);
+//
+//						if (showAlert) {
+//							JOptionPane.showMessageDialog(null, "此次更新"
+//									+ data.length + "本最新漫畫^^", "訊息",
+//									JOptionPane.INFORMATION_MESSAGE);
+//						}
+//					} else {
+//						if (showAlert) {
+//							JOptionPane.showMessageDialog(null, "沒有最新漫畫資料^^",
+//									"訊息", JOptionPane.INFORMATION_MESSAGE);
+//						}
+//					}
+//					setStateText(Config.updateOK);
+//					if (tableNew != null) {
+//						tableNew.removeAll();
+//						LoadNewComicData loadNewData = new LoadNewComicData();
+//						loadNewData.loadNew(tableNew, newComicAry);
+//						addLoadDataObj(2, loadNewData);
+//					}
+//					System.out.println("ccc "
+//							+ tableNew.getJTable().getRowCount());
+//				}
+//			}.start();
+//		}
 	}
 
-	/**
-	 * 用漫畫編號去load資料列表
-	 * 
-	 * @param comicNumber
-	 *            漫畫編號
-	 * @param comicName
-	 *            漫畫名稱
-	 * @return
-	 */
-	public ActDataObj getActData_actIndex(String comicNumber, String comicName) {
-		ActDataObj actObj = comicKind.get(comicNumber);
-		if (actObj != null) {
-			return actObj;
-		} else {
-			actObj = new ActDataObj();
-			actObj.id = comicNumber;
-			comicKind.put(comicNumber, actObj);
-			actObj.setCartoonName(comicName);
-		}
-
-		return actObj;
-	}
 
 	/**
 	 * 將記錄已被打開的漫畫列表移除
@@ -468,8 +473,8 @@ public class EventHandleIndex implements ActionListener,
 	 * @param comicName
 	 */
 	public void removeFromComicPool(String comicName) {
-		if (comicListPool != null) {
-			comicListPool.remove(comicName);
+		if (mComicListPool != null) {
+			mComicListPool.remove(comicName);
 		}
 	}
 
@@ -478,8 +483,8 @@ public class EventHandleIndex implements ActionListener,
 	 * 
 	 */
 	public void close() {
-		comicListPool.clear();
-		comicListPool = null;
+		mComicListPool.clear();
+		mComicListPool = null;
 		downLoadTable = null;
 		parentObj = null;
 	}

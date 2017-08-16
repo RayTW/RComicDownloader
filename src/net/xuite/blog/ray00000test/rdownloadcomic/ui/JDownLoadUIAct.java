@@ -13,7 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
+import net.xuite.blog.ray00000test.library.comicsdk.Comic;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicExtension;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 
@@ -26,38 +27,38 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 
 public class JDownLoadUIAct extends JDownLoadUIDefault {
 	/** 父層參考(首頁漫畫列表) */
-	private EventHandleIndex parentObj;
+	private EventHandleIndex mParentObj;
 	/** 處理集數網頁事件 */
-	private EventHandleAct eventHandleAct; // 處理集數網頁事件
+	private EventHandleAct mEventHandleAct; // 處理集數網頁事件
 	/** 上面工具列 */
-	private JPanel northPanel;
+	private JPanel mNorthPanel;
 
-	private ActDataObj actObj;
+	private ComicExtension mComic;
 
 	public JDownLoadUIAct(EventHandleIndex parent) {
-		parentObj = parent;
+		mParentObj = parent;
 		initJDownLoadUI_Act();
 	}
 
 	/**
 	 * 初始化整套漫畫連結資料、總集數等等..
 	 * 
-	 * @param actObj
+	 * @param comic
 	 */
-	public void setActDataObj(ActDataObj actDataObj) {
-		setTitle(actDataObj.getCartoonName());
-		actObj = actDataObj;
+	public void setComic(Comic comic) {
+		setTitle(comic.getName());
+		mComic = new ComicExtension(comic);
 		table.addMultiColumnName(new String[] { "集數", "已下載" });
 		table.getColumn(1).setMaxWidth(60);
-		table.addMutilRowDataArray(actDataObj.getActDataList());
-		eventHandleAct.setActDataObj(actDataObj);
+		table.addMutilRowDataArray(mComic.getActDataList());
+		mEventHandleAct.setComic(comic);
 
 		JPanel bookDataPanel = new JPanel(new GridLayout(2, 1, 10, 0));
-		bookDataPanel.add(new JLabel("作者:" + actDataObj.getAuthor()));
-		bookDataPanel.add(new JLabel("更新:" + actDataObj.getLastUpdateDate()));
-		northPanel.add(bookDataPanel);
+		bookDataPanel.add(new JLabel("作者:" + comic.getAuthor()));
+		bookDataPanel.add(new JLabel("更新:" + comic.getLatestUpdateDateTime()));
+		mNorthPanel.add(bookDataPanel);
 		
-		addComidListDoubleClickEvent(table, eventHandleAct);
+		addComidListDoubleClickEvent(table, mEventHandleAct);
 	}
 
 	/**
@@ -67,30 +68,30 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	public void initJDownLoadUI_Act() {
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
-		eventHandleAct = new EventHandleAct();
-		eventHandleAct.setParentObj(this);
+		mEventHandleAct = new EventHandleAct();
+		mEventHandleAct.setParentObj(this);
 
-		northPanel = new JPanel();
+		mNorthPanel = new JPanel();
 
 		JButton dataActListBtn = new JButton("下載選取漫畫");
 		dataActListBtn.setName("ListAllJPG");
-		dataActListBtn.addActionListener(eventHandleAct);
-		northPanel.add(dataActListBtn);
+		dataActListBtn.addActionListener(mEventHandleAct);
+		mNorthPanel.add(dataActListBtn);
 
 		JButton detialBtn = new JButton("漫畫簡介");
 		detialBtn.setName("detial");
-		detialBtn.addActionListener(eventHandleAct);
-		northPanel.add(detialBtn);
+		detialBtn.addActionListener(mEventHandleAct);
+		mNorthPanel.add(detialBtn);
 
 		JButton addLoveBtn = new JButton("加到我的最愛");
 		addLoveBtn.setName("addLove");
-		addLoveBtn.addActionListener(eventHandleAct);
-		northPanel.add(addLoveBtn);
+		addLoveBtn.addActionListener(mEventHandleAct);
+		mNorthPanel.add(addLoveBtn);
 
 		table.setRowHeight(40);
 		table.setFont(new Font("Serif", Font.BOLD, 20));
 
-		c.add(northPanel, BorderLayout.NORTH);
+		c.add(mNorthPanel, BorderLayout.NORTH);
 		c.add(table.getJScrollPaneJTable(), BorderLayout.CENTER);
 
 		// 設定視窗
@@ -113,7 +114,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	 * @param comicName
 	 */
 	public boolean addToLove(String comicID, String comicName) {
-		return parentObj.addComicToLove(comicID, comicName);
+		return mParentObj.addComicToLove(comicID, comicName);
 	}
 
 	/**
@@ -122,7 +123,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	 * @param txt
 	 */
 	public void setStateText(String txt) {
-		parentObj.setStateText(txt);
+		mParentObj.setStateText(txt);
 	}
 
 	/**
@@ -138,7 +139,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	 * @param table
 	 */
 	public void setDataTableList(TableList table) {
-		eventHandleAct.setDataTableList(table);
+		mEventHandleAct.setDataTableList(table);
 	}
 
 	public boolean isDownloadedList() {
@@ -158,7 +159,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始下戴漫畫
 					int row = jtable.getJTable().rowAtPoint(e.getPoint());
-					handle.listAllJPG(actObj, new int[]{row});
+					handle.listAllJPG(mComic.get(), new int[]{row});
 				}
 			}
 		});

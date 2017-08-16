@@ -3,7 +3,9 @@ package net.xuite.blog.ray00000test.rdownloadcomic.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.SplashScreen;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -20,7 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.LoadComicData;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicList;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.FolderManager;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
@@ -61,14 +63,14 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 	private JPanel centerPanel;
 
 	public JDownLoadUIIndex() {
-		initJdownLoadUI_index();
+		initJdownLoadUIIndex();
 	}
 
 	/**
 	 * 初始化，產生首頁所有使用到的物件
 	 * 
 	 */
-	public void initJdownLoadUI_index() {
+	public void initJdownLoadUIIndex() {
 		String title = String.format(Config.indexName, Config.version);
 		setTitle(title);
 		Container c = getContentPane();
@@ -76,8 +78,7 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 		eventHandleIndex = new EventHandleIndex();
 		eventHandleIndex.setParentObj(this);
 
-		LoadComicData loadData = new LoadComicData(RComicDownloader.get()
-				.getDB().getComicList());
+		ComicList loadData = RComicDownloader.get().getAllComics();
 		table.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
 		table.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		table.addMutilRowDataArray(loadData.getIndexData());
@@ -88,8 +89,7 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 		addComidListDoubleClickEvent(table, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(0, loadData);
 
-		LoadComicData loadDataLove = new LoadComicData(RComicDownloader.get()
-				.getDB().getLoveComicList());
+		ComicList loadDataLove = RComicDownloader.get().getMyLoveComics();
 		tableLove = new JDataTable(false);
 		tableLove.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
 		tableLove.addMutilRowDataArray(loadDataLove.getIndexData());
@@ -384,12 +384,27 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		LoadingScreen loading = showLoading();
+		
+		
 		RComicDownloader.get().preprogress();
 
 		// 建立動畫程式首頁
 		JDownLoadUIIndex download = new JDownLoadUIIndex();
 		download.setVisible(true);
 		download.updateComic();
+		
+		loading.dispose();
+		
+		
+	}
+	
+	private static LoadingScreen showLoading(){
+		LoadingScreen m = new LoadingScreen();
+	    m.setSize(640, 480);
+	    m.setLocationRelativeTo(null);
+	    m.setVisible(true);
+	    return m;
 	}
 
 }

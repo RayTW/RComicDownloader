@@ -15,13 +15,13 @@ import java.util.Vector;
 
 public class JDataTable {
 	/** 資料表內容(二維陣列) */
-	protected Vector tmpTableData;
+	protected Vector<String> mTableData;
 	/** 資料表的欄位名稱 */
-	protected Vector tableFieldName;
+	protected Vector<String> mTableFieldName;
 	/** 操作內容 */
-	protected DefaultTableModel tmodel;
+	protected RTableModel mTmodel;
 	/** JTable本身 */
-	protected JTable table; // 建立JTable
+	protected JTable mTable; // 建立JTable
 
 	public JDataTable() {
 		initJDataTalbe(true);
@@ -43,15 +43,15 @@ public class JDataTable {
 	 * @param isEdit
 	 */
 	public void initJDataTalbe(final boolean isEdit) {
-		tableFieldName = new Vector();
-		tmpTableData = new Vector();
-		tmodel = new DefaultTableModel(tmpTableData, tableFieldName) {
+		mTableFieldName = new Vector<String>();
+		mTableData = new Vector<String>();
+		mTmodel = new RTableModel(mTableData, mTableFieldName) {
 			@Override
 			public boolean isCellEditable(int row, int col) {
 				return isEdit;
 			}
 		};
-		table = new JTable(tmodel); // 建立JTable
+		mTable = new JTable(mTmodel); // 建立JTable
 		// table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN );
 
 		// jtable某筆資料被選取時事件
@@ -71,7 +71,7 @@ public class JDataTable {
 	 * @param h
 	 */
 	public void setRowHeight(int h) {
-		table.setRowHeight(h);
+		mTable.setRowHeight(h);
 	}
 
 	/**
@@ -80,7 +80,7 @@ public class JDataTable {
 	 * @param font
 	 */
 	public void setFont(Font font) {
-		table.setFont(font);
+		mTable.setFont(font);
 	}
 
 	/**
@@ -89,7 +89,7 @@ public class JDataTable {
 	 * @param ColumnName
 	 */
 	public void addColumnName(String ColumnName) {
-		tmodel.addColumn(ColumnName);
+		mTmodel.addColumn(ColumnName);
 	}
 
 	/**
@@ -109,7 +109,7 @@ public class JDataTable {
 	 * @param data
 	 */
 	public void addRowData(Vector data) {
-		tmodel.addRow(data);
+		mTmodel.addRow(data);
 	}
 
 	/**
@@ -118,7 +118,7 @@ public class JDataTable {
 	 * @param data
 	 */
 	public void addRowAryData(Object[] data) {
-		tmodel.addRow(data);
+		mTmodel.addRow(data);
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class JDataTable {
 	 * @param data
 	 */
 	public void insertRowData(int row, Vector data) {
-		tmodel.insertRow(row, data);
+		mTmodel.insertRow(row, data);
 	}
 
 	/**
@@ -138,7 +138,7 @@ public class JDataTable {
 	 * @param data
 	 */
 	public void insertRowAryData(int row, Object[] data) {
-		tmodel.insertRow(row, data);
+		mTmodel.insertRow(row, data);
 	}
 
 	/**
@@ -172,12 +172,12 @@ public class JDataTable {
 	 * @param row
 	 */
 	public void removeRow(int row) {
-		tmodel.removeRow(row);
+		mTmodel.removeRow(row);
 	}
 
 	public void removeAll() {
-		for (int i = tmodel.getRowCount() - 1; i >= 0; i--) {
-			tmodel.removeRow(i);
+		for (int i = mTmodel.getRowCount() - 1; i >= 0; i--) {
+			mTmodel.removeRow(i);
 		}
 	}
 
@@ -185,7 +185,7 @@ public class JDataTable {
 	 * 移除所點選的資料筆，可移除多筆資料且資料筆不連續也可以刪
 	 */
 	public void removeSelectedRows() {
-		int[] row = table.getSelectedRows();
+		int[] row = mTable.getSelectedRows();
 		for (int r = row.length - 1; r >= 0; r--) {
 			removeRow(row[r]);
 		}
@@ -197,7 +197,7 @@ public class JDataTable {
 	 * @return
 	 */
 	public int[] getSelectedRows() {
-		return table.getSelectedRows();
+		return mTable.getSelectedRows();
 	}
 
 	/**
@@ -207,7 +207,7 @@ public class JDataTable {
 	 *            true 開啟 | false 關閉
 	 */
 	public void setReorderingAllowed(boolean b) {
-		table.getTableHeader().setReorderingAllowed(b);
+		mTable.getTableHeader().setReorderingAllowed(b);
 	}
 
 	/**
@@ -217,7 +217,7 @@ public class JDataTable {
 	 *            true 顯示 | false 隱藏
 	 */
 	public void setShowLine(boolean b) {
-		table.setShowHorizontalLines(b);
+		mTable.setShowHorizontalLines(b);
 	}
 
 	/**
@@ -239,7 +239,7 @@ public class JDataTable {
 	 * @return
 	 */
 	public TableColumn getColumn(int index) {
-		return table.getColumnModel().getColumn(index);
+		return mTable.getColumnModel().getColumn(index);
 	}
 
 	/**
@@ -248,7 +248,7 @@ public class JDataTable {
 	 * @return
 	 */
 	public int getDataCount() {
-		return tmpTableData.size();
+		return mTableData.size();
 	}
 
 	/**
@@ -259,7 +259,7 @@ public class JDataTable {
 	 * @return
 	 */
 	public Object getValutAt(int row, int column) {
-		Object obj = tmodel.getValueAt(row, column);
+		Object obj = mTmodel.getValueAt(row, column);
 		return obj;
 	}
 
@@ -269,7 +269,7 @@ public class JDataTable {
 	 * @return
 	 */
 	public JTable getJTable() {
-		return table;
+		return mTable;
 	}
 
 	/**
@@ -278,11 +278,11 @@ public class JDataTable {
 	 * @return
 	 */
 	public DefaultTableModel getDefaultTableModel() {
-		return tmodel;
+		return mTmodel;
 	}
 
 	public Class getTableFieldNameClass() {
-		return tableFieldName.getClass();
+		return mTableFieldName.getClass();
 	}
 
 	/**
@@ -291,6 +291,6 @@ public class JDataTable {
 	 * @return
 	 */
 	public JScrollPane getJScrollPaneJTable() {
-		return new JScrollPane(table);
+		return new JScrollPane(mTable);
 	}
 }

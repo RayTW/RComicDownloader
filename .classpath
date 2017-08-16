@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="itextpdf-5.4.5.jar"/>
 	<classpathentry kind="lib" path="itext-pdfa-5.4.5.jar"/>
+	<classpathentry kind="lib" path="8Comic-sdk-1.0.0.jar"/>
 	<classpathentry kind="output" path="bin/class"/>
 </classpath>

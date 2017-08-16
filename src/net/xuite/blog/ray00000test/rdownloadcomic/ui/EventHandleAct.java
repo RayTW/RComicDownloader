@@ -6,8 +6,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.ActDataObj;
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.SingleComicData;
+import net.xuite.blog.ray00000test.library.comicsdk.Comic;
+import net.xuite.blog.ray00000test.library.comicsdk.Episode;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicExtension;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.DownloadComicTask;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
@@ -21,21 +22,13 @@ import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 
 public class EventHandleAct implements ActionListener {
 	/** 父層參考 */
-	private JDownLoadUIAct parentObj;
+	private JDownLoadUIAct mParentObj;
 	/** 整套漫畫連結資料、總集數等等.. */
-	private ActDataObj actDataObj;
+	private ComicExtension mComicExtension;
 	/** 漫畫集數列表 */
-	private TableList downLoadTable;
+	private TableList mDownLoadTable;
 
 	public EventHandleAct() {
-		initEventHandle_Act();
-	}
-
-	/**
-	 * 初始化
-	 * 
-	 */
-	public void initEventHandle_Act() {
 	}
 
 	/**
@@ -54,16 +47,16 @@ public class EventHandleAct implements ActionListener {
 			if (b.getName().equals("ListAllJPG")) {
 				int[] selectList = getSelectRowIndex();// 取出選了哪幾集漫畫
 				
-				listAllJPG(actDataObj, selectList);
+				listAllJPG(mComicExtension.get(), selectList);
 			} else if (b.getName().equals("detial")) {
-				detail(actDataObj);
+				detail(mComicExtension);
 			} else if (b.getName().equals("addLove")) {
-				addLove(actDataObj);
+				addLove(mComicExtension.get());
 			}
 		}
 	}
 
-	public void listAllJPG(final ActDataObj actObj, final int[] selectList) {
+	public void listAllJPG(final Comic comic, final int[] selectList) {
 		if (selectList.length > 0) {
 			new Thread() {
 				@Override
@@ -71,17 +64,17 @@ public class EventHandleAct implements ActionListener {
 					// 將每集漫畫的圖片連結取出來
 					for (int i = 0; i < selectList.length; i++) {
 						int index = selectList[i];
-						SingleComicData singleComic = actObj
-								.getActComicData(index);
+						
+						Episode singleComic = comic.getEpisodes().get(index);
 
-						String checkName = actObj.id + actObj.getCartoonName()
+						String checkName = comic.getId() + comic.getName()
 								+ "-" + singleComic.getName();
-						if (downLoadTable.isDownloading(checkName)) {// 沒有在下載序列中才可以再下載
-							setStateText(actObj.getCartoonName() + "-"
+						if (mDownLoadTable.isDownloading(checkName)) {// 沒有在下載序列中才可以再下載
+							setStateText(comic.getName() + "-"
 									+ singleComic.getName() + "已經在下載佇列中^^");
-						} else if (downLoadTable.isFill()) {// 佇列已滿
+						} else if (mDownLoadTable.isFill()) {// 佇列已滿
 							String msg = "目前下載中的佇列有"
-									+ downLoadTable.getCurrentDownLoadSize()
+									+ mDownLoadTable.getCurrentDownLoadSize()
 									+ "同時下載最多"
 									+ RComicDownloader.get().getDB()
 											.getDownCountLimit() + "個^^";
@@ -94,9 +87,9 @@ public class EventHandleAct implements ActionListener {
 										@Override
 										public void onPrepare(
 												DownloadComicTask task,
-												SingleComicData data) {
-											downLoadTable.addObj(task);
-											setStateText(actObj.getCartoonName()
+												Episode data) {
+											mDownLoadTable.addObj(task);
+											setStateText(comic.getName()
 													+ " "
 													+ data.getName()
 													+ " 準備下載");
@@ -105,9 +98,9 @@ public class EventHandleAct implements ActionListener {
 										@Override
 										public void onSuccess(
 												DownloadComicTask task,
-												SingleComicData data) {
-											downLoadTable.removeObj(task);
-											setStateText(actObj.getCartoonName()
+												Episode data) {
+											mDownLoadTable.removeObj(task);
+											setStateText(comic.getName()
 													+ " "
 													+ data.getName()
 													+ " 下載完成");
@@ -116,10 +109,10 @@ public class EventHandleAct implements ActionListener {
 										@Override
 										public void onFail(
 												DownloadComicTask task,
-												SingleComicData data,
+												Episode data,
 												String reason) {
-											downLoadTable.removeObj(task);
-											setStateText(actObj.getCartoonName()
+											mDownLoadTable.removeObj(task);
+											setStateText(comic.getName()
 													+ " "
 													+ data.getName()
 													+ " 下載失敗，原因:" + reason);
@@ -128,14 +121,14 @@ public class EventHandleAct implements ActionListener {
 										@Override
 										public void onCancel(
 												DownloadComicTask task,
-												SingleComicData data) {
-											downLoadTable.removeObj(task);
-											setStateText(actObj.getCartoonName()
+												Episode data) {
+											mDownLoadTable.removeObj(task);
+											setStateText(comic.getName()
 													+ " "
 													+ data.getName()
 													+ " 下載取消");
 										}
-									}, actObj, index);
+									}, comic, index);
 
 						}
 					}
@@ -146,26 +139,26 @@ public class EventHandleAct implements ActionListener {
 		}
 	}
 
-	private void detail(final ActDataObj actObj) {
-		if (actObj.isImgDownloadOK()) {
-			JOptionPane.showMessageDialog(null, actObj.getDetail(),
-					actObj.getCartoonName() + "漫畫簡介",
-					JOptionPane.INFORMATION_MESSAGE, actObj.getImg());
+	private void detail(final ComicExtension comic) {
+		if (comic.isImgDownloadOK()) {
+			JOptionPane.showMessageDialog(null, comic.get().getDescription(),
+					comic.get().getName() + "漫畫簡介",
+					JOptionPane.INFORMATION_MESSAGE, comic.getIcon());
 		} else {
-			JOptionPane.showMessageDialog(null, actObj.getDetail(),
-					actObj.getCartoonName() + "漫畫簡介",
+			JOptionPane.showMessageDialog(null, comic.get().getDescription(),
+					comic.get().getName() + "漫畫簡介",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
-	private void addLove(final ActDataObj actObj) {
-		boolean isOK = addComicToMyLove(actObj.id, actObj.getCartoonName());// 把目前在看的這一套漫畫加到我的最愛
+	private void addLove(final Comic comic) {
+		boolean isOK = addComicToMyLove(comic.getId(), comic.getName());// 把目前在看的這一套漫畫加到我的最愛
 		String msg = "";
 		if (isOK) {
-			msg = "編號[" + actObj.id + "]" + actObj.getCartoonName()
+			msg = "編號[" + comic.getId() + "]" + comic.getName()
 					+ "加到我的最愛ok^^";
 		} else {
-			msg = "編號[" + actObj.id + "]" + actObj.getCartoonName() + "已存在我的最愛";
+			msg = "編號[" + comic.getId() + "]" + comic.getName() + "已存在我的最愛";
 		}
 		JOptionPane.showMessageDialog(null, msg, "訊息",
 				JOptionPane.INFORMATION_MESSAGE);
@@ -177,7 +170,7 @@ public class EventHandleAct implements ActionListener {
 	 * @param table
 	 */
 	public void setDataTableList(TableList table) {
-		downLoadTable = table;
+		mDownLoadTable = table;
 	}
 
 	/**
@@ -186,7 +179,7 @@ public class EventHandleAct implements ActionListener {
 	 * @param txt
 	 */
 	public void setStateText(String txt) {
-		parentObj.setStateText(txt);
+		mParentObj.setStateText(txt);
 	}
 
 	/**
@@ -196,7 +189,7 @@ public class EventHandleAct implements ActionListener {
 	 * @param comicName
 	 */
 	public boolean addComicToMyLove(String comicID, String comicName) {
-		return parentObj.addToLove(comicID, comicName);
+		return mParentObj.addToLove(comicID, comicName);
 	}
 
 	/**
@@ -205,7 +198,7 @@ public class EventHandleAct implements ActionListener {
 	 * @param p
 	 */
 	public void setParentObj(JDownLoadUIAct p) {
-		parentObj = p;
+		mParentObj = p;
 	}
 
 	/**
@@ -214,7 +207,7 @@ public class EventHandleAct implements ActionListener {
 	 * @param task
 	 */
 	public void removeTask(DownloadComicTask task) {
-		downLoadTable.removeObj(task);
+		mDownLoadTable.removeObj(task);
 	}
 
 	/**
@@ -222,8 +215,8 @@ public class EventHandleAct implements ActionListener {
 	 * 
 	 * @param data
 	 */
-	public void setActDataObj(ActDataObj data) {
-		actDataObj = data;
+	public void setComic(Comic data) {
+		mComicExtension = new ComicExtension(data);
 	}
 
 	/**
@@ -232,6 +225,6 @@ public class EventHandleAct implements ActionListener {
 	 * @return
 	 */
 	public int[] getSelectRowIndex() {
-		return parentObj.getSelectRowIndex();
+		return mParentObj.getSelectRowIndex();
 	}
 }

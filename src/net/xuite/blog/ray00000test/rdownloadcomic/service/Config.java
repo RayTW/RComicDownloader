@@ -2,7 +2,7 @@
 
 import javax.swing.JOptionPane;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.util.URLEncodeDecodeTool;
+import net.xuite.blog.ray00000test.rdownloadcomic.util.URLCodec;
 
 /**
  * 1.動漫首頁網址<BR>
@@ -18,7 +18,7 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.URLEncodeDecodeTool;
 
 public class Config {
 	/** 版本 */
-	public static final String version = "v2.0.4";
+	public static final String version = "v3.0.0.alpha";
 	public static final boolean DEBUG = false;
 	// 首頁的title
 	public static String indexName = "漫畫下載%s";
@@ -89,7 +89,7 @@ public class Config {
 
 	// 將HTML轉成可閱讀的格式
 	static {
-		readerHTML = URLEncodeDecodeTool.decode(readerHTML, "utf-8");
+		readerHTML = URLCodec.decode(readerHTML, "utf-8");
 	}
 
 	/**

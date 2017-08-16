@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import net.xuite.blog.ray00000test.rdownloadcomic.parseHtml.SingleComicData;
+import net.xuite.blog.ray00000test.library.comicsdk.Episode;
 
 /**
  * 下載單集漫畫執行緒<BR>
@@ -26,13 +26,14 @@ public class DownLoadThread implements Runnable {
 
 		public void onComplete();
 
-		public void onDownloadFail(SingleComicData singleComic, String message);
+		public void onDownloadFail(Episode episode, String message);
 	}
 
 	/** 父層(下載進度狀態列) */
 	public Callback mCallback;
+	private String mComicUrl;
 	/** 一本漫畫資料 */
-	private SingleComicData singleComic; // 一本漫畫資料
+	private Episode mEpisode; // 一本漫畫資料
 	/** 目前下載到第幾張 */
 	public int point;
 	/** isRun:是否下載中,isPause:是否暫停中 */
@@ -80,10 +81,12 @@ public class DownLoadThread implements Runnable {
 	 * 
 	 * @param callback
 	 *            目前單本下載中漫畫的進度物件
+	 * @param comicUrl
 	 * @param sc
 	 */
-	public void setSingleComicData(Callback callback, SingleComicData sc) {
-		singleComic = sc;
+	public void setEpisode(Callback callback, String comicUrl, Episode sc) {
+		mEpisode = sc;
+		mComicUrl = comicUrl;
 		mCallback = callback;
 	}
 
@@ -94,14 +97,14 @@ public class DownLoadThread implements Runnable {
 
 			while (isRun && hasNext()) {
 				if (!isPause) {
-					state = setDownloadSinglePageData(point, singleComic,
+					state = setDownloadSinglePageData(point, mEpisode,
 							savePath);
 					// 要下載的圖頁已存在，換下一張
 					if (state.equals(FILE_EXISTED)) {
 						point++;
 						if (mCallback != null) {
 							mCallback.onloading(point,
-									singleComic.getPageSize());
+									mEpisode.getPages());
 						}
 						continue;
 					}
@@ -110,7 +113,7 @@ public class DownLoadThread implements Runnable {
 						point++;
 						if (mCallback != null) {
 							mCallback.onloading(point,
-									singleComic.getPageSize());
+									mEpisode.getPages());
 						}
 					} else {
 						isRun = false;
@@ -126,10 +129,10 @@ public class DownLoadThread implements Runnable {
 
 			if (mCallback != null) {
 				if (state.equals(ERROR)) {
-					mCallback.onDownloadFail(singleComic,
+					mCallback.onDownloadFail(mEpisode,
 							Config.netWorkDisconnect);
 				} else if (state.equals(FILE_EXISTED)) {
-					mCallback.onDownloadFail(singleComic, Config.file_existed);
+					mCallback.onDownloadFail(mEpisode, Config.file_existed);
 				} else {
 					mCallback.onComplete();
 				}
@@ -145,10 +148,10 @@ public class DownLoadThread implements Runnable {
 	 * 設定要下載單頁的圖片URL與儲存路徑
 	 */
 	private String setDownloadSinglePageData(int index,
-			SingleComicData singleData, String path) {
+			Episode episode, String path) {
 		String ret = "";
-		String url = singleData.getJPGUrl(index);
-		String nextUrl = singleData.url;
+		String url = episode.getImageUrlList().get(index);
+		String nextUrl = mComicUrl;
 
 		// ret若為error表示下載失敗(可能是網路斷線)
 		ret = readyDownload(url, nextUrl, path + "/", "" + index, true);
@@ -169,8 +172,8 @@ public class DownLoadThread implements Runnable {
 	}
 
 	public int getTotalPageSize() {
-		if (singleComic != null) {
-			return singleComic.getPageSize();
+		if (mEpisode != null) {
+			return mEpisode.getPages();
 		}
 		return 0;
 	}
@@ -205,7 +208,7 @@ public class DownLoadThread implements Runnable {
 	 * @return
 	 */
 	public boolean hasNext() {
-		return point < singleComic.getPageSize();
+		return point < mEpisode.getPages();
 	}
 
 	/**
@@ -294,10 +297,10 @@ public class DownLoadThread implements Runnable {
 	 */
 	public void close() {
 		if (mCallback != null) {
-			mCallback.onloading(singleComic.getPageSize(),
-					singleComic.getPageSize());
+			mCallback.onloading(mEpisode.getPages(),
+					mEpisode.getPages());
 		}
-		singleComic = null;
+		mEpisode = null;
 		mCallback = null;
 	}
 
