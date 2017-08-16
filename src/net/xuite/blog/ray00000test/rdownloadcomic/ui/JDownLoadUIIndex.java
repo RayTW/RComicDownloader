@@ -2,8 +2,10 @@ package net.xuite.blog.ray00000test.rdownloadcomic.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.SplashScreen;
 import java.awt.event.KeyEvent;
@@ -14,13 +16,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
 
 import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicList;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
@@ -384,7 +389,7 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		LoadingScreen loading = showLoading();
+		JDialog loading = showLoading();
 		
 		
 		RComicDownloader.get().preprogress();
@@ -399,12 +404,19 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 		
 	}
 	
-	private static LoadingScreen showLoading(){
-		LoadingScreen m = new LoadingScreen();
-	    m.setSize(640, 480);
-	    m.setLocationRelativeTo(null);
-	    m.setVisible(true);
-	    return m;
+	private static JDialog showLoading(){
+		JDialog jDialog = new JDialog();
+        jDialog.setLayout(new GridBagLayout());
+        jDialog.add(new JLabel("讀取中…"));
+        jDialog.setMaximumSize(new Dimension(150, 50));
+        jDialog.setResizable(false);
+        jDialog.setModal(false);
+        jDialog.setUndecorated(true);
+        jDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        jDialog.setLocationRelativeTo(null);
+        jDialog.setVisible(true);
+        jDialog.pack();
+        return jDialog;
 	}
 
 }

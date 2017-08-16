@@ -37,7 +37,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 
 	public JDownLoadUIAct(EventHandleIndex parent) {
 		mParentObj = parent;
-		initJDownLoadUI_Act();
+		initJDownLoadUIAct();
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	 * 初始化
 	 * 
 	 */
-	public void initJDownLoadUI_Act() {
+	public void initJDownLoadUIAct() {
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout());
 		mEventHandleAct = new EventHandleAct();
