@@ -36,8 +36,6 @@ import javax.swing.text.html.HTMLDocument;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.DownloadFile;
-import net.xuite.blog.ray00000test.rdownloadcomic.util.HtmlReader;
-import net.xuite.blog.ray00000test.rdownloadcomic.util.HttpReader;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.URLCodec;
 
@@ -56,8 +54,6 @@ public class VersionNews extends JPanel {
 	public final static String TAG_APP_NAME = "appname";
 	public final static String NEW_VERSION = "最新版本:";
 	public final static String NEW_LIST = "更新項目:";
-	private HttpReader http;
-	// private JTextArea news;
 	private JButton downloadBtn;
 	private String versionText;
 	private String newsText;
@@ -74,12 +70,6 @@ public class VersionNews extends JPanel {
 		versionText = "";
 		newsText = "";
 		appUrl = "";
-		http = new HttpReader();
-		// news = new JTextArea();
-		// news.setLineWrap(true);
-		// news.setEditable(false);
-		//
-		// add(news, BorderLayout.CENTER);
 		downloadBtn = new JButton("下載更新");
 		downloadBtn.setEnabled(false);
 		downloadBtn.addActionListener(new ActionListener() {
@@ -111,12 +101,9 @@ public class VersionNews extends JPanel {
 		new Thread() {
 			@Override
 			public void run() {
-				StringBuffer exception = new StringBuffer();
-				String html = http.getHTML(Config.newUrl, Config.newsCharset,
-						null, exception);
-
-				if (exception.length() == 0) {
-					// System.out.println(html);
+				try {
+					String html = RComicDownloader.get().requestGetHttp(Config.newUrl, Config.newsCharset);
+				
 					parse(html);
 					String msg = NEW_VERSION + versionText + "\n\n" + NEW_LIST
 							+ newsText;
@@ -130,7 +117,8 @@ public class VersionNews extends JPanel {
 					if (hasNewVersion(nowVersion, versionText)) {
 						downloadBtn.setEnabled(true);
 					}
-				} else {
+				} catch (IOException e) {
+					e.printStackTrace();
 					Config.showMsgBar(Config.netWorkDisconnect, "訊息");
 				}
 			}
@@ -237,7 +225,7 @@ public class VersionNews extends JPanel {
 
 			// 舊版本APP改名字放旁邊, "comic.jar" to "comic.jar~)
 			final File file = new File(java.net.URLDecoder.decode(
-					urlObj.getPath(), HtmlReader.UTF8));
+					urlObj.getPath(), Config.newsCharset));
 			// 備份檔案的檔名
 			final String backFileName = file.getAbsolutePath() + "~";
 			copyFile(file, backFileName);

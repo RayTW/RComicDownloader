@@ -1,5 +1,6 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,8 @@ import JDownLoadComic.DatabaseLite;
 import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.R8Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.R8Comic.OnLoadListener;
+import net.xuite.blog.ray00000test.library.net.EasyHttp;
+import net.xuite.blog.ray00000test.library.net.EasyHttp.Response;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.ThreadPool;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WorkaroundUtility;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.WriteFile;
@@ -148,5 +151,26 @@ public class RComicDownloader {
 	
 	public String getComicDetailUrl(String comicId){
 		return mR8Comic.getConfig().getComicDetailUrl(comicId);
+	}
+	
+	public String requestGetHttp(String url, String charset) throws IOException{
+		String result = null;
+		EasyHttp request = new EasyHttp.Builder()
+				.setUrl(url)
+				.setMethod("GET")
+				.setIsRedirect(true)
+				.setCharset(charset)
+				.putHeader(
+						"Accept",
+						"text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+				.putHeader("Accept-Encoding", "gzip, deflate, br")
+				.setUserAgent(
+						"Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36")
+				.build();
+
+			Response response = request.connect();
+			result = response.getBody();
+
+		return result;
 	}
 }
