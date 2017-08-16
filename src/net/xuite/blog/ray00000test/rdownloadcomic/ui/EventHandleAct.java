@@ -71,13 +71,13 @@ public class EventHandleAct implements ActionListener {
 								+ "-" + singleComic.getName();
 						if (mDownLoadTable.isDownloading(checkName)) {// 沒有在下載序列中才可以再下載
 							setStateText(comic.getName() + "-"
-									+ singleComic.getName() + "已經在下載佇列中^^");
+									+ singleComic.getName() + "已經在下載佇列中");
 						} else if (mDownLoadTable.isFill()) {// 佇列已滿
 							String msg = "目前下載中的佇列有"
 									+ mDownLoadTable.getCurrentDownLoadSize()
 									+ "同時下載最多"
 									+ RComicDownloader.get().getDB()
-											.getDownCountLimit() + "個^^";
+											.getDownCountLimit() + "個";
 							JOptionPane.showMessageDialog(null, msg, "訊息",
 									JOptionPane.INFORMATION_MESSAGE);
 							break;
@@ -156,7 +156,7 @@ public class EventHandleAct implements ActionListener {
 		String msg = "";
 		if (isOK) {
 			msg = "編號[" + comic.getId() + "]" + comic.getName()
-					+ "加到我的最愛ok^^";
+					+ "已加入我的最愛";
 		} else {
 			msg = "編號[" + comic.getId() + "]" + comic.getName() + "已存在我的最愛";
 		}

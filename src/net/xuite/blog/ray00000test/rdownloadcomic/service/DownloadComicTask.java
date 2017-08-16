@@ -33,7 +33,15 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 
 	public DownloadComicTask(Comic comic, int index) {
 		mComic = comic;
-		mEpisode = comic.getEpisodes().get(index);
+		Episode episode = comic.getEpisodes().get(index);
+		
+		//重組單集漫畫的網址
+		if(episode.getUrl().indexOf("http") == -1){
+			String host = RComicDownloader.get().getHostList().get(episode.getCatid());
+			episode.setUrl(host + episode.getUrl());
+		}
+		mEpisode = episode;
+		
 		savePath = "./" + Config.defaultSavePath + "/"
 				+ comic.getName() + "/" + comic.getEpisodes().get(index).getName();
 		checkName = comic.getId() + comic.getName() + "-"
@@ -98,11 +106,13 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 					@Override
 					public void onLoaded(
 							Episode result) {
+						
+						
 						result.setUpPages();
 
 						mDownLoadThread = new DownLoadThread();// 建立排序去load漫畫
 						mDownLoadThread.setEpisode(DownloadComicTask.this, 
-								RComicDownloader.get().getComicDetailUrl(mComic.getId()),
+								mEpisode.getUrl(),
 								mEpisode);
 						WriteFile.mkDir(savePath);
 						mDownLoadThread.setSavePath(savePath);

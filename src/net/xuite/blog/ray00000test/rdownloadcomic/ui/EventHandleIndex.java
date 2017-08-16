@@ -32,7 +32,7 @@ public class EventHandleIndex implements ActionListener{
 	/** 從文字檔讀取的漫畫列表、我的最愛列表資料 */
 	private ArrayList<ComicList> loadData; // 用來每讀取網頁資料
 	/** 右邊下載狀態列 */
-	private TableList downLoadTable;
+	private TableList mTableList;
 	/** 接收使用者輸入的指令 */
 	private Command cmd;
 	/**
@@ -182,6 +182,7 @@ public class EventHandleIndex implements ActionListener{
 					@Override
 					public void onLoaded(Comic result) {
 						JDownLoadUIAct down = mComicListPool.get(comic.getId());
+						down.setDataTableList(mTableList);
 						down.setComic(result);
 						
 						if (down != null) {
@@ -373,7 +374,7 @@ public class EventHandleIndex implements ActionListener{
 	 * @param table
 	 */
 	public void setDataTableList(TableList table) {
-		downLoadTable = table;
+		mTableList = table;
 	}
 
 	public ComicList getLoadComicData(int index) {
@@ -443,12 +444,12 @@ public class EventHandleIndex implements ActionListener{
 //
 //						if (showAlert) {
 //							JOptionPane.showMessageDialog(null, "此次更新"
-//									+ data.length + "本最新漫畫^^", "訊息",
+//									+ data.length + "本最新漫畫", "訊息",
 //									JOptionPane.INFORMATION_MESSAGE);
 //						}
 //					} else {
 //						if (showAlert) {
-//							JOptionPane.showMessageDialog(null, "沒有最新漫畫資料^^",
+//							JOptionPane.showMessageDialog(null, "沒有最新漫畫資料",
 //									"訊息", JOptionPane.INFORMATION_MESSAGE);
 //						}
 //					}
@@ -485,7 +486,7 @@ public class EventHandleIndex implements ActionListener{
 	public void close() {
 		mComicListPool.clear();
 		mComicListPool = null;
-		downLoadTable = null;
+		mTableList = null;
 		parentObj = null;
 	}
 }
