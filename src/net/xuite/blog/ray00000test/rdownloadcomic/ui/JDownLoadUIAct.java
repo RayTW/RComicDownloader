@@ -13,8 +13,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.xuite.blog.ray00000test.library.comicsdk.Comic;
-import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicExtension;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicList;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicWrapper;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.JDataTable;
 import net.xuite.blog.ray00000test.rdownloadcomic.util.Log;
 
@@ -33,7 +33,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	/** 上面工具列 */
 	private JPanel mNorthPanel;
 
-	private ComicExtension mComic;
+	private ComicWrapper mComic;
 
 	public JDownLoadUIAct(EventHandleIndex parent) {
 		mParentObj = parent;
@@ -45,9 +45,9 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 	 * 
 	 * @param comic
 	 */
-	public void setComic(Comic comic) {
+	public void setComic(ComicWrapper comic) {
 		setTitle(comic.getName());
-		mComic = new ComicExtension(comic);
+		mComic = comic;
 		table.addMultiColumnName(new String[] { "集數", "已下載" });
 		table.getColumn(1).setMaxWidth(60);
 		table.addMutilRowDataArray(mComic.getActDataList());
@@ -159,7 +159,7 @@ public class JDownLoadUIAct extends JDownLoadUIDefault {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始下戴漫畫
 					int row = jtable.getJTable().rowAtPoint(e.getPoint());
-					handle.listAllJPG(mComic.get(), new int[]{row});
+					handle.listAllJPG(mComic, new int[]{row});
 				}
 			}
 		});

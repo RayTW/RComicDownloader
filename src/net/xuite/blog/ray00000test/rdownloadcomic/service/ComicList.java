@@ -3,25 +3,23 @@ package net.xuite.blog.ray00000test.rdownloadcomic.service;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.xuite.blog.ray00000test.library.comicsdk.Comic;
-
 /**
  * 
  * @author Ray Lee 
  * Created on 2017/08/16
  */
 public class ComicList {
-	private List<Comic> mComics;
+	private List<ComicWrapper> mComics;
 	
-	public ComicList(List<Comic> serverComicList){
+	public ComicList(List<ComicWrapper> serverComicList){
 		mComics = serverComicList;
 	}
 	
-	public ComicList(List<Comic> serverComicList, ArrayList<String[]> dbComicList){
-		mComics = new ArrayList<Comic>();
+	public ComicList(List<ComicWrapper> serverComicList, ArrayList<String[]> dbComicList){
+		mComics = new ArrayList<ComicWrapper>();
 		
 		for(String [] dbcomic : dbComicList){
-			for(Comic comic : serverComicList){
+			for(ComicWrapper comic : serverComicList){
 				if(comic.getId().equals(dbcomic[0])){
 					mComics.add(comic);
 				}
@@ -30,7 +28,7 @@ public class ComicList {
 	}
 	
 	public boolean hasComic(String comicId){
-		for(Comic comic : mComics){
+		for(ComicWrapper comic : mComics){
 			if(comic.getId().equals(comicId)){
 				return true;
 			}
@@ -38,8 +36,8 @@ public class ComicList {
 		return false;
 	}
 	
-	public Comic getComicById(String comicId){
-		for(Comic comic : mComics){
+	public ComicWrapper getComicById(String comicId){
+		for(ComicWrapper comic : mComics){
 			if(comic.getId().equals(comicId)){
 				return comic;
 			}
@@ -63,7 +61,7 @@ public class ComicList {
 	 */
 	public String[][] getIndexData(boolean isShowNew) {
 		String[][] list = new String[mComics.size()][2];
-		Comic comic = null;
+		ComicWrapper comic = null;
 		
 		for(int i = 0; i < mComics.size(); i++){
 			comic = mComics.get(i);
@@ -77,7 +75,7 @@ public class ComicList {
 		return list;
 	}
 	
-	public Comic getComic(int index){
+	public ComicWrapper getComic(int index){
 		return mComics.get(index);
 	}
 	
@@ -93,7 +91,7 @@ public class ComicList {
 		}
 		ArrayList<String> catList = new ArrayList<String>();
 
-		for (Comic comic : mComics) {
+		for (ComicWrapper comic : mComics) {
 			String cartoonName = comic.getName();
 			
 			if (cartoonName.indexOf(findName) != -1) {

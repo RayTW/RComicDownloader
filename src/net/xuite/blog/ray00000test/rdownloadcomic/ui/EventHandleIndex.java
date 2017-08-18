@@ -12,8 +12,8 @@ import javax.swing.JOptionPane;
 
 import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.R8Comic.OnLoadListener;
-import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicExtension;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicList;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicWrapper;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Command;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
@@ -39,7 +39,7 @@ public class EventHandleIndex implements ActionListener{
 	 * 記錄目前被打開的漫畫列表，防止重複打開列表
 	 */
 	private HashMap<String, JDownLoadUIAct> mComicListPool;
-	protected Hashtable<String, ComicExtension> mComicKind; // 已抓過的漫畫
+	protected Hashtable<String, ComicWrapper> mComicKind; // 已抓過的漫畫
 
 	public EventHandleIndex() {
 		initEventHandle_index();
@@ -103,7 +103,7 @@ public class EventHandleIndex implements ActionListener{
 					StringBuffer loveComic = new StringBuffer();
 					StringBuffer tmpComic = new StringBuffer();
 					for (int i = 0; i < delectList.length; i++) {
-						Comic comic = tmpData.getComic(delectList[i]);
+						ComicWrapper comic = tmpData.getComic(delectList[i]);
 						
 						if (!tmpDataLove.hasComic(comic.getId())) {
 							addLoveComic(new String[] { comic.getId(), comic.getName() });// 將新增到我的最愛漫畫add到table上秀
@@ -162,7 +162,7 @@ public class EventHandleIndex implements ActionListener{
 	 */
 	public synchronized void creadActListJFrame(String comicId) {
 		ComicList comicData = getLoadComicData(0);
-		final Comic comic = comicData.getComicById(comicId);
+		final ComicWrapper comic = comicData.getComicById(comicId);
 		
 		setStateText("漫畫\"" + comic.getName() + "\"正在讀取集數列表中...");
 		
@@ -183,7 +183,7 @@ public class EventHandleIndex implements ActionListener{
 						public void onLoaded(Comic result) {
 							JDownLoadUIAct down = mComicListPool.get(comic.getId());
 							down.setDataTableList(mTableList);
-							down.setComic(result);
+							down.setComic(comic);
 							down.setVisible(true);
 							down.toFront();
 						}

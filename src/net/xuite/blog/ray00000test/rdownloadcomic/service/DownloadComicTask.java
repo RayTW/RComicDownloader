@@ -2,7 +2,6 @@ package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
 import java.util.concurrent.Future;
 
-import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.Episode;
 import net.xuite.blog.ray00000test.library.comicsdk.R8Comic.OnLoadListener;
 import net.xuite.blog.ray00000test.rdownloadcomic.ui.LoadBarState;
@@ -15,7 +14,7 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 	/** 下載單集漫畫執行緒 */
 	private DownLoadThread mDownLoadThread;
 	private Future<?> mFuture;
-	private Comic mComic;
+	private ComicWrapper mComic;
 	private Episode mEpisode;
 	private String savePath;
 	private Callback mCallback;
@@ -31,7 +30,7 @@ public class DownloadComicTask implements DownLoadThread.Callback {
 		public void onCancel(DownloadComicTask task, Episode data);
 	}
 
-	public DownloadComicTask(Comic comic, int index) {
+	public DownloadComicTask(ComicWrapper comic, int index) {
 		mComic = comic;
 		Episode episode = comic.getEpisodes().get(index);
 		

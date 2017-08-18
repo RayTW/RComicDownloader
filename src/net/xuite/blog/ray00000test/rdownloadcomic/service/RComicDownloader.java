@@ -3,6 +3,7 @@ package net.xuite.blog.ray00000test.rdownloadcomic.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JOptionPane;
 
@@ -28,8 +29,8 @@ public class RComicDownloader {
 	private String dbPath = Config.defaultSavePath + "/sys/comic.obj";
 	private DatabaseLite mDB = new DatabaseLite();
 	private R8Comic mR8Comic = R8Comic.get();
-	private List<Comic> mComics;
-	private List<Comic> mNewComics;
+	private List<ComicWrapper> mComics;
+	private List<ComicWrapper> mNewComics;
 	private Map<String, String> mHostList;
 
 	private RComicDownloader() {
@@ -60,7 +61,7 @@ public class RComicDownloader {
 		return mR8Comic;
 	}
 	
-	public List<Comic> getComics(){
+	public List<ComicWrapper> getComics(){
 		return mComics;
 	}
 	
@@ -93,7 +94,11 @@ public class RComicDownloader {
 
 			@Override
 			public void onLoaded(List<Comic> comics) {
-				mComics = comics;
+				mComics = new CopyOnWriteArrayList<ComicWrapper>();
+				
+				for(Comic comic : comics){
+					mComics.add(new ComicWrapper(comic));
+				}
 			}
 			
 		});
@@ -102,7 +107,11 @@ public class RComicDownloader {
 
 			@Override
 			public void onLoaded(List<Comic> comics) {
-				mNewComics = comics;
+				mNewComics = new CopyOnWriteArrayList<ComicWrapper>();
+				
+				for(Comic comic : comics){
+					mNewComics.add(new ComicWrapper(comic));
+				}
 			}
 			
 		});
@@ -127,7 +136,7 @@ public class RComicDownloader {
 	
 
 	public void addDownloadTask(DownloadComicTask.Callback callback,
-			Comic comic, int index) {
+			ComicWrapper comic, int index) {
 		DownloadComicTask task = new DownloadComicTask(comic, index);
 		try {
 			task.setCallback(callback);

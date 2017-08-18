@@ -6,9 +6,8 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
-import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.Episode;
-import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicExtension;
+import net.xuite.blog.ray00000test.rdownloadcomic.service.ComicWrapper;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.Config;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.DownloadComicTask;
 import net.xuite.blog.ray00000test.rdownloadcomic.service.RComicDownloader;
@@ -24,7 +23,7 @@ public class EventHandleAct implements ActionListener {
 	/** 父層參考 */
 	private JDownLoadUIAct mParentObj;
 	/** 整套漫畫連結資料、總集數等等.. */
-	private ComicExtension mComicExtension;
+	private ComicWrapper mComicWrapper;
 	/** 漫畫集數列表 */
 	private TableList mDownLoadTable;
 
@@ -47,16 +46,16 @@ public class EventHandleAct implements ActionListener {
 			if (b.getName().equals("ListAllJPG")) {
 				int[] selectList = getSelectRowIndex();// 取出選了哪幾集漫畫
 				
-				listAllJPG(mComicExtension.get(), selectList);
+				listAllJPG(mComicWrapper, selectList);
 			} else if (b.getName().equals("detial")) {
-				detail(mComicExtension);
+				detail(mComicWrapper);
 			} else if (b.getName().equals("addLove")) {
-				addLove(mComicExtension.get());
+				addLove(mComicWrapper);
 			}
 		}
 	}
 
-	public void listAllJPG(final Comic comic, final int[] selectList) {
+	public void listAllJPG(final ComicWrapper comic, final int[] selectList) {
 		if (selectList.length > 0) {
 			new Thread() {
 				@Override
@@ -139,19 +138,19 @@ public class EventHandleAct implements ActionListener {
 		}
 	}
 
-	private void detail(final ComicExtension comic) {
+	private void detail(final ComicWrapper comic) {
 		if (comic.isDownloadedIcon()) {
-			JOptionPane.showMessageDialog(null, comic.get().getDescription(),
-					comic.get().getName() + "漫畫簡介",
+			JOptionPane.showMessageDialog(null, comic.getDescription(),
+					comic.getName() + "漫畫簡介",
 					JOptionPane.INFORMATION_MESSAGE, comic.getIcon());
 		} else {
-			JOptionPane.showMessageDialog(null, comic.get().getDescription(),
-					comic.get().getName() + "漫畫簡介",
+			JOptionPane.showMessageDialog(null, comic.getDescription(),
+					comic.getName() + "漫畫簡介",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
-	private void addLove(final Comic comic) {
+	private void addLove(final ComicWrapper comic) {
 		boolean isOK = addComicToMyLove(comic.getId(), comic.getName());// 把目前在看的這一套漫畫加到我的最愛
 		String msg = "";
 		if (isOK) {
@@ -215,8 +214,8 @@ public class EventHandleAct implements ActionListener {
 	 * 
 	 * @param data
 	 */
-	public void setComic(Comic data) {
-		mComicExtension = new ComicExtension(data);
+	public void setComic(ComicWrapper data) {
+		mComicWrapper = data;
 	}
 
 	/**
