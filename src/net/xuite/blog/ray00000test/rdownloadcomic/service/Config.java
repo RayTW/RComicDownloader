@@ -18,10 +18,10 @@ import net.xuite.blog.ray00000test.rdownloadcomic.util.URLCodec;
 
 public class Config {
 	/** 版本 */
-	public static final String version = "v3.0.0.alpha";
+	public static final String version = "v3.0.0";
 	public static final boolean DEBUG = false;
 	// 首頁的title
-	public static String indexName = "漫畫下載%s";
+	public static String indexName = "無限動漫漫畫下載%s (alpha.20170819001)";
 
 	/** 無限動漫首頁網址 */
 	public static String indexHtml = "http://www.comicbus.com/"; // 無限動漫首頁網址
