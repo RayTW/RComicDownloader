@@ -29,6 +29,7 @@ public class RComicDownloader {
 	private DatabaseLite mDB = new DatabaseLite();
 	private R8Comic mR8Comic = R8Comic.get();
 	private List<Comic> mComics;
+	private List<Comic> mNewComics;
 	private Map<String, String> mHostList;
 
 	private RComicDownloader() {
@@ -97,6 +98,15 @@ public class RComicDownloader {
 			
 		});
 		
+		mR8Comic.getNewest(new OnLoadListener<List<Comic>>(){
+
+			@Override
+			public void onLoaded(List<Comic> comics) {
+				mNewComics = comics;
+			}
+			
+		});
+		
 		//戴入漫漫host列表
 		mR8Comic.loadSiteUrlList(new OnLoadListener<Map<String, String>>() {
 
@@ -139,6 +149,14 @@ public class RComicDownloader {
 	 */
 	public ComicList getAllComics(){
 		return new ComicList(mComics);
+	}
+	
+	/**
+	 * 取得目前最新漫畫列表
+	 * @return
+	 */
+	public ComicList getNewComics(){
+		return new ComicList(mNewComics);
 	}
 	
 	/**

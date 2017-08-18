@@ -46,19 +46,33 @@ public class ComicList {
 		}
 		return null;
 	}
-
+	
 	/**
 	 * 取得所有漫畫列表,讀取文字檔裡的漫畫資料
 	 * 
 	 * @return
 	 */
 	public String[][] getIndexData() {
+		return getIndexData(false);
+	}
+
+	/**
+	 * 取得所有漫畫列表,讀取文字檔裡的漫畫資料
+	 * 
+	 * @return
+	 */
+	public String[][] getIndexData(boolean isShowNew) {
 		String[][] list = new String[mComics.size()][2];
 		Comic comic = null;
 		
 		for(int i = 0; i < mComics.size(); i++){
 			comic = mComics.get(i);
-			list[i] = new String[]{comic.getId(), comic.getName()};
+			if(isShowNew){
+				list[i] = new String[]{comic.getId(), comic.getName() + "["+comic.getNewestEpisode()+"]"};
+			}else{
+				list[i] = new String[]{comic.getId(), comic.getName()};
+			}
+			
 		}
 		return list;
 	}

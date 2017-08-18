@@ -105,9 +105,10 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 		addComidListDoubleClickEvent(tableLove, eventHandleIndex);
 		eventHandleIndex.addLoadDataObj(1, loadDataLove);
 
+		ComicList newDataLove = RComicDownloader.get().getNewComics();
 		tableNew = new JDataTable(false);
 		tableNew.addMultiColumnName(new String[] { "編號", "漫畫名稱[集數]" });
-		// tableNew.addMutilRowDataArray(loadDataLove.getIndexData());
+		tableNew.addMutilRowDataArray(newDataLove.getIndexData(true));
 		tableNew.setRowHeight(40);
 		tableNew.getColumn(0).setMaxWidth(60);
 		tableNew.setFont(new Font("Serif", Font.BOLD, 20));
