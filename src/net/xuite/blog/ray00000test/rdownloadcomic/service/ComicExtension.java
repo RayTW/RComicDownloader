@@ -18,11 +18,13 @@ public class ComicExtension {
 		return mComic;
 	}
 	
-	public boolean isImgDownloadOK(){
+	public boolean isDownloadedIcon(){
+		//TODO
 		return false;
 	}
 	
 	public Icon getIcon(){
+		//TODO
 		return null;
 	}
 	

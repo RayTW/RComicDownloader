@@ -18,7 +18,15 @@ public class ComicList {
 	}
 	
 	public ComicList(List<Comic> serverComicList, ArrayList<String[]> dbComicList){
-		mComics = serverComicList;
+		mComics = new ArrayList<Comic>();
+		
+		for(String [] dbcomic : dbComicList){
+			for(Comic comic : serverComicList){
+				if(comic.getId().equals(dbcomic[0])){
+					mComics.add(comic);
+				}
+			}
+		}
 	}
 	
 	public boolean hasComic(String comicId){
@@ -66,7 +74,7 @@ public class ComicList {
 	 * @return
 	 */
 	public ArrayList<String> findCatroonToArrayList(String findName) {
-		if (findName.trim().equals("")) {
+		if (findName.trim().isEmpty()) {
 			return null;
 		}
 		ArrayList<String> catList = new ArrayList<String>();

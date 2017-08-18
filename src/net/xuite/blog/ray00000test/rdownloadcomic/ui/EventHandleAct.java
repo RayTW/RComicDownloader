@@ -140,7 +140,7 @@ public class EventHandleAct implements ActionListener {
 	}
 
 	private void detail(final ComicExtension comic) {
-		if (comic.isImgDownloadOK()) {
+		if (comic.isDownloadedIcon()) {
 			JOptionPane.showMessageDialog(null, comic.get().getDescription(),
 					comic.get().getName() + "漫畫簡介",
 					JOptionPane.INFORMATION_MESSAGE, comic.getIcon());
