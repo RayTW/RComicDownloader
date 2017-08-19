@@ -231,7 +231,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 		String html = String.format(text, str, floderPath, imgWH,
 				RComicDownloader.get().getDB().touchImg);
 
-		if (!writeFileTool.writeText_UTF8(html, fileTarget)) {
+		if (!writeFileTool.writeTextUTF8(html, fileTarget)) {
 			return false;
 		}
 

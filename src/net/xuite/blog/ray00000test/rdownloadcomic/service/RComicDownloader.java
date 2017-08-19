@@ -1,6 +1,10 @@
 package net.xuite.blog.ray00000test.rdownloadcomic.service;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -32,6 +36,7 @@ public class RComicDownloader {
 	private List<ComicWrapper> mComics;
 	private List<ComicWrapper> mNewComics;
 	private Map<String, String> mHostList;
+	private WriteFile mDebugLog = new WriteFile();
 
 	private RComicDownloader() {
 		initialize();
@@ -199,5 +204,21 @@ public class RComicDownloader {
 			result = response.getBody();
 
 		return result;
+	}
+	
+	public void enableLog(){
+		WriteFile.mkDir(Config.LOG_PATH);
+		
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(){
+
+			@Override
+			public void uncaughtException(Thread t, Throwable e) {
+				StringWriter sw = new StringWriter();
+				e.printStackTrace(new PrintWriter(sw));
+				String exceptionAsString = sw.toString();
+				mDebugLog.writeTextUTF8Apend("Thread["+t+"] " + exceptionAsString, new File(Config.LOG_PATH, "debug.log").getPath());
+			}
+			
+		});
 	}
 }

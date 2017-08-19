@@ -383,13 +383,31 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 			}
 		});
 	}
-
+	
+	private static JDialog showLoading(){
+		JDialog jDialog = new JDialog();
+        jDialog.setLayout(new GridBagLayout());
+        jDialog.add(new JLabel("讀取中..."));
+        jDialog.setMaximumSize(new Dimension(150, 50));
+        jDialog.setResizable(false);
+        jDialog.setModal(false);
+        jDialog.setUndecorated(true);
+        jDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        jDialog.setLocationRelativeTo(null);
+        jDialog.setVisible(true);
+        jDialog.pack();
+        return jDialog;
+	}
+	
 	/**
 	 * 漫畫下載程式 啟動點,啟動時會連向遠端檢查是本地端是否有漫畫編號文字檔，若沒有會重load並存檔
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		//開啟記錄未補捉的Exception log
+		RComicDownloader.get().enableLog();
+		
 		JDialog loading = showLoading();
 		
 		
@@ -401,23 +419,5 @@ public class JDownLoadUIIndex extends JDownLoadUIDefault {
 		download.updateComic();
 		
 		loading.dispose();
-		
-		
 	}
-	
-	private static JDialog showLoading(){
-		JDialog jDialog = new JDialog();
-        jDialog.setLayout(new GridBagLayout());
-        jDialog.add(new JLabel("讀取中…"));
-        jDialog.setMaximumSize(new Dimension(150, 50));
-        jDialog.setResizable(false);
-        jDialog.setModal(false);
-        jDialog.setUndecorated(true);
-        jDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        jDialog.setLocationRelativeTo(null);
-        jDialog.setVisible(true);
-        jDialog.pack();
-        return jDialog;
-	}
-
 }

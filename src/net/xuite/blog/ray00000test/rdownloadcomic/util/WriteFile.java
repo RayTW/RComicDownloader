@@ -45,6 +45,7 @@ public class WriteFile {
 			return false;
 		}
 		File file = new File(filename);// 建立檔案，準備寫檔
+		
 		try {
 			BufferedWriter bufWriter = new BufferedWriter(
 					new OutputStreamWriter(new FileOutputStream(file, append),
@@ -66,7 +67,7 @@ public class WriteFile {
 	 * @param filename
 	 * @return
 	 */
-	public boolean writeText_UTF8(String text, String filename) {
+	public boolean writeTextUTF8(String text, String filename) {
 		return writeText(text, filename, "utf8", false);
 	}
 
@@ -77,7 +78,7 @@ public class WriteFile {
 	 * @param filename
 	 * @return
 	 */
-	public boolean writeText_BIG5(String text, String filename) {
+	public boolean writeTextBIG5(String text, String filename) {
 		return writeText(text, filename, "big5", false);
 	}
 
@@ -88,7 +89,7 @@ public class WriteFile {
 	 * @param filename
 	 * @return
 	 */
-	public boolean writeText_UTF8_Apend(String text, String filename) {
+	public boolean writeTextUTF8Apend(String text, String filename) {
 		return writeText(text, filename, "utf8", true);
 	}
 
@@ -99,7 +100,7 @@ public class WriteFile {
 	 * @param filename
 	 * @return
 	 */
-	public boolean writeText_BIG5_Apend(String text, String filename) {
+	public boolean writeTextBIG5Apend(String text, String filename) {
 		return writeText(text, filename, "big5", true);
 	}
 

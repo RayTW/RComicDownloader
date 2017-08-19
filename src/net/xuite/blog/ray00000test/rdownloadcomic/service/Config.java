@@ -44,6 +44,8 @@ public class Config {
 	public static String defaultImgPath = defaultSavePath + "/" + "icon";
 	/** 看漫畫時產生的HTML檔暫存區 */
 	public static String tempFolderPath = defaultSavePath + "/" + "temp";
+	/** 看漫畫時產生的HTML檔暫存區 */
+	public final static String LOG_PATH  = defaultSavePath + "/" + "log";
 	/** 每幾秒換下載下一頁 */
 	public static double pageSec = 0.1; // 每幾秒換下載下一頁
 	/** 正在讀取漫畫列表時訊息 */
