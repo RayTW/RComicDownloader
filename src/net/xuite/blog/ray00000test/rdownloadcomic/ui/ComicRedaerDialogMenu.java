@@ -163,8 +163,7 @@ public class ComicRedaerDialogMenu extends JDialog {
 
 		for (int i = 0; i < ary.size(); i++) {
 			File f = ary.get(i);
-			if (f.isHidden() || f.getName().equals("icon")
-					|| f.getName().equals("sys") || f.getName().equals("temp")) {
+			if (f.isHidden() || f.getName().matches(Config.FILTER_FOLDER_NAME_LIST)) {
 				continue;
 			}
 			table.addRowAryData(new String[] { f.getName(),
@@ -187,8 +186,8 @@ public class ComicRedaerDialogMenu extends JDialog {
 
 		for (int i = 0; i < ary.size(); i++) {
 			File f = ary.get(i);
-			if (f.isHidden() || f.getName().equals("icon")
-					|| f.getName().equals("sys") || f.getName().equals("temp")) {
+			
+			if (f.isHidden() || f.getName().matches(Config.FILTER_FOLDER_NAME_LIST)) {
 				continue;
 			}
 			actTable.addRowAryData(new String[] { f.getName(),

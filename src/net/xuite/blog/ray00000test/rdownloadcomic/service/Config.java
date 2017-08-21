@@ -21,7 +21,7 @@ public class Config {
 	public static final String version = "v3.0.0";
 	public static final boolean DEBUG = false;
 	// 首頁的title
-	public static String indexName = "無限動漫漫畫下載%s (alpha.20170819001)";
+	public static String indexName = "無限動漫漫畫下載%s (alpha.20170821001)";
 
 	/** 無限動漫首頁網址 */
 	public static String indexHtml = "http://www.comicbus.com/"; // 無限動漫首頁網址
@@ -46,6 +46,10 @@ public class Config {
 	public static String tempFolderPath = defaultSavePath + "/" + "temp";
 	/** 看漫畫時產生的HTML檔暫存區 */
 	public final static String LOG_PATH  = defaultSavePath + "/" + "log";
+	
+	/** 開啟看漫畫時，要濾掉不顯示的資料夾名稱 */
+	public final static String FILTER_FOLDER_NAME_LIST = "(sys)|(icon)|(temp)|(log)";
+	
 	/** 每幾秒換下載下一頁 */
 	public static double pageSec = 0.1; // 每幾秒換下載下一頁
 	/** 正在讀取漫畫列表時訊息 */
