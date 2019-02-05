@@ -284,4 +284,12 @@ public class RComic {
 			}
 		});
 	}
+
+	public ComicWrapper searchAllById(String id) {
+		return mComics.stream().filter(o -> o.getId().equals(id)).findFirst().get();
+	}
+
+	public ComicWrapper searchNewById(String id) {
+		return mNewComics.stream().filter(o -> o.getId().equals(id)).findFirst().get();
+	}
 }

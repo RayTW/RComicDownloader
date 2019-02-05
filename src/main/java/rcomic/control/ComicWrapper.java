@@ -25,12 +25,12 @@ public class ComicWrapper extends Comic {
 
 	@Override
 	public String getAuthor() {
-		return mComic.getAuthor();
+		return ChineseWord.unicodeToChineseAll(mComic.getAuthor());
 	}
 
 	@Override
 	public String getDescription() {
-		return mComic.getDescription();
+		return ChineseWord.unicodeToChineseAll(mComic.getDescription());
 	}
 
 	@Override
@@ -132,12 +132,10 @@ public class ComicWrapper extends Comic {
 		return null;
 	}
 
-	public void getActDataList(Consumer<String[]> consumer) {
+	public void getEpisodesName(Consumer<String[]> consumer) {
 		mComic.getEpisodes().forEach(episode -> {
 			if (consumer != null) {
-				consumer.accept(new String[] { episode.getName(),
-						isDownloadEpisode(episode) ? RComic.get().getConfig().mDownloaded
-								: RComic.get().getConfig().mNotDownloaded });
+				consumer.accept(new String[] { episode.getName() });
 			}
 		});
 	}

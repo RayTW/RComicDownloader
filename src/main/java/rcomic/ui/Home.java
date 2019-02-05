@@ -40,11 +40,13 @@ public class Home extends JFrame {
 	/** 搜尋輸入框 */
 	private JTextField mSearchComic;
 	/** 放分頁 */
-	public JTabbedPane mTabbedPand;
+	private JTabbedPane mTabbedPand;
+	/** 漫畫集數列表 */
+	private ComicAct mComicAct;
 	/** 秀首頁所有漫畫列表 */
-	protected JDataTable mAllComic;
+	private JDataTable mAllComic;
 	/** 最新漫畫 */
-	protected JDataTable mNewComic;
+	private JDataTable mNewComic;
 	/** 下載中漫畫佇列 */
 	private TableList mDownloadingComic;
 
@@ -87,18 +89,16 @@ public class Home extends JFrame {
 		mAllComic.setRowHeight(40);
 		mAllComic.getColumn(0).setMaxWidth(60);
 		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
-		mAllComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
 
 		// 在table上增加雙擊開啟動畫集數列表功能
 		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始讀取漫畫集數列表
-					int row = mAllComic.getJTable().rowAtPoint(e.getPoint());
-					String comicId = mAllComic.getJTable().getValueAt(row, 0).toString();
+				int row = mAllComic.getJTable().rowAtPoint(e.getPoint());
+				String comicId = mAllComic.getJTable().getValueAt(row, 0).toString();
+				ComicWrapper comic = RComic.get().searchAllById(comicId);
 
-					showActDialog(comicId);
-				}
+				showComicActList(comic);
 			}
 		});
 	}
@@ -119,13 +119,23 @@ public class Home extends JFrame {
 		mNewComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始讀取漫畫集數列表
-					int row = mNewComic.getJTable().rowAtPoint(e.getPoint());
-					String comicId = mNewComic.getJTable().getValueAt(row, 0).toString();
+				int row = mNewComic.getJTable().rowAtPoint(e.getPoint());
+				String comicId = mNewComic.getJTable().getValueAt(row, 0).toString();
+				ComicWrapper comic = RComic.get().searchNewById(comicId);
 
-					showActDialog(comicId);
-				}
+				showComicActList(comic);
 			}
+		});
+	}
+
+	/**
+	 * 漫畫集數列表
+	 * 
+	 * @param comic
+	 */
+	private void showComicActList(ComicWrapper comic) {
+		RComic.get().getR8Comic().loadComicDetail(comic.get(), newComic -> {
+			SwingUtilities.invokeLater(() -> mComicAct.setComic(comic));
 		});
 	}
 
@@ -149,6 +159,8 @@ public class Home extends JFrame {
 		mTabbedPand = new JTabbedPane();
 		mTabbedPand.add(RComic.get().getLang("ComicList"), mAllComic.toJScrollPane());
 		mTabbedPand.add(RComic.get().getLang("NewestComic"), mNewComic.toJScrollPane());
+
+		mComicAct = new ComicAct();
 
 		// 切換到我的最愛時不能使用更新與加到我的最愛功能
 		mTabbedPand.addChangeListener(new ChangeListener() {
@@ -181,6 +193,7 @@ public class Home extends JFrame {
 		});
 
 		centerPanel.add(mTabbedPand);
+		centerPanel.add(mComicAct);
 
 		container.add(centerPanel, BorderLayout.CENTER);
 
@@ -210,23 +223,6 @@ public class Home extends JFrame {
 					});
 				});
 			}
-		});
-	}
-
-	/**
-	 * 建立 漫畫集數列表
-	 * 
-	 * @param comicId
-	 */
-	public synchronized void showActDialog(String comicId) {
-		ComicList comicData = mComicList.get(0);
-		ComicWrapper comic = comicData.getComicById(comicId);
-		ComicAct act = new ComicAct();
-
-		RComic.get().getR8Comic().loadComicDetail(comic, newComic -> {
-			act.setGlassPane(this);
-			act.setComic(comic);
-			act.setVisible(true);
 		});
 	}
 

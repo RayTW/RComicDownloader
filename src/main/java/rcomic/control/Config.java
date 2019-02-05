@@ -40,11 +40,6 @@ public class Config {
 	/** 漫畫最新版本公告的格式 */
 	public String mNewsCharset = "utf-8";
 
-	/** 目前單集漫畫是否已下載過訊息(已存在) */
-	public String mDownloaded = "YES";
-	/** 目前單集漫畫是否已下載過訊息(已存在) */
-	public String mNotDownloaded = "NO";
-
 	/** 漫畫閱讀器html */
 	private String mReaderHtml;
 	private Font mComicListFont = new Font("Serif", Font.BOLD, 20);
