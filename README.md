@@ -1,4 +1,4 @@
-RComicDownloader
+RComic
 ================
 
 comic downloader.
