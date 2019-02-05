@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Consumer;
 
 import javax.swing.JOptionPane;
 
@@ -49,7 +50,7 @@ public class RComic {
 		mComics = new CopyOnWriteArrayList<>();
 		mNewComics = new CopyOnWriteArrayList<>();
 		mPDFThreadPool = new ThreadPool(5);
-		mTaskPool = new ThreadPool(3);
+		mTaskPool = new ThreadPool(10);
 	}
 
 	public static RComic get() {
@@ -253,6 +254,34 @@ public class RComic {
 						new File(mConfig.mLogPath, "debug.log").getPath());
 			}
 
+		});
+	}
+
+	/**
+	 * 取得語系key對應的字串
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public String getLang(String key) {
+		return mConfig.getLangValue(key);
+	}
+
+	/**
+	 * 搜尋漫畫名稱是否有符合關鍵字
+	 * 
+	 * @param keyword
+	 * @param consumer
+	 */
+	public void search(String keyword, Consumer<List<ComicWrapper>> consumer) {
+		mTaskPool.execute(() -> {
+			ArrayList<ComicWrapper> list = new ArrayList<>();
+
+			mComics.stream().filter(o -> o.getName().contains(keyword)).forEach(list::add);
+
+			if (consumer != null) {
+				consumer.accept(list);
+			}
 		});
 	}
 }

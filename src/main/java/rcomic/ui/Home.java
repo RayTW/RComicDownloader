@@ -8,12 +8,9 @@ import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -26,6 +23,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import rcomic.control.ComicList;
 import rcomic.control.ComicWrapper;
@@ -39,7 +38,7 @@ import rcomic.utils.ui.JDataTable;
  */
 public class Home extends JFrame {
 	/** 搜尋輸入框 */
-	private JTextField mFindField;
+	private JTextField mSearchComic;
 	/** 放分頁 */
 	public JTabbedPane mTabbedPand;
 	/** 秀首頁所有漫畫列表 */
@@ -79,7 +78,8 @@ public class Home extends JFrame {
 	private void setupAllComic() {
 		ComicList comicList = RComic.get().getAllComics();
 		mAllComic = new JDataTable<String>(false);
-		mAllComic.addMultiColumnName(new String[] { "編號", "漫畫名稱" });
+		mAllComic
+				.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName") });
 		mAllComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		comicList.getComics().forEach(comic -> {
 			mAllComic.addRowData(new String[] { comic.getId(), comic.getName() });
@@ -87,7 +87,7 @@ public class Home extends JFrame {
 		mAllComic.setRowHeight(40);
 		mAllComic.getColumn(0).setMaxWidth(60);
 		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
-		mAllComic.getJTable().setToolTipText(RComic.get().getConfig().getLangValue("PleaseDoubleClick"));
+		mAllComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
 
 		// 在table上增加雙擊開啟動畫集數列表功能
 		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
@@ -106,14 +106,15 @@ public class Home extends JFrame {
 	private void setupNewComic() {
 		ComicList newComics = RComic.get().getNewComics();
 		mNewComic = new JDataTable<String>(false);
-		mNewComic.addMultiColumnName(new String[] { "編號", "漫畫名稱[集數]" });
+		mNewComic.addMultiColumnName(
+				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode") });
 		newComics.getComics().forEach(comic -> {
 			mNewComic.addRowData(new String[] { comic.getId(), comic.getNameWithNewestEpisode() });
 		});
 		mNewComic.setRowHeight(40);
 		mNewComic.getColumn(0).setMaxWidth(60);
 		mNewComic.setFont(RComic.get().getConfig().getComicListFont());
-		mNewComic.getJTable().setToolTipText(RComic.get().getConfig().getLangValue("PleaseDoubleClick"));
+		mNewComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
 		// 在table上增加雙擊開啟動畫集數列表功能
 		mNewComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
@@ -135,20 +136,19 @@ public class Home extends JFrame {
 		getContentPane().add(northPanel, BorderLayout.NORTH);
 
 		JPanel findPanel = new JPanel(new BorderLayout());
-		mFindField = new JTextField();
-		mFindField.setToolTipText("請輸入漫畫名稱後按enter");
-		findPanel.add(new JLabel("搜尋"), BorderLayout.WEST);
-		findPanel.add(mFindField, BorderLayout.CENTER);
+		mSearchComic = new JTextField();
+		findPanel.add(new JLabel(RComic.get().getLang("Search")), BorderLayout.WEST);
+		findPanel.add(mSearchComic, BorderLayout.CENTER);
 		northPanel.add(findPanel);
 
-		JButton exportPDFBtn = new JButton("匯出PDF");
+		JButton exportPDFBtn = new JButton(RComic.get().getLang("ExportPDF"));
 		exportPDFBtn.setName("exportPDF");
 		exportPDFBtn.addActionListener(mActionListener);
 		northPanel.add(exportPDFBtn);
 
 		mTabbedPand = new JTabbedPane();
-		mTabbedPand.add("漫畫列表", mAllComic.toJScrollPane());
-		mTabbedPand.add("最新漫畫", mNewComic.toJScrollPane());
+		mTabbedPand.add(RComic.get().getLang("ComicList"), mAllComic.toJScrollPane());
+		mTabbedPand.add(RComic.get().getLang("NewestComic"), mNewComic.toJScrollPane());
 
 		// 切換到我的最愛時不能使用更新與加到我的最愛功能
 		mTabbedPand.addChangeListener(new ChangeListener() {
@@ -184,15 +184,31 @@ public class Home extends JFrame {
 
 		container.add(centerPanel, BorderLayout.CENTER);
 
-		mFindField.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-					String findText = mFindField.getText();
-					// eventHandleIndex.findComic(findText);
+		mSearchComic.getDocument().addDocumentListener(new DocumentListener() {
 
-					// TODO 取出欲搜尋的關鍵字進行搜尋漫畫
-				}
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				update();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				update();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+			}
+
+			private void update() {
+				RComic.get().search(mSearchComic.getText(), result -> {
+					SwingUtilities.invokeLater(() -> {
+						mAllComic.removeAll();
+						result.forEach(comic -> {
+							mAllComic.addRowData(new String[] { comic.getId(), comic.getName() });
+						});
+					});
+				});
 			}
 		});
 	}
@@ -218,7 +234,7 @@ public class Home extends JFrame {
 	 * 取得搜尋漫畫輸入框 要搜尋的漫畫名稱
 	 */
 	public String getFindFieldText() {
-		return mFindField.getText();
+		return mSearchComic.getText();
 	}
 
 	/**
