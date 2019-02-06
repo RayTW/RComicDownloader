@@ -6,9 +6,9 @@ package rcomic.utils;
  * @author ray
  * 
  */
-public class ChineseWord {
+public class UnicodeUtility {
 
-	public ChineseWord() {
+	public UnicodeUtility() {
 
 	}
 

@@ -1,14 +1,11 @@
 package rcomic.control;
 
-import java.io.File;
 import java.util.List;
 import java.util.function.Consumer;
 
-import javax.swing.Icon;
-
 import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.Episode;
-import rcomic.utils.ChineseWord;
+import rcomic.utils.UnicodeUtility;
 
 /**
  * 擴充Comic類別的功能
@@ -25,12 +22,12 @@ public class ComicWrapper extends Comic {
 
 	@Override
 	public String getAuthor() {
-		return ChineseWord.unicodeToChineseAll(mComic.getAuthor());
+		return UnicodeUtility.unicodeToChineseAll(mComic.getAuthor());
 	}
 
 	@Override
 	public String getDescription() {
-		return ChineseWord.unicodeToChineseAll(mComic.getDescription());
+		return UnicodeUtility.unicodeToChineseAll(mComic.getDescription());
 	}
 
 	@Override
@@ -59,7 +56,7 @@ public class ComicWrapper extends Comic {
 
 	@Override
 	public String getName() {
-		return ChineseWord.unicodeToChineseAll(mComic.getName());
+		return UnicodeUtility.unicodeToChineseAll(mComic.getName());
 	}
 
 	@Override
@@ -89,7 +86,6 @@ public class ComicWrapper extends Comic {
 
 	@Override
 	public void setIconUrl(String iconUrl) {
-		// TODO Auto-generated method stub
 		mComic.setIconUrl(iconUrl);
 	}
 
@@ -122,16 +118,6 @@ public class ComicWrapper extends Comic {
 		return mComic;
 	}
 
-	public boolean isDownloadedIcon() {
-		// TODO
-		return false;
-	}
-
-	public Icon getIcon() {
-		// TODO
-		return null;
-	}
-
 	public void getEpisodesName(Consumer<String[]> consumer) {
 		mComic.getEpisodes().forEach(episode -> {
 			if (consumer != null) {
@@ -139,18 +125,4 @@ public class ComicWrapper extends Comic {
 			}
 		});
 	}
-
-	/** 標記目前這集漫畫是否下載過 true : 已下載, false:未下載 */
-	private boolean isDownloadEpisode(Episode episode) {
-		String comicName = getName().replaceAll(" ", "");
-		String comicActPath = "./" + RComic.get().getConfig().mDefaultSavePath + "/" + comicName + "/"
-				+ episode.getName();
-		File file = new File(comicActPath);
-
-		if (file.exists()) {// 判斷是否有抓過這集漫畫
-			return file.length() > 0;
-		}
-		return false;
-	}
-
 }

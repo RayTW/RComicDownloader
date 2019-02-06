@@ -6,27 +6,20 @@ import java.awt.Dimension;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.List;
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
-import rcomic.control.ComicList;
+import rcomic.control.Comics;
 import rcomic.control.ComicWrapper;
 import rcomic.control.RComic;
 import rcomic.utils.ui.JDataTable;
@@ -37,6 +30,7 @@ import rcomic.utils.ui.JDataTable;
  *
  */
 public class Home extends JFrame {
+	private static final long serialVersionUID = 4239430715284526041L;
 	/** 搜尋輸入框 */
 	private JTextField mSearchComic;
 	/** 放分頁 */
@@ -44,16 +38,9 @@ public class Home extends JFrame {
 	/** 漫畫集數列表 */
 	private EpisodesList mComicAct;
 	/** 秀首頁所有漫畫列表 */
-	private JDataTable mAllComic;
+	private JDataTable<String> mAllComic;
 	/** 最新漫畫 */
-	private JDataTable mNewComic;
-	/** 下載中漫畫佇列 */
-	private TableList mDownloadingComic;
-
-	private JScrollPane mDownloadingComicScroll;
-
-	/** 從文字檔讀取的漫畫列表、我的最愛列表資料 */
-	private List<ComicList> mComicList; // 用來每讀取網頁資料
+	private JDataTable<String> mNewComic;
 
 	public Home() {
 	}
@@ -78,7 +65,7 @@ public class Home extends JFrame {
 	}
 
 	private void setupAllComic() {
-		ComicList comicList = RComic.get().getAllComics();
+		Comics comicList = RComic.get().getAllComics();
 		mAllComic = new JDataTable<String>(false);
 		mAllComic
 				.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName") });
@@ -104,7 +91,7 @@ public class Home extends JFrame {
 	}
 
 	private void setupNewComic() {
-		ComicList newComics = RComic.get().getNewComics();
+		Comics newComics = RComic.get().getNewComics();
 		mNewComic = new JDataTable<String>(false);
 		mNewComic.addMultiColumnName(
 				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode") });
@@ -135,11 +122,12 @@ public class Home extends JFrame {
 	 */
 	private void showComicActList(ComicWrapper comic) {
 		RComic.get().getR8Comic().loadComicDetail(comic.get(), newComic -> {
-			SwingUtilities.invokeLater(() -> mComicAct.setComic(comic));
+			SwingUtilities.invokeLater(() -> mComicAct.setComic(new ComicWrapper(newComic)));
 		});
 	}
 
 	private void setupUI() {
+		setTitle(RComic.get().getConfig().mVersion);
 		Container container = getContentPane();
 		JPanel northPanel = new JPanel(new GridLayout(0, 5, 10, 0));
 		JPanel centerPanel = new JPanel(new GridLayout(0, 2));
@@ -151,46 +139,11 @@ public class Home extends JFrame {
 		findPanel.add(mSearchComic, BorderLayout.CENTER);
 		northPanel.add(findPanel);
 
-		JButton exportPDFBtn = new JButton(RComic.get().getLang("ExportPDF"));
-		exportPDFBtn.setName("exportPDF");
-		exportPDFBtn.addActionListener(mActionListener);
-		northPanel.add(exportPDFBtn);
-
 		mTabbedPand = new JTabbedPane();
 		mTabbedPand.add(RComic.get().getLang("ComicList"), mAllComic.toJScrollPane());
 		mTabbedPand.add(RComic.get().getLang("NewestComic"), mNewComic.toJScrollPane());
 
 		mComicAct = new EpisodesList();
-
-		// 切換到我的最愛時不能使用更新與加到我的最愛功能
-		mTabbedPand.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				// int index = jt.getSelectedIndex();
-				// // updateBtn.setEnabled(index == 0);
-				// loveBtn.setEnabled(index == 0);
-				// deleteBtn.setEnabled(index == 1);
-				// // dataActListBtn.setEnabled(index != 3 && index != 4);
-				// mFindField.setEnabled(index != 3 && index != 4);
-				//
-				// switch (index) {
-				// case 1:
-				// // 標示我的最愛有哪幾部漫畫有更新 與 更新的漫畫有哪幾步在我的最愛
-				// // 標示我的最愛裡的漫畫有更新,將更新的漫畫編號讀取出來檢查，有出現在我的最愛就修改table cell color
-				// markTableCell(tableNew, tableLove);
-				// break;
-				// case 2:
-				// // 在最新漫畫上標示在我的最愛裡的漫畫
-				// markTableCell(tableLove, tableNew);
-				// break;
-				// case 3:// 切回設定頁時，重新讀取設定值
-				// downloadsetting.reload();
-				// break;
-				// default:
-				// mFindField.requestFocus();
-				// }
-			}
-		});
 
 		centerPanel.add(mTabbedPand);
 		centerPanel.add(mComicAct);
@@ -234,33 +187,12 @@ public class Home extends JFrame {
 	}
 
 	/**
-	 * 新增更新的漫畫到畫面列表上
-	 * 
-	 * @param data
-	 */
-	public void addTable(String[][] data) {
-	}
-
-	/**
-	 * 取得目前畫面正在view的列表 0:所有漫畫列表, 1:我的最愛列表
+	 * 取得目前畫面正在view的列表 0:所有漫畫列表, 1:最新漫畫列表
 	 * 
 	 * @return
 	 */
 	public int getSelectList() {
 		return mTabbedPand.getSelectedIndex();
-	}
-
-	/**
-	 * 取得目前下載中的漫畫本數
-	 * 
-	 * @return
-	 */
-	public int getCurrentDownLoadSize() {
-		int cnt = 0;
-		if (mDownloadingComic != null) {
-			cnt = mDownloadingComic.getCurrentDownLoadSize();
-		}
-		return cnt;
 	}
 
 	private static JDialog showLoading() {
@@ -275,18 +207,9 @@ public class Home extends JFrame {
 		jDialog.setLocationRelativeTo(null);
 		jDialog.setVisible(true);
 		jDialog.pack();
+
 		return jDialog;
 	}
-
-	private ActionListener mActionListener = new ActionListener() {
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			// TODO Auto-generated method stub
-			System.out.println("e-->" + e.getActionCommand());
-		}
-
-	};
 
 	/**
 	 * 漫畫下載程式 啟動點,啟動時會連向遠端檢查是本地端是否有漫畫編號文字檔，若沒有會重load並存檔

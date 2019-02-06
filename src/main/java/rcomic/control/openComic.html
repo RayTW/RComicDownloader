@@ -1,0 +1,151 @@
+
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script>
+        var list = "%s";
+        var imgWH = "864x1200";
+        var changePageEnable = "Y";
+        
+        function onload(){
+            var obj = new Object();
+            obj.topLastBtn = document.getElementById("topLastBtn");
+            obj.topSelect = document.getElementById("topSelect");
+            obj.topNextBtn = document.getElementById("topNextBtn");
+            obj.img = document.getElementById("img");
+            obj.bottomLastBtn = document.getElementById("bottomLastBtn");
+            obj.bottomSelect = document.getElementById("bottomSelect");
+            obj.bottomNextBtn = document.getElementById("bottomNextBtn");
+            obj.jpgAry = list.split("|");
+            
+            var comicObj = new Comiclreader(obj);
+            comicObj.init();
+        }
+        
+        function Comiclreader(obj){
+            var self = this;
+            
+            self.flag = 0;
+            self.topLastBtn = obj.topLastBtn;
+            self.topSelect = obj.topSelect;
+            self.topNextBtn = obj.topNextBtn;
+            self.img = obj.img;
+            self.bottomLastBtn = obj.bottomLastBtn;
+            self.bottomSelect = obj.bottomSelect;
+            self.bottomNextBtn = obj.bottomNextBtn;
+            self.jpgAry = obj.jpgAry;
+            
+            self.init = function(){
+                self.topLastBtn.onclick = self.lastPage;
+                self.topNextBtn.onclick = self.nextPage;
+                self.bottomLastBtn.onclick = self.lastPage;
+                self.bottomNextBtn.onclick = self.nextPage;
+                self.topSelect.onchange = self.selectOnChange;
+                self.bottomSelect.onchange = self.selectOnChange;
+                
+                self.topSelect.options.length = 0;
+                self.bottomSelect.options.length = 0;
+                
+                if(imgWH != "0x0"){
+                    var wh = imgWH.split("x");
+                    self.img.width = parseInt(wh[0]);
+                    self.img.height = parseInt(wh[1]);
+                }
+                //點擊圖片換下一頁
+                if(changePageEnable == "Y"){
+                    self.img.onclick = self.nextPage;
+                }
+                
+                for(var i = 0; i < self.jpgAry.length; i++){
+                    self.topSelect.options.add(new Option (self.jpgAry[i], i));
+                    self.bottomSelect.options.add(new Option (self.jpgAry[i], i));
+                }
+                
+                self.setSelectIndex(self.flag);
+                self.setImgSrc(self.flag);
+            }
+            
+            //上一頁
+            self.lastPage = function(){
+                if(self.checkLast(self.flag)) return;
+                self.flag--;
+                self.setSelectIndex(self.flag);
+                self.setImgSrc(self.flag);
+            }
+            
+            self.selectOnChange = function(event){
+                var selectObj = event.currentTarget;
+                
+                self.flag = selectObj.selectedIndex;
+                self.setSelectIndex(self.flag);
+                self.setImgSrc(self.flag);
+                self.scrollToTop();
+            }
+            
+            //下一頁
+            self.nextPage = function(){
+                if(self.checkNext(self.flag)) return;
+                self.flag++;
+                self.setSelectIndex(self.flag);
+                self.setImgSrc(self.flag);
+                self.scrollToTop();
+            }
+            
+            self.setImgSrc = function(page){
+                self.img.src = obj.jpgAry[page];
+            }
+            
+            self.checkLast = function(page){
+                if((page - 1) < 0){
+                    alert("%s");
+                    return true;
+                }
+                return false;
+            }
+            
+            self.checkNext = function(page){
+                if((page + 1) >= obj.jpgAry.length){
+                    alert("%s");
+                    return true;
+                }
+                return false;
+            }
+
+            self.setSelectIndex = function(index){
+                self.topSelect.selectedIndex = index;
+                self.bottomSelect.selectedIndex = index;
+            }
+
+            self.scrollToTop = function(){
+                document.body.scrollTop = document.documentElement.scrollTop = 0;
+            }
+        }
+        </script>
+</head>
+<body onload="onload();">
+    <p align = "center">
+        <input id = "topLastBtn" type="button" value="%s">
+        <select id = "topSelect">
+            <option>1</option>
+            <option>2</option>
+            <option selected="true">3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+        <input id = "topNextBtn" type="button" value="%s">
+    </p>
+    <p align = "center"><img id = "img"></p> 
+    <p align = "center">
+        <input id = "bottomLastBtn" type="button" value="%s">
+        <select id = "bottomSelect">
+            <option>1</option>
+            <option>2</option>
+            <option selected="true">3</option>
+            <option>4</option>
+            <option>5</option>
+        </select>
+        <input id = "bottomNextBtn" type="button" value="%s">
+    </p>
+
+</body>
+</html>

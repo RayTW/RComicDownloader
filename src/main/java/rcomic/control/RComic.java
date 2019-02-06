@@ -1,18 +1,16 @@
 package rcomic.control;
 
-import java.io.File;
+import java.awt.Desktop;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.Thread.UncaughtExceptionHandler;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
-
-import javax.swing.JOptionPane;
 
 import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.Episode;
@@ -21,8 +19,6 @@ import net.xuite.blog.ray00000test.library.comicsdk.R8Comic.OnLoadListener;
 import net.xuite.blog.ray00000test.library.net.EasyHttp;
 import net.xuite.blog.ray00000test.library.net.EasyHttp.Response;
 import rcomic.utils.ThreadPool;
-import rcomic.utils.Utility;
-import rcomic.utils.io.WriteFile;
 
 /**
  * 下載漫畫的核心
@@ -33,14 +29,11 @@ public class RComic {
 	private static RComic sInstance;
 
 	private Config mConfig = new Config();
-	private ThreadPool mPDFThreadPool;
 	private ThreadPool mTaskPool;
-	private ThreadPool mComidDownloadPool;
 	private R8Comic mR8Comic = R8Comic.get();
 	private List<ComicWrapper> mComics;
 	private List<ComicWrapper> mNewComics;
 	private Map<String, String> mHostList;
-	private WriteFile mDebugLog = new WriteFile();
 
 	private RComic() {
 		initialize();
@@ -49,7 +42,6 @@ public class RComic {
 	private void initialize() {
 		mComics = new CopyOnWriteArrayList<>();
 		mNewComics = new CopyOnWriteArrayList<>();
-		mPDFThreadPool = new ThreadPool(5);
 		mTaskPool = new ThreadPool(10);
 	}
 
@@ -81,14 +73,6 @@ public class RComic {
 	}
 
 	public void preprogress(Runnable completeListener) {
-		WriteFile.mkDir(mConfig.mDefaultSavePath + "/sys");
-
-		// 建立下載執行緒上限個數
-		mComidDownloadPool = new ThreadPool();
-
-		Utility.replaceAllSpaceCharComic("./" + mConfig.mDefaultSavePath);
-		Utility.replaceAllSpaceCharAct("./" + mConfig.mDefaultSavePath);
-
 		CountDownLatch countdonw = new CountDownLatch(3);
 
 		// 戴入全部漫畫
@@ -141,54 +125,24 @@ public class RComic {
 		}
 	}
 
-	public void addPDFTask(Runnable run) {
-		mPDFThreadPool.executeTask(run);
-	}
-
 	public void addTask(Runnable run) {
 		mTaskPool.executeTask(run);
 	}
 
-	public void addDownloadTask(DownloadComicTask.Listener callback, ComicWrapper comic, int index) {
-		Episode episode = comic.getEpisodes().get(index);
+	public void loadEpisodesImagesPagesUrl(Episode episode, Consumer<Episode> consumer) {
+		String downloadHost = mHostList.get(episode.getCatid());
 
-		// 重組單集漫畫的網址
-		if (episode.getUrl().indexOf("http") == -1) {
-			String host = getHostList().get(episode.getCatid());
-
-			episode.setUrl(host + episode.getUrl());
+		if (!episode.getUrl().startsWith("http")) {
+			episode.setUrl(downloadHost + episode.getUrl());
 		}
-		String savePath = "./" + mConfig.mDefaultSavePath + "/" + comic.getName() + "/"
-				+ comic.getEpisodes().get(index).getName();
-		DownloadComicTask task = new DownloadComicTask(comic, episode, index);
 
-		try {
-			task.setCallback(callback);
-			task.createThreadTask((thread) -> {
+		R8Comic.get().loadEpisodeDetail(episode, result -> {
+			result.setUpPages();
 
-				getR8Comic().loadEpisodeDetail(episode, new OnLoadListener<Episode>() {
-
-					@Override
-					public void onLoaded(Episode result) {
-
-						result.setUpPages();
-
-						thread.setEpisode(task, episode.getUrl(), episode);
-						WriteFile.mkDir(savePath);
-						thread.setSavePath(savePath);
-					}
-				});
-				// 將下載任務放到pool
-				return mComidDownloadPool.submit(thread);
-			});
-		} catch (Exception e) {
-			e.printStackTrace();
-			String msg = e.getMessage();
-			if (task != null) {
-				msg = task.getCheckName() + "下載失敗";
+			if (consumer != null) {
+				consumer.accept(result);
 			}
-			JOptionPane.showMessageDialog(null, msg, "錯誤訊息", JOptionPane.INFORMATION_MESSAGE);
-		}
+		});
 	}
 
 	/**
@@ -196,8 +150,8 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public ComicList getAllComics() {
-		return new ComicList(mComics);
+	public Comics getAllComics() {
+		return new Comics(mComics);
 	}
 
 	/**
@@ -205,8 +159,8 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public ComicList getNewComics() {
-		return new ComicList(mNewComics);
+	public Comics getNewComics() {
+		return new Comics(mNewComics);
 	}
 
 	/**
@@ -214,9 +168,9 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public ComicList getMyLoveComics() {
+	public Comics getMyLoveComics() {
 		// TODO 目前沒db，最愛是空的
-		return new ComicList(mComics, new ArrayList<String>());
+		return new Comics(mComics, new ArrayList<String>());
 	}
 
 	public String getComicDetailUrl(String comicId) {
@@ -238,23 +192,6 @@ public class RComic {
 		result = response.getBody();
 
 		return result;
-	}
-
-	public void enableLog() {
-		WriteFile.mkDir(mConfig.mLogPath);
-
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-			@Override
-			public void uncaughtException(Thread t, Throwable e) {
-				StringWriter sw = new StringWriter();
-				e.printStackTrace(new PrintWriter(sw));
-				String exceptionAsString = sw.toString();
-				mDebugLog.writeTextUTF8Apend("Thread[" + t + "] " + exceptionAsString,
-						new File(mConfig.mLogPath, "debug.log").getPath());
-			}
-
-		});
 	}
 
 	/**
@@ -291,5 +228,44 @@ public class RComic {
 
 	public ComicWrapper searchNewById(String id) {
 		return mNewComics.stream().filter(o -> o.getId().equals(id)).findFirst().get();
+	}
+
+	/**
+	 * 開啟指定漫畫集數
+	 * 
+	 * @param cFloder
+	 *            漫畫第一層資料夾(例如:海賊王)
+	 * @param comicActFloder
+	 *            漫畫第二層資料夾(例如:第1話)
+	 */
+	public void openComic(Episode episode) {
+		StringBuilder imageUrl = new StringBuilder();
+
+		episode.getImageUrlList().forEach(url -> {
+			if (imageUrl.length() > 0) {
+				imageUrl.append("|");
+			}
+			imageUrl.append(mConfig.mEpisodeImageUrlSchema + url);
+		});
+		String html = mConfig.getComicHtml(imageUrl.toString());
+		//TODO 建立暫存的資料夾有bug，會一直建新的
+		try {
+			Path temp = Files.createTempDirectory(RComic.get().getConfig().mHtmlFolder);
+			System.out.println("temp->" + temp);
+			Path file = Files.createTempFile(temp, "tempOpenComic", ".html");
+			System.out.println("file->" + file);
+			Path target = Files.write(file, html.getBytes(mConfig.mCharsetUtf8), StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING);
+
+			System.out.println("target->" + target);
+			try {
+				Desktop.getDesktop().open(target.toFile());
+			} catch (IOException e) {
+				// Config.showMsgBar("沒有安裝瀏覽器，無法觀看漫畫", "發生錯誤");
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
