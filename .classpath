@@ -5,7 +5,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
 	<classpathentry kind="con" path="org.eclipse.buildship.core.gradleclasspathcontainer"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/8ComicSDK-JAVA"/>
-	<classpathentry kind="lib" path="/Users/ray/Documents/workspace/RComic/lib/itext-pdfa-5.4.5.jar"/>
-	<classpathentry kind="lib" path="/Users/ray/Documents/workspace/RComic/lib/itextpdf-5.4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

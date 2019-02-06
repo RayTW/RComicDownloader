@@ -10,12 +10,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 
+import net.xuite.blog.ray00000test.library.comicsdk.Episode;
 import rcomic.control.ComicWrapper;
 import rcomic.control.RComic;
 import rcomic.utils.ui.JDataTable;
 
 /**
- * 單本漫畫所有集數列表的畫面
+ * 單本漫畫所有集數列表
  * 
  * @author Ray
  * 
@@ -82,7 +83,11 @@ public class EpisodesList extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始下戴漫畫
 					int row = mTable.getJTable().rowAtPoint(e.getPoint());
-					// listAllJPG(mComic, new int[] { row });
+					Episode episode = mComic.getEpisodes().get(row);
+
+					RComic.get().loadEpisodesImagesPagesUrl(episode, result -> {
+						RComic.get().openComic(result);
+					});
 				}
 			}
 		});

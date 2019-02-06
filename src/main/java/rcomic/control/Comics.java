@@ -8,19 +8,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * 
  * @author Ray Lee Created on 2017/08/16
  */
-public class ComicList {
+public class Comics {
 	private List<ComicWrapper> mComics;
 
-	private ComicList() {
+	private Comics() {
 		mComics = new CopyOnWriteArrayList<ComicWrapper>();
 	}
 
-	public ComicList(List<ComicWrapper> serverComicList) {
+	public Comics(List<ComicWrapper> serverComicList) {
 		this();
 		mComics = serverComicList;
 	}
 
-	public ComicList(List<ComicWrapper> serverComicList, List<String> comidIds) {
+	public Comics(List<ComicWrapper> serverComicList, List<String> comidIds) {
 		this();
 
 		comidIds.forEach(id -> serverComicList.forEach(comic -> {
