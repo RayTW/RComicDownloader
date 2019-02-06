@@ -42,7 +42,7 @@ public class Home extends JFrame {
 	/** 放分頁 */
 	private JTabbedPane mTabbedPand;
 	/** 漫畫集數列表 */
-	private ComicAct mComicAct;
+	private EpisodesList mComicAct;
 	/** 秀首頁所有漫畫列表 */
 	private JDataTable mAllComic;
 	/** 最新漫畫 */
@@ -160,7 +160,7 @@ public class Home extends JFrame {
 		mTabbedPand.add(RComic.get().getLang("ComicList"), mAllComic.toJScrollPane());
 		mTabbedPand.add(RComic.get().getLang("NewestComic"), mNewComic.toJScrollPane());
 
-		mComicAct = new ComicAct();
+		mComicAct = new EpisodesList();
 
 		// 切換到我的最愛時不能使用更新與加到我的最愛功能
 		mTabbedPand.addChangeListener(new ChangeListener() {

@@ -21,7 +21,7 @@ import rcomic.utils.ui.JDataTable;
  * 
  */
 
-public class ComicAct extends JPanel {
+public class EpisodesList extends JPanel {
 	private static final long serialVersionUID = 5167725310966938209L;
 
 	private JDataTable<String> mTable; // 秀首頁所有漫畫列表
@@ -32,7 +32,7 @@ public class ComicAct extends JPanel {
 	private JTextArea mComicIntroduction;
 	private ComicWrapper mComic;
 
-	public ComicAct() {
+	public EpisodesList() {
 		initialize();
 	}
 
