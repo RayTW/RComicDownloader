@@ -5,8 +5,6 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -16,11 +14,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
-import rcomic.control.Comics;
-import rcomic.control.ComicWrapper;
 import rcomic.control.RComic;
-import rcomic.utils.ui.JDataTable;
 
 /**
  * 
@@ -33,12 +27,10 @@ public class Home extends JFrame {
 	private JTextField mSearchComic;
 	/** 放分頁 */
 	private JTabbedPane mTabbedPand;
+	/** 漫畫列表 */
+	private ComicList mComicList;
 	/** 漫畫集數列表 */
-	private EpisodesList mComicAct;
-	/** 秀首頁所有漫畫列表 */
-	private JDataTable<String> mAllComic;
-	/** 最新漫畫 */
-	private JDataTable<String> mNewComic;
+	private EpisodesList mEpisodesList;
 
 	public Home() {
 	}
@@ -48,8 +40,8 @@ public class Home extends JFrame {
 	 * 
 	 */
 	public void initialize() {
-		setupAllComic();
-		setupNewComic();
+		mComicList = new ComicList();
+		mComicList.initialize();
 		setupUI();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -60,68 +52,6 @@ public class Home extends JFrame {
 
 		setLocationRelativeTo(null);
 		setVisible(true);
-	}
-
-	private void setupAllComic() {
-		Comics comicList = RComic.get().getAllComics();
-		mAllComic = new JDataTable<String>(false);
-		mAllComic
-				.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName") });
-		mAllComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
-		comicList.getComics().forEach(comic -> {
-			mAllComic.addRowData(new String[] { comic.getId(), comic.getName() });
-		});
-		mAllComic.setRowHeight(40);
-		mAllComic.getColumn(0).setMaxWidth(60);
-		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
-
-		// 在table上增加雙擊開啟動畫集數列表功能
-		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int row = mAllComic.getJTable().rowAtPoint(e.getPoint());
-				String comicId = mAllComic.getJTable().getValueAt(row, 0).toString();
-				ComicWrapper comic = RComic.get().searchAllById(comicId);
-
-				showComicActList(comic);
-			}
-		});
-	}
-
-	private void setupNewComic() {
-		Comics newComics = RComic.get().getNewComics();
-		mNewComic = new JDataTable<String>(false);
-		mNewComic.addMultiColumnName(
-				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode") });
-		newComics.getComics().forEach(comic -> {
-			mNewComic.addRowData(new String[] { comic.getId(), comic.getNameWithNewestEpisode() });
-		});
-		mNewComic.setRowHeight(40);
-		mNewComic.getColumn(0).setMaxWidth(60);
-		mNewComic.setFont(RComic.get().getConfig().getComicListFont());
-		mNewComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
-		// 在table上增加雙擊開啟動畫集數列表功能
-		mNewComic.getJTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int row = mNewComic.getJTable().rowAtPoint(e.getPoint());
-				String comicId = mNewComic.getJTable().getValueAt(row, 0).toString();
-				ComicWrapper comic = RComic.get().searchNewById(comicId);
-
-				showComicActList(comic);
-			}
-		});
-	}
-
-	/**
-	 * 漫畫集數列表
-	 * 
-	 * @param comic
-	 */
-	private void showComicActList(ComicWrapper comic) {
-		RComic.get().getR8Comic().loadComicDetail(comic.get(), newComic -> {
-			SwingUtilities.invokeLater(() -> mComicAct.setComic(new ComicWrapper(newComic)));
-		});
 	}
 
 	private void setupUI() {
@@ -138,40 +68,35 @@ public class Home extends JFrame {
 		northPanel.add(findPanel);
 
 		mTabbedPand = new JTabbedPane();
-		mTabbedPand.add(RComic.get().getLang("ComicList"), mAllComic.toJScrollPane());
-		mTabbedPand.add(RComic.get().getLang("NewestComic"), mNewComic.toJScrollPane());
+		mTabbedPand.add(RComic.get().getLang("ComicList"), mComicList.getAll().toJScrollPane());
+		mTabbedPand.add(RComic.get().getLang("NewestComic"), mComicList.getNew().toJScrollPane());
 		centerPanel.add(mTabbedPand);
 
-		mComicAct = new EpisodesList();
-		centerPanel.add(mComicAct);
+		mEpisodesList = new EpisodesList();
 
+		mComicList.setOpenClmicListener(comic -> {
+			SwingUtilities.invokeLater(() -> {
+				mEpisodesList.setComic(comic);
+			});
+		});
+
+		centerPanel.add(mEpisodesList);
 		container.add(centerPanel, BorderLayout.CENTER);
 
 		mSearchComic.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
 			public void insertUpdate(DocumentEvent e) {
-				update();
+				mComicList.refreshSearchResult(mSearchComic.getText());
 			}
 
 			@Override
 			public void removeUpdate(DocumentEvent e) {
-				update();
+				mComicList.refreshSearchResult(mSearchComic.getText());
 			}
 
 			@Override
 			public void changedUpdate(DocumentEvent e) {
-			}
-
-			private void update() {
-				RComic.get().search(mSearchComic.getText(), result -> {
-					SwingUtilities.invokeLater(() -> {
-						mAllComic.removeAll();
-						result.forEach(comic -> {
-							mAllComic.addRowData(new String[] { comic.getId(), comic.getName() });
-						});
-					});
-				});
 			}
 		});
 	}
@@ -181,15 +106,6 @@ public class Home extends JFrame {
 	 */
 	public String getFindFieldText() {
 		return mSearchComic.getText();
-	}
-
-	/**
-	 * 取得目前畫面正在view的列表 0:所有漫畫列表, 1:最新漫畫列表
-	 * 
-	 * @return
-	 */
-	public int getSelectList() {
-		return mTabbedPand.getSelectedIndex();
 	}
 
 	/**

@@ -39,4 +39,14 @@ public class RTableModel<T extends List<?>> extends DefaultTableModel {
 
 		super.addRow(d);
 	}
+
+	@Override
+	public Class<?> getColumnClass(int columnIndex) {
+		Object obj = getValueAt(0, columnIndex);
+
+		if (obj != null) {
+			return obj.getClass();
+		}
+		return super.getColumnClass(columnIndex);
+	}
 }
