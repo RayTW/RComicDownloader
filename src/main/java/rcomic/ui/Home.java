@@ -3,7 +3,6 @@ package rcomic.ui;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
@@ -15,7 +14,6 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -142,10 +140,9 @@ public class Home extends JFrame {
 		mTabbedPand = new JTabbedPane();
 		mTabbedPand.add(RComic.get().getLang("ComicList"), mAllComic.toJScrollPane());
 		mTabbedPand.add(RComic.get().getLang("NewestComic"), mNewComic.toJScrollPane());
+		centerPanel.add(mTabbedPand);
 
 		mComicAct = new EpisodesList();
-
-		centerPanel.add(mTabbedPand);
 		centerPanel.add(mComicAct);
 
 		container.add(centerPanel, BorderLayout.CENTER);
@@ -195,29 +192,13 @@ public class Home extends JFrame {
 		return mTabbedPand.getSelectedIndex();
 	}
 
-	private static JDialog showLoading() {
-		JDialog jDialog = new JDialog();
-		jDialog.setLayout(new GridBagLayout());
-		jDialog.add(new JLabel(RComic.get().getConfig().getLangValue("Loading")));
-		jDialog.setMaximumSize(new Dimension(150, 50));
-		jDialog.setResizable(false);
-		jDialog.setModal(false);
-		jDialog.setUndecorated(true);
-		jDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		jDialog.setLocationRelativeTo(null);
-		jDialog.setVisible(true);
-		jDialog.pack();
-
-		return jDialog;
-	}
-
 	/**
 	 * 漫畫下載程式 啟動點,啟動時會連向遠端檢查是本地端是否有漫畫編號文字檔，若沒有會重load並存檔
 	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		JDialog loading = showLoading();
+		JDialog loading = RComic.get().newLoadingDialog();
 
 		RComic.get().preprogress(() -> {
 			SwingUtilities.invokeLater(() -> {

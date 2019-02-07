@@ -1,9 +1,12 @@
 package rcomic.control;
 
 import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +14,11 @@ import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.WindowConstants;
 
 import net.xuite.blog.ray00000test.library.comicsdk.Comic;
 import net.xuite.blog.ray00000test.library.comicsdk.Episode;
@@ -248,24 +256,47 @@ public class RComic {
 			imageUrl.append(mConfig.mEpisodeImageUrlSchema + url);
 		});
 		String html = mConfig.getComicHtml(imageUrl.toString());
-		//TODO 建立暫存的資料夾有bug，會一直建新的
 		try {
-			Path temp = Files.createTempDirectory(RComic.get().getConfig().mHtmlFolder);
-			System.out.println("temp->" + temp);
-			Path file = Files.createTempFile(temp, "tempOpenComic", ".html");
-			System.out.println("file->" + file);
-			Path target = Files.write(file, html.getBytes(mConfig.mCharsetUtf8), StandardOpenOption.CREATE,
+			Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir") + RComic.get().getConfig().mHtmlFolder);
+
+			if (!Files.exists(tmpdir)) {
+				Files.createDirectory(tmpdir);
+			}
+
+			Path tempComicPath = Paths.get(tmpdir.toString(), "tempOpenComic.html");
+
+			if (Files.notExists(tempComicPath)) {
+				Files.createFile(tempComicPath);
+			}
+
+			Path target = Files.write(tempComicPath, html.getBytes(mConfig.mCharsetUtf8), StandardOpenOption.CREATE,
 					StandardOpenOption.TRUNCATE_EXISTING);
 
-			System.out.println("target->" + target);
 			try {
 				Desktop.getDesktop().open(target.toFile());
 			} catch (IOException e) {
-				// Config.showMsgBar("沒有安裝瀏覽器，無法觀看漫畫", "發生錯誤");
+				JOptionPane.showMessageDialog(null, getLang("NoBrowser"), getLang("Error"),
+						JOptionPane.WARNING_MESSAGE);
 				e.printStackTrace();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public JDialog newLoadingDialog() {
+		JDialog jDialog = new JDialog();
+		jDialog.setLayout(new GridBagLayout());
+		jDialog.add(new JLabel(RComic.get().getConfig().getLangValue("Loading")));
+		jDialog.setMaximumSize(new Dimension(150, 50));
+		jDialog.setResizable(false);
+		jDialog.setModal(false);
+		jDialog.setUndecorated(true);
+		jDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		jDialog.setLocationRelativeTo(null);
+		jDialog.setVisible(true);
+		jDialog.pack();
+
+		return jDialog;
 	}
 }

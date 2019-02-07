@@ -1,8 +1,14 @@
 package rcomic.control;
 
+import java.awt.Dimension;
+import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.WindowConstants;
 
 /**
  * 
@@ -77,5 +83,21 @@ public class Comics {
 			}
 		}
 		return catList;
+	}
+
+	private static JDialog showLoading() {
+		JDialog jDialog = new JDialog();
+		jDialog.setLayout(new GridBagLayout());
+		jDialog.add(new JLabel(RComic.get().getConfig().getLangValue("Loading")));
+		jDialog.setMaximumSize(new Dimension(150, 50));
+		jDialog.setResizable(false);
+		jDialog.setModal(false);
+		jDialog.setUndecorated(true);
+		jDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		jDialog.setLocationRelativeTo(null);
+		jDialog.setVisible(true);
+		jDialog.pack();
+
+		return jDialog;
 	}
 }

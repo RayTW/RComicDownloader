@@ -4,11 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 
 import net.xuite.blog.ray00000test.library.comicsdk.Episode;
 import rcomic.control.ComicWrapper;
@@ -25,7 +28,7 @@ import rcomic.utils.ui.JDataTable;
 public class EpisodesList extends JPanel {
 	private static final long serialVersionUID = 5167725310966938209L;
 
-	private JDataTable<String> mTable; // 秀首頁所有漫畫列表
+	private JDataTable<String> mTable; // 秀首頁漫畫集數列表
 	/** 上面工具列 */
 	private JLabel mName;
 	private JLabel mAuthor;
@@ -50,6 +53,7 @@ public class EpisodesList extends JPanel {
 		mTable.setFont(RComic.get().getConfig().getComicListFont());
 		mTable.addMultiColumnName(new String[] { RComic.get().getLang("Episode") });
 		mTable.setColumnWidth(0, 100);
+		mTable.getJTable().setToolTipText(RComic.get().getLang("DoubleClick"));
 
 		add(northPanel, BorderLayout.NORTH);
 
@@ -86,7 +90,16 @@ public class EpisodesList extends JPanel {
 					Episode episode = mComic.getEpisodes().get(row);
 
 					RComic.get().loadEpisodesImagesPagesUrl(episode, result -> {
-						RComic.get().openComic(result);
+						SwingUtilities.invokeLater(() -> {
+							JDialog loading = RComic.get().newLoadingDialog();
+							loading.toFront();
+
+							RComic.get().addTask(() -> {
+								// 用瀏覽器開啟漫畫
+								RComic.get().openComic(result);
+								SwingUtilities.invokeLater(() -> loading.dispose());
+							});
+						});
 					});
 				}
 			}
