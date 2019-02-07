@@ -40,8 +40,6 @@ public class Home extends JFrame {
 	 * 
 	 */
 	public void initialize() {
-		mComicList = new ComicList();
-		mComicList.initialize();
 		setupUI();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -66,6 +64,9 @@ public class Home extends JFrame {
 		findPanel.add(new JLabel(RComic.get().getLang("Search")), BorderLayout.WEST);
 		findPanel.add(mSearchComic, BorderLayout.CENTER);
 		northPanel.add(findPanel);
+		
+		mComicList = new ComicList();
+		mComicList.initialize();
 
 		mTabbedPand = new JTabbedPane();
 		mTabbedPand.add(RComic.get().getLang("ComicList"), mComicList.getAll().toJScrollPane());
