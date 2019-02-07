@@ -34,7 +34,7 @@ public class Config {
 	public Config() {
 		mLang = new Properties();
 		try {
-			try (Reader reader = new InputStreamReader(this.getClass().getResourceAsStream("msg_tw.properties"),
+			try (Reader reader = new InputStreamReader(this.getClass().getResourceAsStream("langTw.properties"),
 					mCharsetUtf8)) {
 				mLang.load(reader);
 			}
