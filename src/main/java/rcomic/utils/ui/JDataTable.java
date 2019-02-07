@@ -50,16 +50,6 @@ public class JDataTable<E> {
 			}
 		};
 		mTable = new JTable(mModel); // 建立JTable
-		// table.setAutoResizeMode(JTable.AUTO_RESIZE_NEXT_COLUMN );
-
-		// jtable某筆資料被選取時事件
-		/*
-		 * table.getSelectionModel().addListSelectionListener(new
-		 * ListSelectionListener(){
-		 * 
-		 * public void valueChanged(ListSelectionEvent e) { if
-		 * (table.getSelectedRow()>=0) { } System.out.println("選擇了jtable"); } });
-		 */
 	}
 
 	/**

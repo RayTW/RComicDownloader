@@ -9,8 +9,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.Consumer;
@@ -42,6 +44,7 @@ public class RComic {
 	private List<ComicWrapper> mComics;
 	private List<ComicWrapper> mNewComics;
 	private Map<String, String> mHostList;
+	private Set<String> mFavorites;
 
 	private RComic() {
 		initialize();
@@ -51,6 +54,7 @@ public class RComic {
 		mComics = new CopyOnWriteArrayList<>();
 		mNewComics = new CopyOnWriteArrayList<>();
 		mTaskPool = new ThreadPool(10);
+		mFavorites = new HashSet<>();
 	}
 
 	public static RComic get() {
@@ -298,5 +302,17 @@ public class RComic {
 		jDialog.pack();
 
 		return jDialog;
+	}
+
+	public void addToFavorites(String comicId) {
+		mFavorites.add(comicId);
+	}
+
+	public void removeFromFavorites(String comicId) {
+		mFavorites.remove(comicId);
+	}
+
+	public boolean existedFavorites(String comidId) {
+		return mFavorites.contains(comidId);
 	}
 }
