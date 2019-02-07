@@ -27,7 +27,12 @@ public class ComicWrapper extends Comic {
 
 	@Override
 	public String getDescription() {
-		return UnicodeUtility.unicodeToChineseAll(mComic.getDescription());
+		String description = mComic.getDescription();
+
+		if (description != null) {
+			return UnicodeUtility.unicodeToChineseAll(description);
+		}
+		return null;
 	}
 
 	@Override
