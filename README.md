@@ -3,4 +3,4 @@ RComic
 
 comic downloader.
 
-![](https://db.tt/CbkYcYpG)
+![](https://github.com/RayTW/RComicDownloader/blob/master/rcomic.png?raw=true)
