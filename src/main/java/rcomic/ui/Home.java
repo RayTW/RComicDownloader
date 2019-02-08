@@ -64,7 +64,7 @@ public class Home extends JFrame {
 		findPanel.add(new JLabel(RComic.get().getLang("Search")), BorderLayout.WEST);
 		findPanel.add(mSearchComic, BorderLayout.CENTER);
 		northPanel.add(findPanel);
-		
+
 		mComicList = new ComicList();
 		mComicList.initialize();
 

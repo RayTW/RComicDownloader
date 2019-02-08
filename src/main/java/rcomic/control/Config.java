@@ -6,10 +6,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 import java.util.stream.Stream;
 
 import javax.swing.JOptionPane;
+
+import org.json.JSONObject;
 
 /**
  * 
@@ -22,12 +28,13 @@ public class Config {
 
 	public String mCharsetUtf8 = "UTF-8";
 
-	public String mHtmlFolder = "rcomic";
+	public String mHtmlFolder = "rcomic.8comic";
 
 	public String mEpisodeImageUrlSchema = "https:";
 
 	/** 漫畫閱讀器html檔名 */
 	private String mReaderHtml = "openComic.html";
+	private String mFavoritesJson = "favorites.json";
 	private Font mComicListFont = new Font("Serif", Font.BOLD, 20);
 	private Properties mLang;
 
@@ -83,5 +90,61 @@ public class Config {
 			e.printStackTrace();
 		}
 		return ret;
+	}
+
+	/**
+	 * 讀取已收藏漫畫
+	 * 
+	 * @return
+	 */
+	public JSONObject loadFavorites() {
+		try {
+			Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir") + mHtmlFolder);
+
+			if (!Files.exists(tmpdir)) {
+				Files.createDirectory(tmpdir);
+			}
+
+			Path tempPath = Paths.get(tmpdir.toString(), mFavoritesJson);
+
+			if (Files.notExists(tempPath)) {
+				Files.createFile(tempPath);
+			}
+
+			byte[] source = Files.readAllBytes(tempPath);
+
+			if (source.length > 0) {
+				return new JSONObject(new String(source, mCharsetUtf8));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return new JSONObject();
+	}
+
+	/**
+	 * 儲存已收藏漫畫
+	 * 
+	 * @param json
+	 */
+	public void storeFavorites(JSONObject json) {
+		try {
+			Path tmpdir = Paths.get(System.getProperty("java.io.tmpdir") + mHtmlFolder);
+
+			if (!Files.exists(tmpdir)) {
+				Files.createDirectory(tmpdir);
+			}
+
+			Path tempPath = Paths.get(tmpdir.toString(), mFavoritesJson);
+
+			if (Files.notExists(tempPath)) {
+				Files.createFile(tempPath);
+			}
+
+			Files.write(tempPath, json.toString().getBytes(mCharsetUtf8), StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
