@@ -165,8 +165,8 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public Comics getAllComics() {
-		return new Comics(mComics);
+	public List<ComicWrapper> getAllComics() {
+		return mComics;
 	}
 
 	/**
@@ -174,18 +174,8 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public Comics getNewComics() {
-		return new Comics(mNewComics);
-	}
-
-	/**
-	 * 取得目前我的最愛漫畫列表
-	 * 
-	 * @return
-	 */
-	public Comics getMyLoveComics() {
-		// TODO 目前沒db，最愛是空的
-		return new Comics(mComics, new ArrayList<String>());
+	public List<ComicWrapper> getNewComics() {
+		return mNewComics;
 	}
 
 	public String getComicDetailUrl(String comicId) {
@@ -323,5 +313,9 @@ public class RComic {
 
 	public boolean existedFavorites(String comidId) {
 		return mFavorites.has(comidId);
+	}
+
+	public JSONObject getFavorites() {
+		return mFavorites;
 	}
 }

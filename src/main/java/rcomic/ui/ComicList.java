@@ -7,15 +7,20 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import rcomic.control.ComicWrapper;
-import rcomic.control.Comics;
 import rcomic.control.RComic;
 import rcomic.utils.ui.JDataTable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -46,16 +51,21 @@ public class ComicList {
 	}
 
 	private void setupAllComic() {
-		Comics comicList = RComic.get().getAllComics();
+		List<ComicWrapper> comicList = RComic.get().getAllComics();
 		mAllComic = new JDataTable<String>(false);
-		mAllComic.addMultiColumnName(
-				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"), "" });
+		mAllComic.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"),
+				RComic.get().getLang("Favorites") });
 		mAllComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
-		comicList.getComics().forEach(this::refreshComicListCell);
+		comicList.forEach(this::refreshComicListCell);
 		mAllComic.setRowHeight(40);
 		mAllComic.getColumn(0).setMaxWidth(60);
-		mAllComic.getColumn(2).setMaxWidth(20);
+		mAllComic.getColumn(2).setMaxWidth(60);
 		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
+		mAllComic.getJTable().setAutoCreateRowSorter(true);
+
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(mAllComic.getJTable().getModel());
+		mAllComic.getJTable().setRowSorter(sorter);
+		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
 
 		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
@@ -109,14 +119,23 @@ public class ComicList {
 				showComicActList(comic);
 			}
 		});
+
+		int columnIndexToSort = 2;
+		sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
+		sorter.setSortKeys(sortKeys);
+
+		// 檢查若有收藏漫畫時，將已收藏的漫畫排到列表最上面
+		if (!RComic.get().getFavorites().isEmpty()) {
+			sorter.sort();
+		}
 	}
 
 	private void setupNewComic() {
-		Comics newComics = RComic.get().getNewComics();
+		List<ComicWrapper> newComics = RComic.get().getNewComics();
 		mNewComic = new JDataTable<String>(false);
 		mNewComic.addMultiColumnName(
 				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode") });
-		newComics.getComics().forEach(comic -> {
+		newComics.forEach(comic -> {
 			mNewComic.addRowData(new String[] { comic.getId(), comic.getNameWithNewestEpisode() });
 		});
 		mNewComic.setRowHeight(40);

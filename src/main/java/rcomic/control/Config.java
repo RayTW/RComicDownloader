@@ -24,7 +24,7 @@ import org.json.JSONObject;
  */
 public class Config {
 	/** 版本 */
-	public String mVersion = "v3.1.0";
+	public String mVersion = "v3.1.1";
 
 	public String mCharsetUtf8 = "UTF-8";
 
