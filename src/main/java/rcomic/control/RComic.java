@@ -314,4 +314,8 @@ public class RComic {
 	public boolean existedFavorites(String comidId) {
 		return mFavorites.has(comidId);
 	}
+
+	public JSONObject getFavorites() {
+		return mFavorites;
+	}
 }

@@ -7,14 +7,19 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 import rcomic.control.ComicWrapper;
 import rcomic.control.RComic;
 import rcomic.utils.ui.JDataTable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -57,6 +62,10 @@ public class ComicList {
 		mAllComic.getColumn(2).setMaxWidth(60);
 		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
 		mAllComic.getJTable().setAutoCreateRowSorter(true);
+
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(mAllComic.getJTable().getModel());
+		mAllComic.getJTable().setRowSorter(sorter);
+		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
 
 		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
@@ -110,6 +119,15 @@ public class ComicList {
 				showComicActList(comic);
 			}
 		});
+
+		int columnIndexToSort = 2;
+		sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
+		sorter.setSortKeys(sortKeys);
+
+		// 檢查若有收藏漫畫時，將已收藏的漫畫排到列表最上面
+		if (!RComic.get().getFavorites().isEmpty()) {
+			sorter.sort();
+		}
 	}
 
 	private void setupNewComic() {
