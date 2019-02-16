@@ -48,14 +48,15 @@ public class ComicList {
 	private void setupAllComic() {
 		Comics comicList = RComic.get().getAllComics();
 		mAllComic = new JDataTable<String>(false);
-		mAllComic.addMultiColumnName(
-				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"), "" });
+		mAllComic.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"),
+				RComic.get().getLang("Favorites") });
 		mAllComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		comicList.getComics().forEach(this::refreshComicListCell);
 		mAllComic.setRowHeight(40);
 		mAllComic.getColumn(0).setMaxWidth(60);
-		mAllComic.getColumn(2).setMaxWidth(20);
+		mAllComic.getColumn(2).setMaxWidth(60);
 		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
+		mAllComic.getJTable().setAutoCreateRowSorter(true);
 
 		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override

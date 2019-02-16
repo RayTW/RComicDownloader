@@ -178,16 +178,6 @@ public class RComic {
 		return new Comics(mNewComics);
 	}
 
-	/**
-	 * 取得目前我的最愛漫畫列表
-	 * 
-	 * @return
-	 */
-	public Comics getMyLoveComics() {
-		// TODO 目前沒db，最愛是空的
-		return new Comics(mComics, new ArrayList<String>());
-	}
-
 	public String getComicDetailUrl(String comicId) {
 		return mR8Comic.getConfig().getComicDetailUrl(comicId);
 	}
