@@ -165,8 +165,8 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public Comics getAllComics() {
-		return new Comics(mComics);
+	public List<ComicWrapper> getAllComics() {
+		return mComics;
 	}
 
 	/**
@@ -174,8 +174,8 @@ public class RComic {
 	 * 
 	 * @return
 	 */
-	public Comics getNewComics() {
-		return new Comics(mNewComics);
+	public List<ComicWrapper> getNewComics() {
+		return mNewComics;
 	}
 
 	public String getComicDetailUrl(String comicId) {
