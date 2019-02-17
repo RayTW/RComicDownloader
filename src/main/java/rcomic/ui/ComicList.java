@@ -108,7 +108,7 @@ public class ComicList {
 			}
 		});
 
-		// 在table上增加雙擊開啟動畫集數列表功能
+		// 在table上增加單擊開啟動畫集數列表功能
 		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -142,14 +142,13 @@ public class ComicList {
 		mNewComic.getColumn(0).setMaxWidth(60);
 		mNewComic.setFont(RComic.get().getConfig().getComicListFont());
 		mNewComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
-		// 在table上增加雙擊開啟動畫集數列表功能
+		// 在table上增加單擊開啟動畫集數列表功能
 		mNewComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int row = mNewComic.getJTable().rowAtPoint(e.getPoint());
 				String comicId = mNewComic.getJTable().getValueAt(row, 0).toString();
 				ComicWrapper comic = RComic.get().searchNewById(comicId);
-
 				showComicActList(comic);
 			}
 		});
