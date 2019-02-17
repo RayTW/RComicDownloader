@@ -85,7 +85,7 @@ public class EpisodesList extends JPanel {
 		mTable.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {// 雙擊漫畫後，開始下戴漫畫
+				if (e.getClickCount() == 2) {// 雙擊開啓漫畫
 					int row = mTable.getJTable().rowAtPoint(e.getPoint());
 					Episode episode = mComic.getEpisodes().get(row);
 
