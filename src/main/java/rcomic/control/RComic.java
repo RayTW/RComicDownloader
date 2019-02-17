@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import javax.swing.JDialog;
@@ -46,6 +47,8 @@ public class RComic {
 	private List<ComicWrapper> mNewComics;
 	private Map<String, String> mHostList;
 	private JSONObject mFavorites;
+	private Thread mSearchThread;
+	private SearchTask mSearchTask;
 
 	private RComic() {
 		initialize();
@@ -57,6 +60,8 @@ public class RComic {
 		mTaskPool = new ThreadPool(10);
 		mFIFOPool = new ThreadPool(1);
 		mFavorites = new JSONObject();
+		mSearchThread = new Thread(() -> startSearch());
+		mSearchThread.start();
 	}
 
 	public static RComic get() {
@@ -209,6 +214,32 @@ public class RComic {
 		return mConfig.getLangValue(key);
 	}
 
+	private void startSearch() {
+		while (true) {
+			try {
+				synchronized (mSearchThread) {
+					TimeUnit.MILLISECONDS.timedWait(mSearchThread, 500);
+				}
+				SearchTask task = mSearchTask;
+
+				if (task == null || task.isFinish()) {
+					continue;
+				}
+
+				for (;;) {
+					task = mSearchTask;
+
+					if (!task.isFinish()) {
+						task.execute();
+						break;
+					}
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	/**
 	 * 搜尋漫畫名稱是否有符合關鍵字
 	 * 
@@ -216,15 +247,19 @@ public class RComic {
 	 * @param consumer
 	 */
 	public void search(String keyword, Consumer<List<ComicWrapper>> consumer) {
-		mTaskPool.execute(() -> {
-			ArrayList<ComicWrapper> list = new ArrayList<>();
+		synchronized (mSearchThread) {
+			mSearchTask = new SearchTask(() -> {
+				ArrayList<ComicWrapper> list = new ArrayList<>();
 
-			mComics.stream().filter(o -> o.getName().contains(keyword)).forEach(list::add);
-
-			if (consumer != null) {
-				consumer.accept(list);
-			}
-		});
+				mComics.stream().filter(o -> o.getName().contains(keyword)).forEach(list::add);
+				if (consumer != null) {
+					consumer.accept(list);
+				}
+			});
+		}
+		synchronized (mSearchThread) {
+			mSearchThread.notifyAll();
+		}
 	}
 
 	public ComicWrapper searchAllById(String id) {
@@ -317,5 +352,29 @@ public class RComic {
 
 	public JSONObject getFavorites() {
 		return mFavorites;
+	}
+
+	// 執行使用關鍵字搜尋漫畫的任務
+	private class SearchTask {
+		private volatile boolean mIsFinish;
+		private Runnable mRunnable;
+
+		public SearchTask(Runnable task) {
+			mRunnable = task;
+		}
+
+		public void execute() {
+			try {
+				mRunnable.run();
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+				mIsFinish = true;
+			}
+		}
+
+		public boolean isFinish() {
+			return mIsFinish;
+		}
 	}
 }
