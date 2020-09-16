@@ -13,115 +13,121 @@ import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 
-import net.xuite.blog.ray00000test.library.comicsdk.Episode;
+import raytw.sdk.comic.comicsdk.Episode;
 import rcomic.control.ComicWrapper;
 import rcomic.control.RComic;
 import rcomic.utils.ui.JDataTable;
 
 /**
  * 單本漫畫所有集數列表
- * 
+ *
  * @author Ray
- * 
  */
-
 public class EpisodesList extends JPanel {
-	private static final long serialVersionUID = 5167725310966938209L;
+  private static final long serialVersionUID = 5167725310966938209L;
 
-	private JDataTable<String> mTable; // 秀首頁漫畫集數列表
-	/** 上面工具列 */
-	private JLabel mName;
-	private JLabel mAuthor;
-	private JLabel mModifyDate;
-	private JTextArea mComicIntroduction;
-	private ComicWrapper mComic;
+  private JDataTable<String> table; // 秀首頁漫畫集數列表
+  /** 上面工具列 */
+  private JLabel name;
 
-	public EpisodesList() {
-		initialize();
-	}
+  private JLabel author;
+  private JLabel modifyDate;
+  private JTextArea comicIntroduction;
+  private ComicWrapper comic;
 
-	/**
-	 * 初始化
-	 */
-	public void initialize() {
-		setLayout(new BorderLayout());
-		mTable = new JDataTable<String>(false);
-		JPanel northPanel = new JPanel();
-		JPanel cneterPanel = new JPanel(new GridLayout(2, 0));
+  public EpisodesList() {
+    initialize();
+  }
 
-		mTable.setRowHeight(40);
-		mTable.setFont(RComic.get().getConfig().getComicListFont());
-		mTable.addMultiColumnName(new String[] { RComic.get().getLang("Episode") });
-		mTable.setColumnWidth(0, 100);
-		mTable.getJTable().setToolTipText(RComic.get().getLang("DoubleClick"));
+  /** 初始化 */
+  public void initialize() {
+    setLayout(new BorderLayout());
+    table = new JDataTable<String>(false);
+    JPanel northPanel = new JPanel();
+    JPanel cneterPanel = new JPanel(new GridLayout(2, 0));
 
-		add(northPanel, BorderLayout.NORTH);
+    table.setRowHeight(40);
+    table.setFont(RComic.get().getConfig().getComicListFont());
+    table.addMultiColumnName(new String[] {RComic.get().getLang("Episode")});
+    table.setColumnWidth(0, 100);
+    table.getJTable().setToolTipText(RComic.get().getLang("DoubleClick"));
 
-		mComicIntroduction = new JTextArea();
-		mComicIntroduction.setWrapStyleWord(true);
-		mComicIntroduction.setLineWrap(true);
-		mComicIntroduction.setEditable(false);
+    add(northPanel, BorderLayout.NORTH);
 
-		JScrollPane scrollPane = new JScrollPane(mComicIntroduction);
-		scrollPane.setBounds(10, 60, 780, 500);
-		scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+    comicIntroduction = new JTextArea();
+    comicIntroduction.setWrapStyleWord(true);
+    comicIntroduction.setLineWrap(true);
+    comicIntroduction.setEditable(false);
 
-		cneterPanel.add(scrollPane);
-		cneterPanel.add(mTable.toJScrollPane());
+    JScrollPane scrollPane = new JScrollPane(comicIntroduction);
+    scrollPane.setBounds(10, 60, 780, 500);
+    scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-		add(cneterPanel, BorderLayout.CENTER);
+    cneterPanel.add(scrollPane);
+    cneterPanel.add(table.toJScrollPane());
 
-		JPanel bookDataPanel = new JPanel(new GridLayout(3, 1, 10, 0));
-		mAuthor = new JLabel();
-		mModifyDate = new JLabel();
-		mName = new JLabel();
-		bookDataPanel.add(mName);
-		bookDataPanel.add(mAuthor);
-		bookDataPanel.add(mModifyDate);
+    add(cneterPanel, BorderLayout.CENTER);
 
-		northPanel.add(bookDataPanel);
+    JPanel bookDataPanel = new JPanel(new GridLayout(3, 1, 10, 0));
+    author = new JLabel();
+    modifyDate = new JLabel();
+    name = new JLabel();
+    bookDataPanel.add(name);
+    bookDataPanel.add(author);
+    bookDataPanel.add(modifyDate);
 
-		// 在table上增加雙擊開啟動畫集數列表功能
-		mTable.getJTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {// 雙擊開啓漫畫
-					int row = mTable.getJTable().rowAtPoint(e.getPoint());
-					Episode episode = mComic.getEpisodes().get(row);
+    northPanel.add(bookDataPanel);
 
-					RComic.get().loadEpisodesImagesPagesUrl(episode, result -> {
-						SwingUtilities.invokeLater(() -> {
-							JDialog loading = RComic.get().newLoadingDialog();
-							loading.toFront();
+    // 在table上增加雙擊開啟動畫集數列表功能
+    table
+        .getJTable()
+        .addMouseListener(
+            new MouseAdapter() {
+              @Override
+              public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) { // 雙擊開啓漫畫
+                  int row = table.getJTable().rowAtPoint(e.getPoint());
+                  Episode episode = comic.getEpisodes().get(row);
 
-							RComic.get().addTask(() -> {
-								// 用瀏覽器開啟漫畫
-								RComic.get().openComic(result);
-								SwingUtilities.invokeLater(() -> loading.dispose());
-							});
-						});
-					});
-				}
-			}
-		});
-	}
+                  RComic.get()
+                      .loadEpisodesImagesPagesUrl(
+                          episode,
+                          result -> {
+                            SwingUtilities.invokeLater(
+                                () -> {
+                                  JDialog loading = RComic.get().newLoadingDialog();
+                                  loading.toFront();
 
-	/**
-	 * 初始化整套漫畫連結資料、總集數等等..
-	 * 
-	 * @param comic
-	 */
-	public void setComic(ComicWrapper comic) {
-		mComic = comic;
-		mTable.removeAll();
-		mComic.getEpisodesName(mTable::addRowData);
-		mName.setText(comic.getName());
-		mAuthor.setText(RComic.get().getLang("Author") + comic.getAuthor());
-		mModifyDate.setText(RComic.get().getLang("ModifyDate") + comic.getLatestUpdateDateTime());
-		mComicIntroduction.setText(comic.getDescription());
-	}
+                                  RComic.get()
+                                      .addTask(
+                                          () -> {
+                                            // 用瀏覽器開啟漫畫
+                                            RComic.get().openComic(result);
+                                            SwingUtilities.invokeLater(() -> loading.dispose());
+                                          });
+                                });
+                          });
+                }
+              }
+            });
+  }
 
-	public boolean isDownloadedList() {
-		return (mTable.getDataCount() > 0);
-	}
+  /**
+   * 初始化整套漫畫連結資料、總集數等等..
+   *
+   * @param comic
+   */
+  public void setComic(ComicWrapper comic) {
+    this.comic = comic;
+    table.removeAll();
+    comic.getEpisodesName(table::addRowData);
+    name.setText(comic.getName());
+    author.setText(RComic.get().getLang("Author") + comic.getAuthor());
+    modifyDate.setText(RComic.get().getLang("ModifyDate") + comic.getLatestUpdateDateTime());
+    comicIntroduction.setText(comic.getDescription());
+  }
+
+  public boolean isDownloadedList() {
+    return (table.getDataCount() > 0);
+  }
 }

@@ -31,11 +31,11 @@ import java.util.function.Consumer;
  */
 public class ComicList {
 	/** 秀首頁所有漫畫列表 */
-	private JDataTable<String> mAllComic;
+	private JDataTable<String> allComic;
 	/** 最新漫畫 */
-	private JDataTable<String> mNewComic;
+	private JDataTable<String> newComic;
 
-	private Consumer<ComicWrapper> mOpenClmicListener;
+	private Consumer<ComicWrapper> openClmicListener;
 
 	public void initialize() {
 		setupAllComic();
@@ -43,31 +43,31 @@ public class ComicList {
 	}
 
 	public JDataTable<String> getAll() {
-		return mAllComic;
+		return allComic;
 	}
 
 	public JDataTable<String> getNew() {
-		return mNewComic;
+		return newComic;
 	}
 
 	private void setupAllComic() {
 		List<ComicWrapper> comicList = RComic.get().getAllComics();
-		mAllComic = new JDataTable<String>(false);
-		mAllComic.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"),
+		allComic = new JDataTable<String>(false);
+		allComic.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"),
 				RComic.get().getLang("Favorites") });
-		mAllComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
+		allComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
 		comicList.forEach(this::refreshComicListCell);
-		mAllComic.setRowHeight(40);
-		mAllComic.getColumn(0).setMaxWidth(60);
-		mAllComic.getColumn(2).setMaxWidth(60);
-		mAllComic.setFont(RComic.get().getConfig().getComicListFont());
-		mAllComic.getJTable().setAutoCreateRowSorter(true);
+		allComic.setRowHeight(40);
+		allComic.getColumn(0).setMaxWidth(60);
+		allComic.getColumn(2).setMaxWidth(60);
+		allComic.setFont(RComic.get().getConfig().getComicListFont());
+		allComic.getJTable().setAutoCreateRowSorter(true);
 
-		TableRowSorter<TableModel> sorter = new TableRowSorter<>(mAllComic.getJTable().getModel());
-		mAllComic.getJTable().setRowSorter(sorter);
+		TableRowSorter<TableModel> sorter = new TableRowSorter<>(allComic.getJTable().getModel());
+		allComic.getJTable().setRowSorter(sorter);
 		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
 
-		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
+		allComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2) {
@@ -91,7 +91,7 @@ public class ComicList {
 			}
 		});
 
-		mAllComic.getJTable().setDefaultRenderer(JLabel.class, new DefaultTableCellRenderer() {
+		allComic.getJTable().setDefaultRenderer(JLabel.class, new DefaultTableCellRenderer() {
 			@Override
 			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
 					boolean hasFocus, int row, int column) {
@@ -109,11 +109,11 @@ public class ComicList {
 		});
 
 		// 在table上增加單擊開啟動畫集數列表功能
-		mAllComic.getJTable().addMouseListener(new MouseAdapter() {
+		allComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row = mAllComic.getJTable().rowAtPoint(e.getPoint());
-				String comicId = mAllComic.getJTable().getValueAt(row, 0).toString();
+				int row = allComic.getJTable().rowAtPoint(e.getPoint());
+				String comicId = allComic.getJTable().getValueAt(row, 0).toString();
 				ComicWrapper comic = RComic.get().searchAllById(comicId);
 
 				showComicActList(comic);
@@ -132,22 +132,22 @@ public class ComicList {
 
 	private void setupNewComic() {
 		List<ComicWrapper> newComics = RComic.get().getNewComics();
-		mNewComic = new JDataTable<String>(false);
-		mNewComic.addMultiColumnName(
+		newComic = new JDataTable<String>(false);
+		newComic.addMultiColumnName(
 				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode") });
 		newComics.forEach(comic -> {
-			mNewComic.addRowData(new String[] { comic.getId(), comic.getNameWithNewestEpisode() });
+			newComic.addRowData(new String[] { comic.getId(), comic.getNameWithNewestEpisode() });
 		});
-		mNewComic.setRowHeight(40);
-		mNewComic.getColumn(0).setMaxWidth(60);
-		mNewComic.setFont(RComic.get().getConfig().getComicListFont());
-		mNewComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
+		newComic.setRowHeight(40);
+		newComic.getColumn(0).setMaxWidth(60);
+		newComic.setFont(RComic.get().getConfig().getComicListFont());
+		newComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
 		// 在table上增加單擊開啟動畫集數列表功能
-		mNewComic.getJTable().addMouseListener(new MouseAdapter() {
+		newComic.getJTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int row = mNewComic.getJTable().rowAtPoint(e.getPoint());
-				String comicId = mNewComic.getJTable().getValueAt(row, 0).toString();
+				int row = newComic.getJTable().rowAtPoint(e.getPoint());
+				String comicId = newComic.getJTable().getValueAt(row, 0).toString();
 				ComicWrapper comic = RComic.get().searchNewById(comicId);
 				showComicActList(comic);
 			}
@@ -161,8 +161,8 @@ public class ComicList {
 	 */
 	private void showComicActList(ComicWrapper comic) {
 		RComic.get().getR8Comic().loadComicDetail(comic.get(), newComic -> {
-			if (mOpenClmicListener != null) {
-				mOpenClmicListener.accept(comic);
+			if (openClmicListener != null) {
+				openClmicListener.accept(comic);
 			}
 		});
 	}
@@ -172,7 +172,7 @@ public class ComicList {
 
 		lab.setForeground(Color.RED);
 		setFavoritesState(lab, comic.getId());
-		mAllComic.addRowData(new Object[] { comic.getId(), comic.getName(), lab });
+		allComic.addRowData(new Object[] { comic.getId(), comic.getName(), lab });
 	}
 
 	private void setFavoritesState(JLabel lab, String comicId) {
@@ -184,13 +184,13 @@ public class ComicList {
 	}
 
 	public void setOpenClmicListener(Consumer<ComicWrapper> listener) {
-		mOpenClmicListener = listener;
+		openClmicListener = listener;
 	}
 
 	public void refreshSearchResult(String keyword) {
 		RComic.get().search(keyword, result -> {
 			SwingUtilities.invokeLater(() -> {
-				mAllComic.removeAll();
+				allComic.removeAll();
 				result.forEach(ComicList.this::refreshComicListCell);
 			});
 		});
