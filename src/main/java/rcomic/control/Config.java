@@ -20,7 +20,7 @@ import org.json.JSONObject;
 /** @author ray */
 public class Config {
   /** 版本 */
-  public String version = "v3.1.2";
+  public String version = "v3.1.3";
 
   public String charsetUtf8 = "UTF-8";
 
