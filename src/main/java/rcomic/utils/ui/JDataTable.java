@@ -9,10 +9,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
-
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 /** @author ray */
 public class JDataTable<E> {
@@ -94,6 +94,10 @@ public class JDataTable<E> {
    */
   public void addRowData(List<E> data) {
     model.addRow(data);
+  }
+
+  public void addRowData(Vector<Object> data) {
+    model.insertRow(model.getRowCount(), data);
   }
 
   /**
