@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
@@ -28,6 +30,7 @@ import raytw.sdk.comic.comicsdk.R8Comic;
 import raytw.sdk.comic.comicsdk.R8Comic.OnLoadListener;
 import raytw.sdk.comic.net.EasyHttp;
 import raytw.sdk.comic.net.EasyHttp.Response;
+import rcomic.utils.DistributedTask;
 import rcomic.utils.ThreadPool;
 
 /**
@@ -48,6 +51,7 @@ public class RComic {
   private JSONObject favorites;
   private Thread searchThread;
   private SearchTask searchTask;
+  private ForkJoinPool pool;
 
   private RComic() {
     initialize();
@@ -58,6 +62,7 @@ public class RComic {
     newComics = new CopyOnWriteArrayList<>();
     taskPool = new ThreadPool(10);
     fifoPool = new ThreadPool(1);
+    pool = new ForkJoinPool();
     favorites = new JSONObject();
     searchThread = new Thread(() -> startSearch());
     searchThread.start();
@@ -258,9 +263,9 @@ public class RComic {
       searchTask =
           new SearchTask(
               () -> {
-                ArrayList<ComicWrapper> list = new ArrayList<>();
+                ArrayList<ComicWrapper> list =
+                    pool.invoke(new DistributedSearchTask(comics, keyword, 0, comics.size(), 1000));
 
-                comics.stream().filter(o -> o.getName().contains(keyword)).forEach(list::add);
                 if (consumer != null) {
                   consumer.accept(list);
                 }
@@ -373,25 +378,71 @@ public class RComic {
 
   // 執行使用關鍵字搜尋漫畫的任務
   private class SearchTask {
-    private volatile boolean mIsFinish;
-    private Runnable mRunnable;
+    private volatile boolean isFinish;
+    private Runnable runnable;
 
     public SearchTask(Runnable task) {
-      mRunnable = task;
+      runnable = task;
     }
 
     public void execute() {
+      long time = System.currentTimeMillis();
       try {
-        mRunnable.run();
+        runnable.run();
       } catch (Exception e) {
         e.printStackTrace();
       } finally {
-        mIsFinish = true;
+        isFinish = true;
       }
+      System.out.println("搜尋漫畫花費-" + (System.currentTimeMillis() - time));
     }
 
     public boolean isFinish() {
-      return mIsFinish;
+      return isFinish;
+    }
+  }
+
+  private class DistributedSearchTask extends DistributedTask<ArrayList<ComicWrapper>> {
+    private static final long serialVersionUID = 1L;
+    private List<ComicWrapper> comicsList;
+    private String keyword;
+
+    public DistributedSearchTask(
+        List<ComicWrapper> comics, String keyword, int start, int end, int batch) {
+      super(start, end, batch);
+      this.comicsList = comics;
+      this.keyword = keyword;
+    }
+
+    @Override
+    protected ArrayList<ComicWrapper> compute() {
+      ArrayList<ComicWrapper> list = new ArrayList<>();
+
+      if (canCompute()) {
+        ComicWrapper comic = null;
+
+        for (int i = getStart(); i < getEnd(); i++) {
+          comic = comicsList.get(i);
+
+          if (comic.getName().contains(keyword)) {
+            list.add(comic);
+          }
+        }
+        return list;
+      }
+      int mid = getMiddle();
+
+      ForkJoinTask<ArrayList<ComicWrapper>> task1 =
+          new DistributedSearchTask(comicsList, keyword, getStart(), mid, getBatch()).fork();
+      DistributedSearchTask task2 =
+          new DistributedSearchTask(comicsList, keyword, mid, getEnd(), getBatch());
+
+      ArrayList<ComicWrapper> task2Result = task2.compute();
+      ArrayList<ComicWrapper> task1Result = task1.join();
+
+      task1Result.addAll(task2Result);
+
+      return task1Result;
     }
   }
 }
