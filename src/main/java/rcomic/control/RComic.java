@@ -386,7 +386,6 @@ public class RComic {
     }
 
     public void execute() {
-      long time = System.currentTimeMillis();
       try {
         runnable.run();
       } catch (Exception e) {
@@ -394,7 +393,6 @@ public class RComic {
       } finally {
         isFinish = true;
       }
-      System.out.println("搜尋漫畫花費-" + (System.currentTimeMillis() - time));
     }
 
     public boolean isFinish() {

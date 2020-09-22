@@ -20,180 +20,227 @@ import rcomic.control.RComic;
 import rcomic.utils.ui.JDataTable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
 import java.util.function.Consumer;
 
 /**
  * 漫畫列表
- * 
+ *
  * @author Ray
- * 
  */
 public class ComicList {
-	/** 秀首頁所有漫畫列表 */
-	private JDataTable<String> allComic;
-	/** 最新漫畫 */
-	private JDataTable<String> newComic;
+  /** 秀首頁所有漫畫列表 */
+  private JDataTable<String> allComic;
+  /** 最新漫畫 */
+  private JDataTable<String> newComic;
 
-	private Consumer<ComicWrapper> openClmicListener;
+  private Consumer<ComicWrapper> openClmicListener;
+  private HashMap<String, Vector<Object>> rowComicCache = new HashMap<>();
 
-	public void initialize() {
-		setupAllComic();
-		setupNewComic();
-	}
+  public void initialize() {
+    setupAllComic();
+    setupNewComic();
+  }
 
-	public JDataTable<String> getAll() {
-		return allComic;
-	}
+  public JDataTable<String> getAll() {
+    return allComic;
+  }
 
-	public JDataTable<String> getNew() {
-		return newComic;
-	}
+  public JDataTable<String> getNew() {
+    return newComic;
+  }
 
-	private void setupAllComic() {
-		List<ComicWrapper> comicList = RComic.get().getAllComics();
-		allComic = new JDataTable<String>(false);
-		allComic.addMultiColumnName(new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicName"),
-				RComic.get().getLang("Favorites") });
-		allComic.setReorderingAllowed(false);// 鎖住換欄位位置功能，會影嚮雙擊開列表功能
-		comicList.forEach(this::refreshComicListCell);
-		allComic.setRowHeight(40);
-		allComic.getColumn(0).setMaxWidth(60);
-		allComic.getColumn(2).setMaxWidth(60);
-		allComic.setFont(RComic.get().getConfig().getComicListFont());
-		allComic.getJTable().setAutoCreateRowSorter(true);
+  private void setupAllComic() {
+    List<ComicWrapper> comicList = RComic.get().getAllComics();
+    allComic = new JDataTable<String>(false);
+    allComic.addMultiColumnName(
+        new String[] {
+          RComic.get().getLang("Number"),
+          RComic.get().getLang("ComicName"),
+          RComic.get().getLang("Favorites")
+        });
+    allComic.setReorderingAllowed(false); // 鎖住換欄位位置功能，會影嚮雙擊開列表功能
+    comicList.forEach(this::refreshComicListCell);
+    allComic.setRowHeight(40);
+    allComic.getColumn(0).setMaxWidth(60);
+    allComic.getColumn(2).setMaxWidth(60);
+    allComic.setFont(RComic.get().getConfig().getComicListFont());
+    allComic.getJTable().setAutoCreateRowSorter(true);
 
-		TableRowSorter<TableModel> sorter = new TableRowSorter<>(allComic.getJTable().getModel());
-		allComic.getJTable().setRowSorter(sorter);
-		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+    TableRowSorter<TableModel> sorter = new TableRowSorter<>(allComic.getJTable().getModel());
+    allComic.getJTable().setRowSorter(sorter);
+    List<RowSorter.SortKey> sortKeys = new ArrayList<>();
 
-		allComic.getJTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (e.getClickCount() == 2) {
-					JTable table = (JTable) e.getSource();
-					int row = table.getSelectedRow();
-					int column = 2;
-					Object obj = table.getValueAt(row, column);
+    allComic
+        .getJTable()
+        .addMouseListener(
+            new MouseAdapter() {
+              @Override
+              public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                  JTable table = (JTable) e.getSource();
+                  int row = table.getSelectedRow();
+                  int column = 2;
+                  Object obj = table.getValueAt(row, column);
 
-					if (obj instanceof JLabel) {
-						String comicId = (String) table.getValueAt(row, 0);
+                  if (obj instanceof JLabel) {
+                    String comicId = (String) table.getValueAt(row, 0);
 
-						if (RComic.get().existedFavorites(comicId)) {
-							RComic.get().removeFromFavorites(comicId);
-						} else {
-							RComic.get().addToFavorites(comicId);
-						}
+                    if (RComic.get().existedFavorites(comicId)) {
+                      RComic.get().removeFromFavorites(comicId);
+                    } else {
+                      RComic.get().addToFavorites(comicId);
+                    }
 
-						table.repaint();
-					}
-				}
-			}
-		});
+                    table.repaint();
+                  }
+                }
+              }
+            });
 
-		allComic.getJTable().setDefaultRenderer(JLabel.class, new DefaultTableCellRenderer() {
-			@Override
-			public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-					boolean hasFocus, int row, int column) {
-				if (value instanceof JLabel) {
-					JLabel label = (JLabel) value;
-					String comicId = (String) table.getValueAt(row, 0);
+    allComic
+        .getJTable()
+        .setDefaultRenderer(
+            JLabel.class,
+            new DefaultTableCellRenderer() {
+              private static final long serialVersionUID = 1L;
 
-					setFavoritesState(label, comicId);
+              @Override
+              public Component getTableCellRendererComponent(
+                  JTable table,
+                  Object value,
+                  boolean isSelected,
+                  boolean hasFocus,
+                  int row,
+                  int column) {
+                if (value instanceof JLabel) {
+                  JLabel label = (JLabel) value;
+                  String comicId = (String) table.getValueAt(row, 0);
 
-					return label;
-				} else {
-					return super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-				}
-			}
-		});
+                  setFavoritesState(label, comicId);
 
-		// 在table上增加單擊開啟動畫集數列表功能
-		allComic.getJTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int row = allComic.getJTable().rowAtPoint(e.getPoint());
-				String comicId = allComic.getJTable().getValueAt(row, 0).toString();
-				ComicWrapper comic = RComic.get().searchAllById(comicId);
+                  return label;
+                } else {
+                  return super.getTableCellRendererComponent(
+                      table, value, isSelected, hasFocus, row, column);
+                }
+              }
+            });
 
-				showComicActList(comic);
-			}
-		});
+    // 在table上增加單擊開啟動畫集數列表功能
+    allComic
+        .getJTable()
+        .addMouseListener(
+            new MouseAdapter() {
+              @Override
+              public void mouseClicked(MouseEvent e) {
+                int row = allComic.getJTable().rowAtPoint(e.getPoint());
+                String comicId = allComic.getJTable().getValueAt(row, 0).toString();
+                ComicWrapper comic = RComic.get().searchAllById(comicId);
 
-		int columnIndexToSort = 2;
-		sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
-		sorter.setSortKeys(sortKeys);
+                showComicActList(comic);
+              }
+            });
 
-		// 檢查若有收藏漫畫時，將已收藏的漫畫排到列表最上面
-		if (!RComic.get().getFavorites().isEmpty()) {
-			sorter.sort();
-		}
-	}
+    int columnIndexToSort = 2;
+    sortKeys.add(new RowSorter.SortKey(columnIndexToSort, SortOrder.DESCENDING));
+    sorter.setSortKeys(sortKeys);
 
-	private void setupNewComic() {
-		List<ComicWrapper> newComics = RComic.get().getNewComics();
-		newComic = new JDataTable<String>(false);
-		newComic.addMultiColumnName(
-				new String[] { RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode") });
-		newComics.forEach(comic -> {
-			newComic.addRowData(new String[] { comic.getId(), comic.getNameWithNewestEpisode() });
-		});
-		newComic.setRowHeight(40);
-		newComic.getColumn(0).setMaxWidth(60);
-		newComic.setFont(RComic.get().getConfig().getComicListFont());
-		newComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
-		// 在table上增加單擊開啟動畫集數列表功能
-		newComic.getJTable().addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				int row = newComic.getJTable().rowAtPoint(e.getPoint());
-				String comicId = newComic.getJTable().getValueAt(row, 0).toString();
-				ComicWrapper comic = RComic.get().searchNewById(comicId);
-				showComicActList(comic);
-			}
-		});
-	}
+    // 檢查若有收藏漫畫時，將已收藏的漫畫排到列表最上面
+    if (!RComic.get().getFavorites().isEmpty()) {
+      sorter.sort();
+    }
+  }
 
-	/**
-	 * 漫畫集數列表
-	 * 
-	 * @param comic
-	 */
-	private void showComicActList(ComicWrapper comic) {
-		RComic.get().getR8Comic().loadComicDetail(comic.get(), newComic -> {
-			if (openClmicListener != null) {
-				openClmicListener.accept(comic);
-			}
-		});
-	}
+  private void setupNewComic() {
+    List<ComicWrapper> newComics = RComic.get().getNewComics();
+    newComic = new JDataTable<String>(false);
+    newComic.addMultiColumnName(
+        new String[] {RComic.get().getLang("Number"), RComic.get().getLang("ComicNameEpisode")});
+    newComics.forEach(
+        comic -> {
+          newComic.addRowData(new String[] {comic.getId(), comic.getNameWithNewestEpisode()});
+        });
+    newComic.setRowHeight(40);
+    newComic.getColumn(0).setMaxWidth(60);
+    newComic.setFont(RComic.get().getConfig().getComicListFont());
+    newComic.getJTable().setToolTipText(RComic.get().getLang("PleaseDoubleClick"));
+    // 在table上增加單擊開啟動畫集數列表功能
+    newComic
+        .getJTable()
+        .addMouseListener(
+            new MouseAdapter() {
+              @Override
+              public void mouseClicked(MouseEvent e) {
+                int row = newComic.getJTable().rowAtPoint(e.getPoint());
+                String comicId = newComic.getJTable().getValueAt(row, 0).toString();
+                ComicWrapper comic = RComic.get().searchNewById(comicId);
+                showComicActList(comic);
+              }
+            });
+  }
 
-	private void refreshComicListCell(ComicWrapper comic) {
-		JLabel lab = new JLabel("", SwingConstants.CENTER);
+  /**
+   * 漫畫集數列表
+   *
+   * @param comic
+   */
+  private void showComicActList(ComicWrapper comic) {
+    RComic.get()
+        .getR8Comic()
+        .loadComicDetail(
+            comic.get(),
+            newComic -> {
+              if (openClmicListener != null) {
+                openClmicListener.accept(comic);
+              }
+            });
+  }
 
-		lab.setForeground(Color.RED);
-		setFavoritesState(lab, comic.getId());
-		allComic.addRowData(new Object[] { comic.getId(), comic.getName(), lab });
-	}
+  private void refreshComicListCell(ComicWrapper comic) {
+    Vector<Object> data = rowComicCache.get(comic.getId());
 
-	private void setFavoritesState(JLabel lab, String comicId) {
-		if (RComic.get().existedFavorites(comicId)) {
-			lab.setText("★");
-		} else {
-			lab.setText("☆");
-		}
-	}
+    if (data == null) {
+      JLabel lab = new JLabel("", SwingConstants.CENTER);
+      lab.setForeground(Color.RED);
 
-	public void setOpenClmicListener(Consumer<ComicWrapper> listener) {
-		openClmicListener = listener;
-	}
+      data = new Vector<>();
 
-	public void refreshSearchResult(String keyword) {
-		RComic.get().search(keyword, result -> {
-			SwingUtilities.invokeLater(() -> {
-				allComic.removeAll();
-				result.forEach(ComicList.this::refreshComicListCell);
-			});
-		});
-	}
+      data.add(comic.getId());
+      data.add(comic.getName());
+      data.add(lab);
 
+      rowComicCache.put(comic.getId(), data);
+    }
+
+    setFavoritesState((JLabel) data.get(2), comic.getId());
+    allComic.addRowData(data);
+  }
+
+  private void setFavoritesState(JLabel lab, String comicId) {
+    if (RComic.get().existedFavorites(comicId)) {
+      lab.setText("★");
+    } else {
+      lab.setText("☆");
+    }
+  }
+
+  public void setOpenClmicListener(Consumer<ComicWrapper> listener) {
+    openClmicListener = listener;
+  }
+
+  public void refreshSearchResult(String keyword) {
+    RComic.get()
+        .search(
+            keyword,
+            result -> {
+              SwingUtilities.invokeLater(
+                  () -> {
+                    allComic.removeAll();
+                    result.forEach(ComicList.this::refreshComicListCell);
+                  });
+            });
+  }
 }
