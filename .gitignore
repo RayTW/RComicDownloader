@@ -1,9 +1,5 @@
-*.class
+# Ignore Gradle project-specific cache directory
+.gradle
 
-# Package Files #
-*.war
-*.ear
-*.jpg
-���e�U���
-漫畫下載區/sys/comic.obj
-/.gradle/
+# Ignore Gradle build output directory
+build

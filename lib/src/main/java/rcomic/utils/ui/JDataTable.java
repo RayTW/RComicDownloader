@@ -34,6 +34,7 @@ public class JDataTable<E> {
    *
    * @param isEdit true 可編輯 | false 不可編輯
    */
+  @SuppressWarnings("unchecked")
   public JDataTable(boolean isEdit) {
     tableFieldName = new ArrayList<String>();
     tableData = new ArrayList<String>();

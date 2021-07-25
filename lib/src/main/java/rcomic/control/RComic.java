@@ -27,7 +27,6 @@ import org.json.JSONObject;
 import raytw.sdk.comic.comicsdk.Comic;
 import raytw.sdk.comic.comicsdk.Episode;
 import raytw.sdk.comic.comicsdk.R8Comic;
-import raytw.sdk.comic.comicsdk.R8Comic.OnLoadListener;
 import raytw.sdk.comic.net.EasyHttp;
 import raytw.sdk.comic.net.EasyHttp.Response;
 import rcomic.utils.DistributedTask;
@@ -101,42 +100,30 @@ public class RComic {
 
     // 戴入全部漫畫
     r8Comic.getAll(
-        new OnLoadListener<List<Comic>>() {
+        list -> {
+          comics = new CopyOnWriteArrayList<>();
 
-          @Override
-          public void onLoaded(List<Comic> list) {
-            comics = new CopyOnWriteArrayList<>();
-
-            for (Comic comic : list) {
-              comics.add(new ComicWrapper(comic));
-            }
-            countdonw.countDown();
+          for (Comic comic : list) {
+            comics.add(new ComicWrapper(comic));
           }
+          countdonw.countDown();
         });
 
     r8Comic.getNewest(
-        new OnLoadListener<List<Comic>>() {
+        comics -> {
+          newComics = new CopyOnWriteArrayList<ComicWrapper>();
 
-          @Override
-          public void onLoaded(List<Comic> comics) {
-            newComics = new CopyOnWriteArrayList<ComicWrapper>();
-
-            for (Comic comic : comics) {
-              newComics.add(new ComicWrapper(comic));
-            }
-            countdonw.countDown();
+          for (Comic comic : comics) {
+            newComics.add(new ComicWrapper(comic));
           }
+          countdonw.countDown();
         });
 
     // 戴入漫漫host列表
     r8Comic.loadSiteUrlList(
-        new OnLoadListener<String>() {
-
-          @Override
-          public void onLoaded(final String host) {
-            hostList = host;
-            countdonw.countDown();
-          }
+        host -> {
+          hostList = host;
+          countdonw.countDown();
         });
 
     try {
